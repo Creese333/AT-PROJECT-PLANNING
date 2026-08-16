@@ -1,0 +1,2711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>A.T. Project Proposal Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@500;700;900&family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+<style>
+  :root{
+    --forest:#1B3A2E;
+    --forest-dark:#0F2119;
+    --forest-light:#2C5240;
+    --parchment:#FFFFFF;
+    --parchment-deep:#EAE0C6;
+    --card:#FFFDF8;
+    --ink:#26261F;
+    --ink-soft:#615E4E;
+    --line:#DCCFA8;
+    --rust:#BD4515;
+    --amber:#C8871F;
+    --moss:#54724A;
+    --deep-red:#7E1F1F;
+    --white:#FFFFFF;
+    --radius:10px;
+    --shadow: 0 1px 2px rgba(27,58,46,0.08), 0 4px 14px rgba(27,58,46,0.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--parchment);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    background-image:radial-gradient(circle at 1px 1px, rgba(27,58,46,0.06) 1px, transparent 0);
+    background-size: 22px 22px;
+  }
+  h1,h2,h3{font-family:'Roboto Slab',serif; color:var(--forest-dark); margin:0;}
+  .mono{font-family:'IBM Plex Mono',monospace;}
+  #app{max-width:760px;margin:0 auto;min-height:100vh;background:var(--parchment);display:flex;flex-direction:column;}
+
+  .topbar{
+    background:linear-gradient(180deg,var(--forest) 0%, var(--forest-dark) 100%);
+    color:var(--parchment);padding:16px 16px 0 16px;position:sticky;top:0;z-index:20;
+    box-shadow:0 4px 16px rgba(0,0,0,0.18);
+  }
+  .brand{display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;margin-bottom:14px;}
+  .brand h1{color:var(--white);font-size:26px;line-height:1.2;font-weight:700;font-family:'Roboto Slab',serif;}
+  .brand p{margin:3px 0 0;font-size:14.5px;color:#C8D8CC;letter-spacing:0.3px;}
+  .tabs{display:flex;gap:6px;align-items:stretch;margin:0 auto;}
+  .tab{
+    flex:1 1 0;min-width:0;background:transparent;border:none;color:#B9CBBE;
+    padding:8px 4px 8px;font-family:'Inter',sans-serif;font-weight:700;font-size:13px;
+    cursor:pointer;border-radius:10px 10px 0 0;border-bottom:3px solid transparent;
+    display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px;
+    line-height:1.15;text-align:center;transition:background .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .tab .tab-icon{font-size:19px;line-height:1;}
+  .tab.active{color:var(--white);background:rgba(255,255,255,0.14);border-bottom-color:var(--rust);}
+  .tab .badge{
+    background:var(--rust);color:var(--white);border-radius:20px;font-family:'IBM Plex Mono',monospace;
+    font-size:11px;padding:1px 6px;min-width:16px;text-align:center;display:inline-block;margin-left:3px;
+  }
+  .tab.active .badge{background:var(--amber);}
+
+  main{flex:1;padding:16px 14px 100px;}
+  .config-banner{
+    background:#F3E6E0;border:1.5px solid var(--rust);color:var(--rust);padding:10px 12px;border-radius:8px;
+    font-size:12.5px;font-weight:600;line-height:1.5;margin:12px 14px 0;display:none;
+  }
+  .config-banner.show{display:block;}
+  .view{display:none;}
+  .view.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden;
+  }
+  .card-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--parchment-deep);border-bottom:1px solid var(--line);}
+  .card-num{
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:14px;color:var(--white);background:var(--forest);
+    width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;
+  }
+  .card-head h2{font-size:15.5px;letter-spacing:0.2px;}
+  .card-head .card-sub{font-size:11.5px;color:var(--ink-soft);font-weight:500;margin-top:1px;display:block;}
+  .card-body{padding:14px;}
+
+  .field{margin-bottom:14px;}
+  .field:last-child{margin-bottom:0;}
+  label.flabel{
+    display:block;font-size:14.5px;font-weight:600;color:var(--forest-dark);margin-bottom:5px;line-height:1.3;
+  }
+  label.flabel .req{color:var(--rust);}
+  label.flabel .qnum{font-family:'IBM Plex Mono',monospace;color:var(--rust);font-weight:700;margin-right:4px;}
+  .hint{font-size:12.5px;color:var(--ink-soft);margin-top:4px;line-height:1.4;}
+  input[type=text],input[type=number],input[type=date],select,textarea{
+    width:100%;padding:10px 11px;font-size:16px;font-family:'Inter',sans-serif;
+    border:1.5px solid var(--line);border-radius:8px;background:var(--white);color:var(--ink);min-width:0;
+  }
+  input[type=date]{min-width:140px;max-width:190px;font-size:14.5px;padding:8px 10px;}
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--forest-light);outline-offset:1px;border-color:var(--forest-light);}
+  textarea{resize:vertical;min-height:64px;}
+  textarea.tall{min-height:90px;}
+  .row2{display:grid;grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));gap:14px;margin-bottom:14px;}
+  .row2:last-child{margin-bottom:0;}
+  .row2 .field{min-width:0;margin-bottom:0;}
+  @media (max-width:599px){ .row2{grid-template-columns:1fr;} }
+
+  .chip-grid{display:flex;flex-wrap:wrap;gap:7px;}
+  .chip{position:relative;}
+  .chip input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;}
+  .chip span{
+    display:inline-block;padding:7px 11px;border-radius:20px;border:1.5px solid var(--line);
+    background:var(--white);font-size:13.5px;color:var(--ink);cursor:pointer;user-select:none;
+  }
+  .chip input:checked + span{background:var(--forest);border-color:var(--forest);color:var(--white);}
+  .chip input:focus-visible + span{outline:2px solid var(--rust);outline-offset:2px;}
+
+  .toggle-row{display:flex;gap:8px;max-width:280px;}
+  .toggle-btn{
+    flex:1;padding:9px;text-align:center;border-radius:8px;border:1.5px solid var(--line);
+    background:var(--white);font-size:14px;font-weight:600;cursor:pointer;color:var(--ink-soft);
+  }
+  .toggle-btn.active{background:var(--forest);border-color:var(--forest);color:var(--white);}
+  .toggle-btn.active[data-yn="Yes"]{background:var(--rust);border-color:var(--rust);}
+  .toggle-btn.active[data-yn="No"]{background:var(--moss);border-color:var(--moss);}
+  .toggle-btn.active[data-yn="Unknown"]{background:var(--amber);border-color:var(--amber);}
+
+  .priority-cards{display:flex;flex-direction:column;gap:8px;}
+  .priority-card{position:relative;}
+  .priority-card input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;}
+  .priority-card .pc-inner{
+    display:flex;gap:10px;align-items:center;border:1.5px solid var(--line);border-radius:8px;
+    padding:9px 11px;background:var(--white);cursor:pointer;
+  }
+  .priority-card input:checked + .pc-inner{border-color:var(--rust);border-width:2px;background:#FBF1E8;}
+  .priority-card input:focus-visible + .pc-inner{outline:2px solid var(--forest-light);outline-offset:1px;}
+  .pc-dot{width:14px;height:14px;border-radius:50%;flex:0 0 auto;}
+  .pc-dot.urgent{background:var(--deep-red);}
+  .pc-dot.high{background:var(--rust);}
+  .pc-dot.medium{background:var(--amber);}
+  .pc-text{font-size:14px;font-weight:600;color:var(--ink);}
+
+  .action-bar{
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:760px;background:var(--white);
+    border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;box-shadow:0 -4px 14px rgba(0,0,0,0.08);z-index:15;
+  }
+  .btn{flex:1;padding:13px;border-radius:9px;border:none;font-weight:700;font-size:14.5px;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:0.2px;}
+  .btn-primary{background:var(--forest);color:var(--white);}
+  .btn-primary:active{background:var(--forest-dark);}
+  .btn-secondary{background:var(--parchment-deep);color:var(--forest-dark);flex:0 0 auto;padding:13px 16px;}
+  .btn-primary.btn-saving{background:var(--forest-light);display:flex;align-items:center;justify-content:center;gap:9px;}
+  .btn-primary.btn-success{background:var(--moss);}
+  .btn-primary.btn-warn{background:var(--rust);}
+  .btn-spinner{width:16px;height:16px;border-radius:50%;border:2.5px solid rgba(255,255,255,0.35);border-top-color:#fff;display:inline-block;animation:btn-spin .7s linear infinite;flex:0 0 auto;}
+  @keyframes btn-spin{to{transform:rotate(360deg);}}
+
+  .row-id-btn{display:flex;gap:8px;}
+  .row-id-btn input{flex:1;}
+  .btn-mini{flex:0 0 auto;border:1.5px solid var(--forest);background:var(--white);color:var(--forest-dark);border-radius:8px;padding:0 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+  .btn-mini:active{background:var(--parchment-deep);}
+
+  .table-toolbar{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap;}
+  .table-toolbar .count{font-size:12.5px;color:var(--ink-soft);flex:1;}
+  .tb-btn{border:1.5px solid var(--forest);background:var(--white);color:var(--forest-dark);padding:9px 13px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+  .tb-btn.primary{background:var(--forest);color:var(--white);}
+  .tb-btn:disabled{opacity:.45;cursor:default;}
+
+  .entry-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);margin-bottom:10px;box-shadow:var(--shadow);overflow:hidden;}
+  .entry-top{display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid var(--line);}
+  .entry-top .eid{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:12px;color:var(--forest-dark);background:var(--parchment-deep);padding:2px 8px;border-radius:5px;}
+  .entry-top .esite{font-size:13.5px;font-weight:700;flex:1;font-family:'Roboto Slab',serif;color:var(--ink);}
+  .priority-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;color:var(--white);flex:0 0 auto;white-space:nowrap;}
+  .priority-pill.urgent{background:var(--deep-red);}
+  .priority-pill.high{background:var(--rust);}
+  .priority-pill.medium{background:var(--amber);}
+  .priority-pill.none{background:var(--ink-soft);}
+  .entry-grid{padding:11px 13px;display:grid;grid-template-columns:1fr 1fr;gap:8px 14px;font-size:12.5px;}
+  .entry-grid div b{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:0.3px;color:var(--ink-soft);font-weight:600;margin-bottom:1px;}
+  .entry-grid div span{color:var(--ink);}
+  .entry-full{grid-column:1/-1;}
+  .type-pill{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;margin:1px 3px 1px 0;background:var(--parchment-deep);color:var(--forest-dark);}
+
+  .photo-buttons{display:flex;gap:8px;margin-bottom:10px;}
+  .photo-btn{flex:1;border:1.5px dashed var(--forest);background:var(--parchment-deep);color:var(--forest-dark);border-radius:8px;padding:12px 8px;font-size:13.5px;font-weight:700;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;font-family:'Inter',sans-serif;}
+  .photo-btn .ic{font-size:18px;}
+  .photo-thumbs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px;}
+  .photo-thumb{position:relative;width:74px;height:74px;border-radius:8px;overflow:hidden;border:1.5px solid var(--line);background:var(--parchment-deep);flex:0 0 auto;cursor:pointer;}
+  .photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-thumb .rm{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(20,20,15,0.72);color:#fff;border:none;font-size:12px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .photo-count-hint{font-size:12.5px;color:var(--ink-soft);margin-bottom:12px;}
+  .file-chip{display:flex;align-items:center;gap:9px;background:var(--parchment-deep);border:1px solid var(--line);border-radius:8px;padding:9px 11px;margin-top:9px;}
+  .file-chip .fc-icon{font-size:19px;flex:0 0 auto;}
+  .file-chip .fc-body{flex:1;min-width:0;}
+  .file-chip .fc-name{font-size:12.5px;color:var(--ink);font-weight:600;word-break:break-all;}
+  .file-chip .fc-size{font-size:11px;color:var(--ink-soft);margin-top:1px;}
+  .file-chip .fc-remove{flex:0 0 auto;width:24px;height:24px;border-radius:50%;background:rgba(20,20,15,0.12);border:none;font-size:13px;cursor:pointer;color:var(--ink-soft);display:flex;align-items:center;justify-content:center;}
+  .lightbox{position:fixed;inset:0;background:rgba(15,33,25,0.92);z-index:60;display:none;align-items:center;justify-content:center;padding:24px;}
+  .lightbox.show{display:flex;}
+  .lightbox img{max-width:100%;max-height:85vh;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,0.5);}
+  .lightbox-close{position:absolute;top:16px;right:16px;width:38px;height:38px;border-radius:50%;background:var(--white);border:none;font-size:18px;cursor:pointer;color:var(--forest-dark);}
+  .entry-photo-strip{display:flex;gap:6px;padding:0 13px 11px;flex-wrap:wrap;}
+  .entry-photo-strip .ep-thumb{width:52px;height:52px;border-radius:6px;overflow:hidden;border:1px solid var(--line);cursor:pointer;flex:0 0 auto;}
+  .entry-photo-strip .ep-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .entry-actions{display:flex;gap:8px;padding:0 13px 12px;flex-wrap:wrap;}
+  .entry-actions button{flex:1 1 40%;padding:8px;font-size:12px;font-weight:700;border-radius:7px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .btn-pdf{background:#F0E9DA;border:1px solid var(--amber);color:#7A5A12;}
+  .btn-edit{background:var(--parchment-deep);border:1px solid var(--line);color:var(--forest-dark);}
+  .btn-del{background:#F3E6E0;border:1px solid var(--rust);color:var(--rust);}
+
+  .empty-state{text-align:center;padding:50px 20px;color:var(--ink-soft);}
+  .empty-state .em-icon{font-size:36px;margin-bottom:10px;}
+  .empty-state h3{color:var(--forest-dark);margin-bottom:6px;font-size:16px;}
+  .empty-state p{font-size:13px;line-height:1.5;max-width:320px;margin:0 auto;}
+
+  #proj-map{width:100%;height:60vh;min-height:340px;border-radius:var(--radius);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;z-index:0;isolation:isolate;}
+  .map-legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:8px;}
+  .map-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);font-weight:600;}
+  .map-dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;display:inline-block;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,0.6);}
+  .leaflet-popup-content-wrapper{border-radius:8px;font-family:'Inter',sans-serif;}
+  .leaflet-popup-content b{font-family:'Roboto Slab',serif;font-size:13.5px;color:var(--forest-dark);}
+  .map-popup-eid{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--ink-soft);}
+  .map-popup-row{font-size:12.5px;margin-top:3px;}
+
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .stat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);}
+  .stat-card .stat-value{font-family:'Roboto Slab',serif;font-weight:900;font-size:26px;color:var(--forest-dark);line-height:1;}
+  .stat-card .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);font-weight:600;margin-top:5px;display:block;}
+  .chart-row{margin-bottom:12px;}
+  .chart-row:last-child{margin-bottom:0;}
+  .chart-label{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.35;margin-bottom:4px;}
+  .chart-bar-line{display:flex;align-items:center;gap:10px;}
+  .chart-track{flex:1;height:16px;background:var(--parchment-deep);border-radius:5px;overflow:hidden;position:relative;}
+  .chart-fill{height:100%;border-radius:5px;transition:width .4s ease;min-width:3px;}
+  .chart-value{flex:0 0 auto;font-family:'IBM Plex Mono',monospace;font-weight:700;font-size:12px;color:var(--ink);min-width:20px;text-align:right;}
+  .chart-empty-note{font-size:12.5px;color:var(--ink-soft);text-align:center;padding:12px 0;}
+
+  .guide-section{margin-bottom:18px;}
+  .guide-section h3{font-size:13px;text-transform:uppercase;letter-spacing:0.4px;color:var(--forest-dark);margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid var(--line);}
+  .code-row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--parchment-deep);font-size:12.5px;align-items:flex-start;}
+  .code-row .code{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--rust);flex:0 0 60px;}
+  .code-row .desc{color:var(--ink);line-height:1.45;}
+  .code-row .desc b{display:block;color:var(--forest-dark);font-family:'Roboto Slab',serif;font-size:13px;margin-bottom:1px;}
+  .note-box{background:var(--parchment-deep);border-left:3px solid var(--rust);padding:10px 12px;border-radius:0 8px 8px 0;font-size:12px;line-height:1.5;color:var(--ink);margin-bottom:14px;}
+  .checklist-row{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--parchment-deep);}
+  .checklist-row:last-child{border-bottom:none;}
+  .checklist-row input{margin-top:3px;flex:0 0 auto;width:18px;height:18px;cursor:pointer;}
+  .checklist-row label{font-size:13px;line-height:1.4;color:var(--ink);cursor:pointer;}
+  .checklist-row label b{color:var(--forest-dark);font-family:'Roboto Slab',serif;font-size:13.5px;}
+
+  .toast{position:fixed;bottom:78px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--forest-dark);color:var(--white);padding:11px 18px;border-radius:24px;font-size:13px;font-weight:600;box-shadow:0 6px 18px rgba(0,0,0,0.25);opacity:0;pointer-events:none;transition:all .25s ease;z-index:50;max-width:88%;text-align:center;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+  .toast.warn{background:var(--rust);}
+
+  /* ---- Progress / section jump nav ---- */
+  .progress-nav{
+    position:sticky;top:0;z-index:14;background:var(--parchment);
+    border-bottom:1px solid var(--line);padding:9px 14px 8px;margin:0 -14px 14px;
+    display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  }
+  .progress-nav::-webkit-scrollbar{display:none;}
+  .progress-chip{
+    flex:0 0 auto;width:30px;height:30px;border-radius:50%;border:1.5px solid var(--line);
+    background:var(--white);color:var(--ink-soft);font-family:'IBM Plex Mono',monospace;font-weight:700;
+    font-size:12.5px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;
+  }
+  .progress-chip.filled{background:var(--moss);border-color:var(--moss);color:var(--white);}
+  .progress-chip.open{outline:2px solid var(--rust);outline-offset:1.5px;}
+
+  /* ---- Accordion cards ---- */
+  .card[data-section] .card-head{cursor:pointer;}
+  .card-head-main{flex:1;min-width:0;}
+  .card-check{
+    flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--moss);color:var(--white);
+    font-size:12px;display:none;align-items:center;justify-content:center;
+  }
+  .card.filled .card-check{display:flex;}
+  .card-chevron{flex:0 0 auto;font-size:13px;color:var(--forest-dark);transition:transform .2s ease;}
+  .card.collapsed .card-chevron{transform:rotate(-90deg);}
+  .card.collapsed .card-body{display:none;}
+
+  /* ---- Conditional detail fields (shown only when relevant) ---- */
+  .conditional-field{display:none;margin-top:9px;}
+  .conditional-field.show{display:block;}
+
+  /* ---- Duplicate button + profile / draft hints ---- */
+  .btn-dup{background:var(--parchment-deep);border:1px solid var(--forest);color:var(--forest-dark);}
+  .remember-hint{
+    display:flex;align-items:center;gap:8px;background:var(--parchment-deep);border:1px dashed var(--line);
+    border-radius:8px;padding:8px 10px;font-size:12px;color:var(--ink-soft);margin-bottom:12px;
+  }
+  .remember-hint button{
+    flex:0 0 auto;background:none;border:none;color:var(--rust);font-weight:700;font-size:12px;cursor:pointer;
+    text-decoration:underline;padding:0;
+  }
+  .draft-banner{
+    background:#FBF1E8;border:1.5px solid var(--amber);color:var(--forest-dark);border-radius:8px;
+    padding:10px 12px;margin:0 0 14px;font-size:13px;line-height:1.5;display:none;
+  }
+  .draft-banner.show{display:block;}
+  .draft-banner .db-actions{display:flex;gap:8px;margin-top:8px;}
+  .draft-banner .db-actions button{
+    flex:0 0 auto;padding:7px 13px;border-radius:7px;font-size:12.5px;font-weight:700;cursor:pointer;border:none;
+  }
+  .db-restore{background:var(--forest);color:var(--white);}
+  .db-discard{background:var(--white);border:1.5px solid var(--line) !important;color:var(--ink-soft);}
+  .same-lead-btn{
+    margin-top:6px;background:none;border:none;color:var(--rust);font-weight:700;font-size:12.5px;
+    cursor:pointer;text-decoration:underline;padding:0;
+  }
+
+  ::selection{background:var(--rust);color:var(--white);}
+  @media (min-width:600px){ .entry-grid{grid-template-columns:1fr 1fr 1fr;} }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="topbar">
+    <div class="brand">
+      <div>
+        <h1>A.T. Project Proposal</h1>
+        <p id="brand-sub">Planning &amp; Compliance Screening</p>
+      </div>
+    </div>
+    <div class="tabs" id="tabs-row">
+      <button class="tab active" data-view="form"><span class="tab-icon">📋</span><span class="tab-label">New Proposal</span></button>
+      <button class="tab" data-view="table"><span class="tab-icon">🗂️</span><span class="tab-label">Proposals<span class="badge" id="count-badge">0</span></span></button>
+      <button class="tab" data-view="map"><span class="tab-icon">🗺️</span><span class="tab-label">Map</span></button>
+      <button class="tab" data-view="analytics"><span class="tab-icon">📊</span><span class="tab-label">Analytics</span></button>
+      <button class="tab" data-view="guide"><span class="tab-icon">📖</span><span class="tab-label">Packet Checklist</span></button>
+    </div>
+  </div>
+
+  <div class="config-banner" id="config-banner">⚠ No shared backend configured — entries are only saved on this device. Set APPS_SCRIPT_URL in the CONFIG block near the top of the script to enable the shared proposal log.</div>
+
+  <main>
+
+    <!-- ============ FORM VIEW ============ -->
+    <section id="view-form" class="view active">
+      <div class="draft-banner" id="draft-banner">
+        You have an unsaved draft from <span id="draft-time">—</span>.
+        <div class="db-actions">
+          <button type="button" class="db-restore" id="btn-restore-draft">Restore Draft</button>
+          <button type="button" class="db-discard" id="btn-discard-draft">Discard</button>
+        </div>
+      </div>
+      <div class="progress-nav" id="progress-nav"></div>
+      <div class="remember-hint" id="remember-hint" style="display:none;">
+        <span id="remember-hint-text">Filled in from your last proposal.</span>
+        <button type="button" id="btn-clear-remembered">Clear</button>
+      </div>
+      <form id="proposal-form" novalidate>
+
+        <div class="card" data-section="1" id="section-1">
+          <div class="card-head"><div class="card-num">1</div><div class="card-head-main"><h2>Identifying Information</h2></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
+          <div class="card-body">
+            <div class="field">
+              <label class="flabel">Record ID</label>
+              <div class="row-id-btn">
+                <input type="text" id="f-recordId" class="mono" placeholder="PP-001">
+                <button type="button" class="btn-mini" id="btn-next-id">Next ID</button>
+              </div>
+              <div class="hint" id="edit-indicator" style="display:none;color:var(--rust);font-weight:600;">Editing existing record — saving will overwrite it.</div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">1.1</span>Project Title <span class="req">*</span></label>
+              <input type="text" id="f-title" placeholder="Same as used in other planning documents (e.g. ATC Capital Plan)" required>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">1.2</span>Brief Project Description <span class="req">*</span></label>
+              <textarea id="f-briefDesc" class="tall" placeholder="Describe action and location. A detailed description must be included as an attachment." required></textarea>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label class="flabel"><span class="qnum">1.3</span>Project ID No. (Capital Plan)</label>
+                <input type="text" id="f-capitalPlanId">
+              </div>
+              <div class="field">
+                <label class="flabel"><span class="qnum">1.4</span>PMIS No.</label>
+                <input type="text" id="f-pmisNo">
+              </div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">1.5</span>Project Submission Date</label>
+              <input type="date" id="f-submissionDate">
+            </div>
+
+            <div class="field">
+              <label class="flabel"><span class="qnum">1.6</span>Project Lead / Project Proposer</label>
+              <div class="row2">
+                <input type="text" id="f-leadName" placeholder="Name (please print)">
+                <input type="text" id="f-leadPosition" placeholder="Position/Title/Organization">
+              </div>
+              <div class="row2" style="margin-top:10px;">
+                <input type="text" id="f-leadPhone" placeholder="Phone">
+                <input type="text" id="f-leadEmail" placeholder="Email">
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="flabel"><span class="qnum">1.7</span>ATC Point of Contact (if different from above)</label>
+              <button type="button" class="same-lead-btn" id="btn-same-lead">Same as Project Lead ↑</button>
+              <div class="row2" style="margin-top:8px;">
+                <input type="text" id="f-atcName" placeholder="Name (please print)">
+                <input type="text" id="f-atcPosition" placeholder="Position/Title">
+              </div>
+              <div class="row2" style="margin-top:10px;">
+                <input type="text" id="f-atcPhone" placeholder="Phone">
+                <input type="text" id="f-atcEmail" placeholder="Email">
+              </div>
+            </div>
+
+            <div class="hint" style="margin-bottom:12px;">Section 1.8 Review/Recommendation (Club, RPC, ATC Regional Manager sign-off) is completed on the paper/PDF packet outside this app.</div>
+
+            <div class="field">
+              <label class="flabel"><span class="qnum">1.9</span>Who will do the work?</label>
+              <div class="chip-grid" id="f-whoWillDoWork"></div>
+              <input type="text" id="f-whoWillDoWorkOther" placeholder="If Other, describe" class="conditional-field">
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-section="2" id="section-2">
+          <div class="card-head"><div class="card-num">2</div><div class="card-head-main"><h2>Project Planning Details</h2></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
+          <div class="card-body">
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.1</span>Problem to be solved or condition to be addressed <span class="req">*</span></label>
+              <textarea id="f-problem" class="tall" required></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.2</span>What alternatives were considered?</label>
+              <textarea id="f-alternatives"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.3</span>Is this project identified in a planning document?</label>
+              <div class="chip-grid" id="f-planningDocType"></div>
+              <input type="text" id="f-planningDocTypeOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-planningDoc" placeholder="Name of the specific plan" style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.4</span>Consultations with experts</label>
+              <div class="chip-grid" id="f-expertConsultTypes"></div>
+              <input type="text" id="f-expertConsultTypesOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-expertConsults" placeholder="Names, dates, and findings of consultations." style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.5</span>Consultations with other partners or landowners</label>
+              <textarea id="f-partnerConsults"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.6</span>Seasonal or timing considerations/restrictions</label>
+              <div class="chip-grid" id="f-seasonalConsiderationTypes"></div>
+              <input type="text" id="f-seasonalConsiderationTypesOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-seasonalConsiderations" placeholder="Details" style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.7</span>Immediate safety concerns</label>
+              <textarea id="f-safetyConcerns"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.8</span>Priority Level <span class="req">*</span></label>
+              <div class="priority-cards" id="f-priority"></div>
+              <textarea id="f-priorityExplanation" placeholder="Short explanation" style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.9</span>Project Type <span class="req">*</span></label>
+              <div class="chip-grid" id="f-projectType"></div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.10</span>Work Type <span class="req">*</span></label>
+              <div class="chip-grid" id="f-workType"></div>
+              <input type="text" id="f-workTypeOther" placeholder="If Other, describe" class="conditional-field">
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label class="flabel"><span class="qnum">2.11</span>Project Target Start Date</label>
+                <input type="date" id="f-startDate">
+              </div>
+              <div class="field">
+                <label class="flabel"><span class="qnum">2.12</span>Project Target Completion Date</label>
+                <input type="date" id="f-completionDate">
+              </div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">2.13</span>Is this a phased project?</label>
+              <div class="toggle-row" id="f-phased">
+                <button type="button" class="toggle-btn" data-field="phased" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="phased" data-yn="No">No</button>
+              </div>
+              <textarea id="f-phases" placeholder="If Yes, list each phase and current status." class="conditional-field"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-section="3" id="section-3">
+          <div class="card-head"><div class="card-num">3</div><div class="card-head-main"><h2>Project Location</h2></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
+          <div class="card-body">
+            <div class="field">
+              <label class="flabel"><span class="qnum">3.1</span>Project State(s)</label>
+              <div class="chip-grid" id="f-states"></div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">3.2</span>Project County(s)</label>
+              <div class="chip-grid" id="f-counties"></div>
+              <div class="hint" id="counties-hint">Select a state above to see its counties along the A.T.</div>
+              <input type="text" id="f-countiesOther" placeholder="Other / not listed">
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label class="flabel"><span class="qnum">3.3</span>ATC Region</label>
+                <select id="f-atcRegion"></select>
+              </div>
+              <div class="field">
+                <label class="flabel"><span class="qnum">3.4</span>Trail Club / Partner Org(s)</label>
+                <div class="chip-grid" id="f-trailClub"></div>
+                <div class="hint" id="trailclub-hint">Select a state above to narrow this list.</div>
+                <input type="text" id="f-trailClubOther" placeholder="Other / not listed" style="margin-top:9px;">
+              </div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label class="flabel"><span class="qnum">3.5</span>Land Manager(s)/Owner(s)</label>
+                <div class="chip-grid" id="f-landManagers"></div>
+                <input type="text" id="f-landManagersOther" placeholder="If Other, describe" class="conditional-field">
+              </div>
+              <div class="field">
+                <label class="flabel"><span class="qnum">3.6</span>Ownership Type(s)</label>
+                <div class="chip-grid" id="f-ownershipTypes"></div>
+                <input type="text" id="f-ownershipTypesOther" placeholder="If Other, describe" class="conditional-field">
+              </div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">3.7</span>APPA Tract Number(s)</label>
+              <input type="text" id="f-tractNumbers">
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">3.8</span>GPS Lat/Long (center of site or start/end points)</label>
+              <div class="row2">
+                <input type="number" step="any" id="f-lat" placeholder="Latitude e.g. 40.2684">
+                <input type="number" step="any" id="f-lng" placeholder="Longitude e.g. -77.10261">
+              </div>
+              <button type="button" class="btn-mini" id="btn-geo" style="width:100%;padding:9px;margin-top:9px;">📍 Use My Current Location</button>
+              <div class="hint">A detailed site map and shapefile must still be included as an attachment to the packet — see the Packet Checklist tab.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-section="4" id="section-4">
+          <div class="card-head"><div class="card-num">4</div><div class="card-head-main"><h2>FMSS Details</h2></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
+          <div class="card-body">
+            <div class="row2">
+              <div class="field">
+                <label class="flabel"><span class="qnum">4.1</span>FMSS Location Name(s)</label>
+                <input type="text" id="f-fmssNames">
+              </div>
+              <div class="field">
+                <label class="flabel"><span class="qnum">4.2</span>FMSS Location Number(s)</label>
+                <input type="text" id="f-fmssNumbers">
+              </div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">4.3</span>FMSS Location Type(s)</label>
+              <div class="chip-grid" id="f-fmssTypes"></div>
+              <input type="text" id="f-fmssTypeOther" placeholder="If Other, describe" class="conditional-field">
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">4.4</span>Does the project repair/replace assets within the same existing footprint?</label>
+              <div class="toggle-row" id="f-sameFootprint">
+                <button type="button" class="toggle-btn active" data-field="sameFootprint" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn" data-field="sameFootprint" data-yn="No">No</button>
+              </div>
+              <input type="text" id="f-footprintDistance" placeholder="If No, distance from the original footprint" class="conditional-field">
+              <label class="flabel" style="margin-top:12px;">If Yes, will the asset expand outside the boundary of the existing footprint?</label>
+              <div class="toggle-row" id="f-expandBoundary">
+                <button type="button" class="toggle-btn" data-field="expandBoundary" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="expandBoundary" data-yn="No">No</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-section="5" id="section-5">
+          <div class="card-head"><div class="card-num">5</div><div class="card-head-main"><h2>Compliance Screening</h2><span class="card-sub">Materials &amp; Methods</span></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
+          <div class="card-body">
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.1</span>Site access and parking to be utilized</label>
+              <div class="chip-grid" id="f-siteAccessTypes"></div>
+              <input type="text" id="f-siteAccessTypesOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-siteAccess" placeholder="Identify access route and parking area(s) on site map." style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.2</span>Mode of site access and length of each mode used</label>
+              <div class="chip-grid" id="f-accessModeTypes"></div>
+              <input type="text" id="f-accessModeTypesOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-accessMode" placeholder="Length of each mode used. Describe seasonal considerations affecting access." style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.3</span>Amount and types of materials to be used</label>
+              <textarea id="f-materials" placeholder="Specify any changes from existing materials. If estimated, note stage of the design process."></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.4</span>Equipment and tools to be used</label>
+              <textarea id="f-equipment" placeholder="Including equipment used to move materials to the site."></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.5</span>Will a staging area be required?</label>
+              <div class="toggle-row" id="f-stagingRequired">
+                <button type="button" class="toggle-btn" data-field="stagingRequired" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="stagingRequired" data-yn="No">No</button>
+              </div>
+              <textarea id="f-stagingDetails" placeholder="If Yes: equipment/supplies staged, duration, estimated size (sq ft). Identify location/access route on site map." class="conditional-field"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.6</span>Maximum number of people working on site at any given time</label>
+              <input type="number" min="0" id="f-maxPeople">
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.7</span>Duration and timing of the work</label>
+              <div class="chip-grid" id="f-workTimingTypes"></div>
+              <input type="text" id="f-workTimingTypesOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-workDuration" placeholder="Details (e.g. specific weekends, hours)" style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.8</span>Will the project require a field camp for workers near the site?</label>
+              <div class="toggle-row" id="f-fieldCampRequired">
+                <button type="button" class="toggle-btn" data-field="fieldCampRequired" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="fieldCampRequired" data-yn="No">No</button>
+              </div>
+              <textarea id="f-fieldCampDetails" placeholder="If Yes: location and refuse/waste management plan. Identify camp location(s) on site map." class="conditional-field"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.9</span>Will the project involve working with or around known Hazardous Materials?</label>
+              <div class="toggle-row" id="f-hazMaterials">
+                <button type="button" class="toggle-btn" data-field="hazMaterials" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="hazMaterials" data-yn="No">No</button>
+              </div>
+              <textarea id="f-hazMaterialsDetails" placeholder="If Yes: list each hazardous material. Attach a safety plan to the packet." class="conditional-field"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">5.10</span>Will the project produce disposable waste/debris?</label>
+              <div class="toggle-row" id="f-wasteProduced">
+                <button type="button" class="toggle-btn" data-field="wasteProduced" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="wasteProduced" data-yn="No">No</button>
+              </div>
+              <textarea id="f-wasteDetails" placeholder="If Yes: how/where will construction/project debris be disposed of?" class="conditional-field"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-section="6" id="section-6">
+          <div class="card-head"><div class="card-num">6</div><div class="card-head-main"><h2>Compliance Screening</h2><span class="card-sub">Land / Visitor Use</span></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
+          <div class="card-body">
+            <div class="field">
+              <label class="flabel"><span class="qnum">6.1</span>Will the project temporarily or permanently close a site/trail/road or redirect hikers/traffic?</label>
+              <div class="toggle-row" id="f-closeRedirect">
+                <button type="button" class="toggle-btn" data-field="closeRedirect" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="closeRedirect" data-yn="No">No</button>
+              </div>
+              <textarea id="f-closeRedirectDetails" placeholder="If Yes: describe the nature of the change and how long the use pattern will be disrupted." class="conditional-field"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">6.2</span>Will the project require the installation of new signage?</label>
+              <div class="toggle-row" id="f-newSignage">
+                <button type="button" class="toggle-btn" data-field="newSignage" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="newSignage" data-yn="No">No</button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">6.3</span>Will the project alter visitor services/activities, including ABA accessibility?</label>
+              <div class="toggle-row" id="f-alterVisitorServices">
+                <button type="button" class="toggle-btn" data-field="alterVisitorServices" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="alterVisitorServices" data-yn="No">No</button>
+              </div>
+              <div class="chip-grid conditional-field" id="f-alterVisitorTypes"></div>
+              <input type="text" id="f-alterVisitorTypesOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-alterVisitorDetails" placeholder="If Yes: how/for how long." class="conditional-field"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">6.4</span>For new construction/alterations: have universal design principles been considered for ABA accessibility?</label>
+              <textarea id="f-universalDesign"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-section="7" id="section-7">
+          <div class="card-head"><div class="card-num">7</div><div class="card-head-main"><h2>Compliance Screening</h2><span class="card-sub">Natural Resources</span></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
+          <div class="card-body">
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.1</span>Surrounding natural environment</label>
+              <div class="chip-grid" id="f-naturalEnvTypes"></div>
+              <input type="text" id="f-naturalEnvTypesOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-naturalEnv" placeholder="Include representative photographs." style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.2</span>Vegetation trimming, cutting, or clearing</label>
+              <textarea id="f-vegetationClearing" placeholder="For removal of trees larger than saplings/3 in. DBH: include the #, species, and locations on a map."></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.3</span>Ground surface area disturbed, cleared, or denuded of vegetation</label>
+              <input type="text" id="f-groundDisturbanceArea" placeholder="sq ft / acres">
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.4</span>Will any project materials be harvested or removed from adjacent areas?</label>
+              <div class="toggle-row" id="f-materialsHarvested">
+                <button type="button" class="toggle-btn" data-field="materialsHarvested" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="materialsHarvested" data-yn="No">No</button>
+              </div>
+              <textarea id="f-materialsHarvestedDetails" placeholder="If Yes: type(s)/amount(s) of native materials, method of removal, storage. Identify location(s) on a map." class="conditional-field"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.5</span>Is the site within/adjacent to a designated wilderness area, WSA, or area with significant wilderness characteristics?</label>
+              <div class="toggle-row" id="f-wildernessArea" style="max-width:360px;">
+                <button type="button" class="toggle-btn" data-field="wildernessArea" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="wildernessArea" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="wildernessArea" data-yn="Unknown">Unk.</button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.6</span>Known invasive species at or adjacent to the site</label>
+              <label class="flabel" style="font-size:12.5px;margin-top:2px;">Overall Density (if uniform)</label>
+              <div class="toggle-row" id="f-invasiveDensity" style="max-width:360px;">
+                <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="High">High</button>
+                <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="Medium">Medium</button>
+                <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="Low">Low</button>
+              </div>
+              <textarea id="f-invasiveSpecies" placeholder="Species names and approximate location(s) relative to the project area. Note per-species density here if it varies." style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.7</span>Known state/federally recognized rare, threatened, or endangered species</label>
+              <textarea id="f-rareSpecies" placeholder="Species and approximate location(s)."></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.8</span>Natural resource surveys completed or planned</label>
+              <div class="chip-grid" id="f-nrSurveys"></div>
+              <input type="text" id="f-nrSurveysOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-nrSurveysPlannedWho" placeholder="If Planned: who will conduct the survey and approximately when? Coordination with APPA required prior to any natural resource surveys on APPA land by a contractor." style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.9</span>Anticipated mitigation measures / BMPs (natural resources)</label>
+              <textarea id="f-mitigationNR"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" data-section="8" id="section-8">
+          <div class="card-head"><div class="card-num">8</div><div class="card-head-main"><h2>Compliance Screening</h2><span class="card-sub">Cultural Resources</span></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
+          <div class="card-body">
+            <div class="field">
+              <label class="flabel"><span class="qnum">8.1</span>Surrounding built environment and/or adjacent cultural resources</label>
+              <div class="chip-grid" id="f-culturalEnvTypes"></div>
+              <input type="text" id="f-culturalEnvTypesOther" placeholder="If Other, describe" class="conditional-field">
+              <textarea id="f-culturalEnv" placeholder="Include photos." style="margin-top:9px;"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">8.2</span>Does the project entail ground disturbance (digging, boring, excavation, grading, etc.)?</label>
+              <div class="toggle-row" id="f-groundDisturbanceCultural">
+                <button type="button" class="toggle-btn" data-field="groundDisturbanceCultural" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="groundDisturbanceCultural" data-yn="No">No</button>
+              </div>
+              <textarea id="f-groundDisturbanceCulturalDetails" placeholder="If Yes: extent/depth of soil disturbance (width, length, depth, cu. ft.) and location(s) on map. Note any known prior ground disturbance." class="conditional-field"></textarea>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">8.3</span>Does the project involve work in or near a known archaeological site or resource?</label>
+              <div class="toggle-row" id="f-archSite" style="max-width:360px;">
+                <button type="button" class="toggle-btn" data-field="archSite" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="archSite" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="archSite" data-yn="Unknown">Unk.</button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">8.4</span>Does the project involve work in or near NRHP listed/eligible properties (other than the A.T.)?</label>
+              <div class="toggle-row" id="f-nrhpProperty" style="max-width:360px;">
+                <button type="button" class="toggle-btn" data-field="nrhpProperty" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="nrhpProperty" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="nrhpProperty" data-yn="Unknown">Unk.</button>
+              </div>
+              <input type="text" id="f-nrhpPropertyList" placeholder="If Yes, list the property(s)" class="conditional-field">
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">8.5</span>Cultural resource surveys completed</label>
+              <div class="chip-grid" id="f-crSurveys"></div>
+              <input type="text" id="f-crSurveysOther" placeholder="If Other, describe" class="conditional-field">
+              <div class="hint">Coordination with APPA required prior to any cultural surveys being conducted on APPA land.</div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">8.6</span>Mitigation measures / BMPs (cultural resources)</label>
+              <textarea id="f-mitigationCR"></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-num">📷</div><h2>Site Photos, Shapefile &amp; Notes</h2></div>
+          <div class="card-body">
+            <div class="field">
+              <label class="flabel">Photos Taken?</label>
+              <div class="toggle-row">
+                <button type="button" class="toggle-btn" data-photos="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-photos="No">No</button>
+              </div>
+            </div>
+            <div class="field">
+              <label class="flabel">Site Photos</label>
+              <div class="photo-buttons">
+                <button type="button" class="photo-btn" id="btn-take-photo"><span class="ic">📷</span>Take Photo</button>
+                <button type="button" class="photo-btn" id="btn-choose-photo"><span class="ic">🖼️</span>Choose from Library</button>
+              </div>
+              <input type="file" id="input-camera" accept="image/*" capture="environment" style="display:none;">
+              <input type="file" id="input-library" accept="image/*" multiple style="display:none;">
+              <div class="photo-thumbs" id="photo-thumbs"></div>
+              <div class="photo-count-hint" id="photo-hint">No photos attached yet. Photos are compressed and saved with the record.</div>
+            </div>
+            <div class="field">
+              <label class="flabel">Shapefile / Site Map (.zip)</label>
+              <div class="photo-buttons">
+                <button type="button" class="photo-btn" id="btn-upload-shapefile"><span class="ic">🗺️</span>Upload Shapefile (.zip)</button>
+              </div>
+              <input type="file" id="input-shapefile" accept=".zip,application/zip,application/x-zip-compressed,multipart/x-zip" style="display:none;">
+              <div id="shapefile-chip"></div>
+              <div class="hint">Polygon of the project boundary and any access routes created for the work, zipped (.shp/.shx/.dbf/etc.) — required in the submission packet per Section 9.</div>
+            </div>
+            <div class="field">
+              <label class="flabel">Photo File(s) / Reference</label>
+              <input type="text" id="f-photoref" placeholder="e.g. IMG_0142, IMG_0143">
+              <div class="hint">Auto-filled from attached photos above — edit freely.</div>
+            </div>
+            <div class="field">
+              <label class="flabel">Additional Notes</label>
+              <textarea id="f-notes"></textarea>
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- ============ TABLE VIEW ============ -->
+    <section id="view-table" class="view">
+      <div class="table-toolbar">
+        <span class="count" id="tbl-count">0 proposals logged</span>
+        <button class="tb-btn" id="btn-refresh">↻ Refresh</button>
+        <button class="tb-btn primary" id="btn-export">⬇ Download CSV</button>
+      </div>
+      <div id="entries-container"></div>
+    </section>
+
+    <!-- ============ MAP VIEW ============ -->
+    <section id="view-map" class="view">
+      <div id="map-content">
+        <div style="position:relative;">
+          <div id="proj-map"></div>
+          <button type="button" class="tb-btn" id="btn-recenter-map" style="position:absolute;top:10px;right:10px;z-index:5;background:var(--white);box-shadow:var(--shadow);">🎯 Recenter</button>
+        </div>
+        <div class="map-legend">
+          <span class="map-legend-item"><span class="map-dot" style="background:var(--deep-red);"></span>Urgent</span>
+          <span class="map-legend-item"><span class="map-dot" style="background:var(--rust);"></span>High</span>
+          <span class="map-legend-item"><span class="map-dot" style="background:var(--amber);"></span>Medium</span>
+          <span class="map-legend-item"><span class="map-dot" style="background:var(--ink-soft);"></span>Unspecified</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ GUIDE / CHECKLIST VIEW ============ -->
+    <section id="view-guide" class="view">
+      <div class="note-box">Reference only — check off what's included in this submission packet. This does not submit anything; it's a personal tracking aid.</div>
+
+      <div class="guide-section">
+        <h3>9. Project Packet Checklist</h3>
+        <div class="hint" style="margin-bottom:6px;">In addition to the proposal form, ensure the following are included in your submission packet for NPS review:</div>
+        <div id="packet-checklist"></div>
+      </div>
+
+      <div class="guide-section">
+        <h3>Project Type Definitions (2.9)</h3>
+        <div class="code-row"><div class="code">Facilities</div><div class="desc">Trail tread, structures, bridges, shelters, and other built infrastructure.</div></div>
+        <div class="code-row"><div class="code">Nat. Res.</div><div class="desc">Habitat, vegetation, wildlife, invasive species, and other natural resource work.</div></div>
+        <div class="code-row"><div class="code">Cult. Res.</div><div class="desc">Historic structures, archaeological sites, and other cultural resource work.</div></div>
+      </div>
+
+      <div class="guide-section">
+        <h3>Work Type Definitions (2.10)</h3>
+        <div class="code-row"><div class="code">Cyclic</div><div class="desc">Cyclic Maintenance — scheduled, recurring upkeep.</div></div>
+        <div class="code-row"><div class="code">New</div><div class="desc">New Construction — building something not previously present.</div></div>
+        <div class="code-row"><div class="code">I&amp;M</div><div class="desc">Inventory and Monitoring.</div></div>
+        <div class="code-row"><div class="code">Routine</div><div class="desc">Routine Maintenance — regular, non-cyclic upkeep.</div></div>
+        <div class="code-row"><div class="code">Replace</div><div class="desc">Replace an existing asset in kind.</div></div>
+        <div class="code-row"><div class="code">Invasive</div><div class="desc">Invasive Species Management.</div></div>
+        <div class="code-row"><div class="code">Repair</div><div class="desc">Repair/Rehabilitation of an existing asset.</div></div>
+        <div class="code-row"><div class="code">Emerg.</div><div class="desc">Emergency Repair.</div></div>
+        <div class="code-row"><div class="code">Restore</div><div class="desc">Restoration of a natural or cultural resource.</div></div>
+        <div class="code-row"><div class="code">Remove</div><div class="desc">Remove/Demolish an asset.</div></div>
+        <div class="code-row"><div class="code">Res. Mgmt.</div><div class="desc">Resource Management (general).</div></div>
+      </div>
+
+      <div class="guide-section">
+        <h3>FMSS Location Types (4.3)</h3>
+        <div class="code-row"><div class="code">Types</div><div class="desc">A.T. Treadway, Boundary, Building, Bridge, Campground, Dam, Maintained Landscape, Parking Area, Road, Side Trail, Vista, Water System, Other, N/A.</div></div>
+      </div>
+
+      <div class="guide-section" style="margin-bottom:0;">
+        <h3>Priority Level (2.8)</h3>
+        <div class="code-row"><div class="code">Urgent</div><div class="desc">Immediate safety, resource, or asset risk that cannot wait for the normal planning cycle.</div></div>
+        <div class="code-row"><div class="code">High</div><div class="desc">Significant need; should be scheduled in the near term.</div></div>
+        <div class="code-row"><div class="code">Medium</div><div class="desc">Worthwhile but can be scheduled in the ordinary planning cycle.</div></div>
+      </div>
+
+      <div class="guide-section" style="margin-bottom:0;">
+        <h3>Source</h3>
+        <div class="code-row"><div class="code">APPA</div><div class="desc">A.T. Planning — Project Proposal Form, April 2021.</div></div>
+      </div>
+    </section>
+
+    <!-- ============ ANALYTICS VIEW ============ -->
+    <section id="view-analytics" class="view">
+      <div id="analytics-empty" class="empty-state" style="display:none;">
+        <div class="em-icon">📊</div>
+        <h3>No data to chart yet</h3>
+        <p>Log a few proposals and come back — charts build automatically from your log.</p>
+      </div>
+      <div id="analytics-content">
+        <div class="stat-grid" id="stat-grid"></div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-num">📊</div><h2>Priority Level</h2></div>
+          <div class="card-body"><div id="chart-priority"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-num">🏗️</div><h2>Project Type</h2></div>
+          <div class="card-body"><div id="chart-projecttype"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-num">🔧</div><h2>Work Type</h2></div>
+          <div class="card-body"><div id="chart-worktype"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-num">📍</div><h2>Proposals by State</h2></div>
+          <div class="card-body"><div id="chart-state"></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-num">🏔️</div><h2>ATC Region</h2></div>
+          <div class="card-body"><div id="chart-region"></div></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <div class="action-bar" id="form-action-bar">
+    <button type="button" class="btn btn-secondary" id="btn-reset">Clear</button>
+    <button type="button" class="btn btn-primary" id="btn-save">Save Proposal</button>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close">✕</button>
+    <img id="lightbox-img" src="" alt="Site photo">
+  </div>
+</div>
+
+<script>
+(function(){
+
+  /* ---------------- Reference data ---------------- */
+  const STATES = ["GA","NC","TN","VA","WV","MD","PA","NJ","NY","CT","MA","VT","NH","ME"];
+  const ATC_REGIONS = ["NERO","MARO","VARO","SORO"];
+
+  // Counties the A.T. corridor crosses, by state — compiled from ATC "Terrain by Region"
+  // data as reflected in the Wikipedia "Appalachian Trail by state" summary. This is a
+  // working list; verify against APPA's official corridor GIS layer before relying on it
+  // for a specific submission, since exact corridor-touching counties can be refined.
+  const COUNTIES_BY_STATE = {
+    GA: ["Fannin","Habersham","Lumpkin","Rabun","Towns","Union","White"],
+    NC: ["Avery","Clay","Graham","Haywood","Macon","Madison","Mitchell","Swain","Yancey"],
+    TN: ["Blount","Carter","Cocke","Greene","Johnson","Sevier","Sullivan","Unicoi"],
+    VA: ["Albemarle","Amherst","Augusta","Bedford","Bland","Botetourt","Clarke","Craig","Fauquier","Giles","Grayson","Greene","Loudoun","Montgomery","Nelson","Page","Rappahannock","Roanoke","Rockbridge","Rockingham","Smyth","Tazewell","Warren","Washington","Wythe"],
+    WV: ["Jefferson","Monroe"],
+    MD: ["Frederick","Washington"],
+    PA: ["Berks","Carbon","Cumberland","Dauphin","Franklin","Lebanon","Lehigh","Monroe","Northampton","Perry","Schuylkill"],
+    NJ: ["Passaic","Sussex","Warren"],
+    NY: ["Dutchess","Orange","Putnam","Rockland","Westchester"],
+    CT: ["Litchfield"],
+    MA: ["Berkshire"],
+    VT: ["Bennington","Rutland","Windham","Windsor"],
+    NH: ["Carroll","Coos","Grafton"],
+    ME: ["Franklin","Oxford","Piscataquis","Somerset"]
+  };
+
+  // The 31 A.T. trail-maintaining clubs, tagged with the state(s) each is active in —
+  // per the National Park Service Appalachian Trail Park Office partners list. Verify
+  // against ATC's current club directory, since club rosters/mergers change over time.
+  const TRAIL_CLUBS = [
+    {name:"Maine Appalachian Trail Club", states:["ME"]},
+    {name:"Appalachian Mountain Club", states:["ME","NH"]},
+    {name:"Randolph Mountain Club", states:["NH"]},
+    {name:"Dartmouth Outing Club", states:["NH","VT"]},
+    {name:"Green Mountain Club", states:["VT"]},
+    {name:"AMC Berkshire Chapter", states:["MA"]},
+    {name:"AMC Connecticut Chapter", states:["CT"]},
+    {name:"New York-New Jersey Trail Conference", states:["NY","NJ"]},
+    {name:"Wilmington Trail Club", states:["PA"]},
+    {name:"Batona Hiking Club", states:["PA"]},
+    {name:"AMC Delaware Valley Chapter", states:["PA"]},
+    {name:"Keystone Trails Association", states:["PA"]},
+    {name:"Blue Mountain Eagle Climbing Club", states:["PA"]},
+    {name:"Allentown Hiking Club", states:["PA"]},
+    {name:"Susquehanna Appalachian Trail Club", states:["PA"]},
+    {name:"York Hiking Club", states:["PA"]},
+    {name:"Cumberland Valley Appalachian Trail Club", states:["PA"]},
+    {name:"Mountain Club of Maryland", states:["PA","MD"]},
+    {name:"Potomac Appalachian Trail Club", states:["PA","MD","WV","VA"]},
+    {name:"Old Dominion Appalachian Trail Club", states:["VA"]},
+    {name:"Tidewater Appalachian Trail Club", states:["VA"]},
+    {name:"Natural Bridge Appalachian Trail Club", states:["VA"]},
+    {name:"Outdoor Club of Virginia Tech", states:["VA"]},
+    {name:"Roanoke Appalachian Trail Club", states:["VA"]},
+    {name:"Piedmont Appalachian Trail Hikers", states:["VA"]},
+    {name:"Mount Rogers Appalachian Trail Club", states:["VA"]},
+    {name:"Tennessee Eastman Hiking and Canoeing Club", states:["TN"]},
+    {name:"Carolina Mountain Club", states:["TN","NC"]},
+    {name:"Smoky Mountains Hiking Club", states:["TN","NC"]},
+    {name:"Nantahala Hiking Club", states:["NC"]},
+    {name:"Georgia Appalachian Trail Club", states:["GA"]}
+  ];
+
+  const WORK_DOERS = ["Volunteers","ATC Paid Crew","NPS Crew","USFS Crew","Contractor","Volunteer + Crew Combination","Other"];
+  const LAND_MANAGER_OPTIONS = ["APPA (NPS)","ATC","USFS","Other NPS Unit","State Agency","County/Local Government","Private Landowner","Other"];
+  const OWNERSHIP_TYPES = ["Fee (NPS-owned)","Easement","Right-of-Way/License","Cooperative Agreement","State/Other Federal Reservation","Other"];
+  const PLANNING_DOC_TYPES = ["A.T. Club Local Management Plan","State Recreation Plan","Local Recreation Plan","Capital Plan","Other"];
+  const EXPERT_TYPES = ["Natural Resource Specialist","State/Federal Wildlife Agency","Engineer","Recreation Planner","SHPO/Cultural Resource Specialist","Other"];
+  const SEASONAL_CONSIDERATION_TYPES = ["High Use Period","Natural Resource Sensitivities/Requirements","Agency Policy","Fund Source","Access","Other"];
+  const SITE_ACCESS_TYPES = ["A.T. Treadway","Side Trail","Bushwhack/Off-Trail","Road","Air","Water","Other"];
+  const ACCESS_MODES = ["Foot","ATV","Vehicle","Snowmobile","Watercraft","Pack Animal","Other"];
+  const WORK_TIMING_TYPES = ["Weekdays","Weekends","Daytime Only","Extends Into Evening","Multi-Day/Overnight","Other"];
+  const VISITOR_SERVICE_TYPES = ["Parking","Privies","Trails","Visitor Center","Recreation","Accessibility","Other"];
+  const NATURAL_ENV_TYPES = ["Deciduous Forest","Coniferous/Mixed Forest","Meadow/Field","Wetland","Rock Outcrop/Ledge","Stream/Riparian","Disturbed/Developed","Other"];
+  const CULTURAL_ENV_TYPES = ["Rock Walls","Homesteads","Cemeteries","Bridges","Ruins","Foundations/Structures","Other"];
+
+  const PRIORITY = [
+    ["Urgent","urgent","Immediate safety, resource, or asset risk."],
+    ["High","high","Significant need; should be scheduled in the near term."],
+    ["Medium","medium","Worthwhile; fits the ordinary planning cycle."]
+  ];
+  const PROJECT_TYPES = ["Facilities","Natural Resources","Cultural Resources"];
+  const WORK_TYPES = ["Cyclic Maintenance","New Construction","Inventory and Monitoring","Routine Maintenance","Replace","Invasive Species Management","Repair/Rehabilitation","Emergency Repair","Restoration","Remove/Demolish","Resource Management","Other"];
+  const FMSS_TYPES = ["AT Treadway","Boundary","Building","Bridge","Campground","Dam","Maintained Landscape","Parking Area","Road","Side Trail","Vista","Water System","Other","N/A"];
+  const NR_SURVEYS = ["Botanical","T&E Species","Wetlands","Other"];
+  const CR_SURVEYS = ["Archaeological","Historic Structures","Other"];
+  const PACKET_ITEMS = [
+    ["Detailed Project Description*","A complete narrative of the problem/condition and alternatives considered. Include WHO, WHY, WHERE, WHEN, and HOW, including measures to reduce impacts."],
+    ["Site Maps*","Broad project area & detailed site map."],
+    ["Shapefile*","Polygon of project boundary and any access routes created for the project work. Upload the .zip directly on the New Proposal form, near Site Photos."],
+    ["Site Photos*","Clearly labeled, depicting the problem to be solved or condition to be addressed."],
+    ["Example Photos","What the finished project is intended to achieve; examples of similar work."],
+    ["Specification or Schematics","Materials, design drawings, construction blueprints, etc."],
+    ["Natural and/or Cultural Resource Surveys","Any completed reports."]
+  ];
+
+  const CSV_COLUMNS = ["Record ID","Submission Date","Project Title","Brief Description","Capital Plan ID","PMIS No.",
+    "Lead Name","Lead Position/Org","Lead Phone","Lead Email","ATC POC Name","ATC POC Position","ATC POC Phone","ATC POC Email","Who Will Do The Work","Who Will Do The Work (Other)",
+    "Problem/Condition","Alternatives Considered","Planning Document Type","Planning Document Type (Other)","Planning Document Name","Expert Consultation Type","Expert Consultation Type (Other)","Expert Consultations","Partner/Landowner Consultations","Seasonal/Timing Consideration Type","Seasonal/Timing Consideration Type (Other)","Seasonal/Timing Considerations","Safety Concerns",
+    "Priority","Priority Explanation","Project Type","Work Type","Work Type Other","Target Start Date","Target Completion Date","Phased Project","Phases",
+    "State(s)","County(s)","County(s) Other","ATC Region","Trail Club/Partner","Trail Club/Partner Other","Land Manager(s)/Owner(s)","Land Manager(s)/Owner(s) Other","Ownership Type(s)","Ownership Type(s) Other","APPA Tract Number(s)","Latitude","Longitude",
+    "FMSS Location Name(s)","FMSS Location Number(s)","FMSS Location Type(s)","FMSS Type Other","Same Footprint","Footprint Distance","Expand Boundary",
+    "Site Access Type","Site Access Type (Other)","Site Access/Parking","Access Mode Type","Access Mode Type (Other)","Access Mode","Materials","Equipment/Tools","Staging Required","Staging Details","Max People On Site","Work Timing Type","Work Timing Type (Other)","Work Duration/Timing",
+    "Field Camp Required","Field Camp Details","Hazardous Materials","Hazardous Materials Details","Waste Produced","Waste Details",
+    "Close/Redirect Site","Close/Redirect Details","New Signage","Alter Visitor Services","Alter Visitor Service Type","Alter Visitor Service Type (Other)","Alter Visitor Details","Universal Design Considered",
+    "Natural Environment Type","Natural Environment Type (Other)","Natural Environment","Vegetation Clearing","Ground Disturbance Area","Materials Harvested","Materials Harvested Details","Wilderness Area",
+    "Invasive Species Density","Invasive Species","Rare/T&E Species","NR Surveys","NR Surveys Other","NR Surveys Planned Who/When","Mitigation (Natural Resources)",
+    "Cultural Environment Type","Cultural Environment Type (Other)","Cultural Environment","Ground Disturbance (Cultural)","Ground Disturbance (Cultural) Details","Archaeological Site Nearby","NRHP Property Nearby","NRHP Property List",
+    "CR Surveys","CR Surveys Other","Mitigation (Cultural Resources)","Photos Taken?","Photo File(s)/Reference","Shapefile Attached?","Shapefile Name","Notes"];
+
+  /* ---------------- State ---------------- */
+  /* ================= CONFIGURE THIS ================= */
+  // Deploy the companion Code.gs (Google Apps Script) as a Web App, then paste
+  // its /exec URL and the SHARED_TOKEN you set in its Script Properties here
+  // to enable a shared proposal log across devices. See the setup notes at
+  // the top of Code.gs for step-by-step deployment instructions.
+  // Leave APPS_SCRIPT_URL blank to run in local-only preview mode.
+  const CONFIG = {
+    APPS_SCRIPT_URL: "",
+    SHARED_TOKEN: ""
+  };
+  /* ==================================================== */
+
+  const BACKEND_CONFIGURED = !!CONFIG.APPS_SCRIPT_URL;
+  const LOCAL_KEY = "appa_proposal_entries_v1";
+
+  let entries = {};
+  let editingId = null;
+  let photosTaken = "No";
+  let currentPhotos = [];
+
+  /* ---------------- Photo capture ---------------- */
+  const MAX_PHOTO_DIM = 1280;
+  const JPEG_QUALITY = 0.6;
+  const MAX_TOTAL_PHOTO_BYTES = 4.2 * 1024 * 1024;
+
+  function compressImage(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Could not read file"));
+      reader.onload = () => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("Could not decode image"));
+        img.onload = () => {
+          let w = img.width, h = img.height;
+          if(w > MAX_PHOTO_DIM || h > MAX_PHOTO_DIM){
+            const scale = MAX_PHOTO_DIM / Math.max(w,h);
+            w = Math.round(w*scale); h = Math.round(h*scale);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = w; canvas.height = h;
+          canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL("image/jpeg", JPEG_QUALITY));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  function currentPhotoBytes(){
+    return currentPhotos.reduce((sum,p)=> sum + (p.dataUrl ? Math.round(p.dataUrl.length*0.75) : 0), 0);
+  }
+  async function handlePhotoFiles(fileList){
+    const files = [...fileList].filter(f=> f.type.startsWith("image/"));
+    if(files.length===0) return;
+    showToast(files.length>1 ? `Processing ${files.length} photos…` : "Processing photo…");
+    for(const file of files){
+      try{
+        const dataUrl = await compressImage(file);
+        const approxBytes = Math.round(dataUrl.length*0.75);
+        if(currentPhotoBytes() + approxBytes > MAX_TOTAL_PHOTO_BYTES){
+          showToast("Photo skipped — record is at the size limit for this entry.", true);
+          continue;
+        }
+        const name = `${(document.getElementById("f-recordId").value||"proposal").trim()}_${currentPhotos.length+1}.jpg`;
+        currentPhotos.push({name, dataUrl});
+      }catch(err){
+        showToast("Couldn't process a photo — try again.", true);
+      }
+    }
+    renderPhotoThumbs();
+    syncPhotoRefField();
+  }
+  function syncPhotoRefField(){
+    const refField = document.getElementById("f-photoref");
+    if(currentPhotos.length>0){
+      refField.value = currentPhotos.map(p=>p.name).join(", ");
+      photosTaken = "Yes";
+      document.querySelectorAll("[data-photos]").forEach(b=>b.classList.toggle("active", b.dataset.photos==="Yes"));
+    }
+  }
+  function renderPhotoThumbs(){
+    const wrap = document.getElementById("photo-thumbs");
+    const hint = document.getElementById("photo-hint");
+    wrap.innerHTML = currentPhotos.map((p,i)=>`
+      <div class="photo-thumb" data-view="${i}">
+        <img src="${p.url || p.dataUrl}" alt="${escapeAttr(p.name)}">
+        <button type="button" class="rm" data-remove="${i}" aria-label="Remove photo">✕</button>
+      </div>`).join("");
+    if(currentPhotos.length===0){
+      hint.textContent = "No photos attached yet. Photos are compressed and saved with the record.";
+    } else {
+      const kb = Math.round(currentPhotoBytes()/1024);
+      hint.textContent = `${currentPhotos.length} photo${currentPhotos.length===1?"":"s"} attached (~${kb} KB).`;
+    }
+    wrap.querySelectorAll("[data-remove]").forEach(btn=>{
+      btn.addEventListener("click", e=>{
+        e.stopPropagation();
+        currentPhotos.splice(parseInt(btn.dataset.remove),1);
+        renderPhotoThumbs();
+        syncPhotoRefField();
+      });
+    });
+    wrap.querySelectorAll(".photo-thumb").forEach(el=>{
+      el.addEventListener("click", ()=> {
+        const p = currentPhotos[parseInt(el.dataset.view)];
+        openLightbox(p.url || p.dataUrl);
+      });
+    });
+  }
+  function openLightbox(src){
+    document.getElementById("lightbox-img").src = src;
+    document.getElementById("lightbox").classList.add("show");
+  }
+  function closeLightbox(){
+    document.getElementById("lightbox").classList.remove("show");
+    document.getElementById("lightbox-img").src = "";
+  }
+  document.getElementById("lightbox-close").addEventListener("click", closeLightbox);
+  document.getElementById("lightbox").addEventListener("click", e=>{ if(e.target.id==="lightbox") closeLightbox(); });
+  document.getElementById("btn-take-photo").addEventListener("click", ()=> document.getElementById("input-camera").click());
+  document.getElementById("btn-choose-photo").addEventListener("click", ()=> document.getElementById("input-library").click());
+  document.getElementById("input-camera").addEventListener("change", e=>{ handlePhotoFiles(e.target.files); e.target.value=""; });
+  document.getElementById("input-library").addEventListener("change", e=>{ handlePhotoFiles(e.target.files); e.target.value=""; });
+  document.querySelectorAll("[data-photos]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      photosTaken = btn.dataset.photos;
+      document.querySelectorAll("[data-photos]").forEach(b=>b.classList.toggle("active", b===btn));
+    });
+  });
+
+  /* ---------------- Shapefile (.zip) upload ----------------
+     A single zipped shapefile per proposal (polygon of project boundary / access routes,
+     per Packet Checklist item 9). Unlike photos, a zip can't be recompressed, so files
+     under the size cap are stored as base64 with the record; larger files keep their
+     name/size as a reference but aren't embedded, since storing them locally would risk
+     overflowing the browser's local storage quota. */
+  const MAX_SHAPEFILE_BYTES = 8 * 1024 * 1024;
+  let currentShapefile = null; // {name, size, dataUrl?}
+
+  function formatBytes(bytes){
+    if(bytes < 1024) return bytes + " B";
+    if(bytes < 1024*1024) return Math.round(bytes/1024) + " KB";
+    return (bytes/(1024*1024)).toFixed(1) + " MB";
+  }
+
+  function renderShapefileChip(){
+    const wrap = document.getElementById("shapefile-chip");
+    if(!currentShapefile){ wrap.innerHTML = ""; return; }
+    const sizeLabel = formatBytes(currentShapefile.size) + (currentShapefile.dataUrl ? "" : " — too large to store locally; attach with the packet separately");
+    wrap.innerHTML = `
+      <div class="file-chip">
+        <span class="fc-icon">🗺️</span>
+        <div class="fc-body">
+          <div class="fc-name">${escapeAttr(currentShapefile.name)}</div>
+          <div class="fc-size">${escapeAttr(sizeLabel)}</div>
+        </div>
+        <button type="button" class="fc-remove" id="btn-remove-shapefile" aria-label="Remove shapefile">✕</button>
+      </div>`;
+    document.getElementById("btn-remove-shapefile").addEventListener("click", ()=>{
+      currentShapefile = null;
+      renderShapefileChip();
+    });
+  }
+
+  function handleShapefileFile(file){
+    if(!file) return;
+    if(!/\.zip$/i.test(file.name)){
+      showToast("Shapefile must be a .zip file.", true);
+      return;
+    }
+    if(file.size > MAX_SHAPEFILE_BYTES){
+      currentShapefile = { name: file.name, size: file.size };
+      renderShapefileChip();
+      showToast(`${file.name} is ${formatBytes(file.size)} — too large to store in this local record. Reference kept; attach the file separately with the packet, or use the shared backend for full uploads.`, true);
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      currentShapefile = { name: file.name, size: file.size, dataUrl: reader.result };
+      renderShapefileChip();
+      showToast(`Attached ${file.name}.`);
+    };
+    reader.onerror = () => showToast("Couldn't read that file — try again.", true);
+    reader.readAsDataURL(file);
+  }
+  document.getElementById("btn-upload-shapefile").addEventListener("click", ()=> document.getElementById("input-shapefile").click());
+  document.getElementById("input-shapefile").addEventListener("change", e=>{
+    handleShapefileFile(e.target.files[0]);
+    e.target.value = "";
+  });
+
+  /* ---------------- Populate static controls ---------------- */
+  function fillSelect(el, opts, placeholder){
+    el.innerHTML = "";
+    if(placeholder){
+      const o = document.createElement("option");
+      o.value = ""; o.textContent = placeholder;
+      el.appendChild(o);
+    }
+    opts.forEach(v=>{
+      const o = document.createElement("option");
+      o.value = v; o.textContent = v;
+      el.appendChild(o);
+    });
+  }
+  fillSelect(document.getElementById("f-atcRegion"), ATC_REGIONS, "Select...");
+
+  function buildChips(container, options, name){
+    container.innerHTML = "";
+    options.forEach((opt,i)=>{
+      const id = name+"-"+i;
+      const wrap = document.createElement("label");
+      wrap.className = "chip";
+      wrap.innerHTML = `<input type="checkbox" id="${id}" value="${opt}" name="${name}"><span>${opt}</span>`;
+      container.appendChild(wrap);
+    });
+  }
+  buildChips(document.getElementById("f-states"), STATES, "state");
+  buildChips(document.getElementById("f-projectType"), PROJECT_TYPES, "projectType");
+  buildChips(document.getElementById("f-workType"), WORK_TYPES, "workType");
+  buildChips(document.getElementById("f-fmssTypes"), FMSS_TYPES, "fmssType");
+  buildChips(document.getElementById("f-nrSurveys"), NR_SURVEYS, "nrSurvey");
+  buildChips(document.getElementById("f-crSurveys"), CR_SURVEYS, "crSurvey");
+  buildChips(document.getElementById("f-whoWillDoWork"), WORK_DOERS, "whoWillDoWork");
+  buildChips(document.getElementById("f-landManagers"), LAND_MANAGER_OPTIONS, "landManagers");
+  buildChips(document.getElementById("f-ownershipTypes"), OWNERSHIP_TYPES, "ownershipTypes");
+  buildChips(document.getElementById("f-planningDocType"), PLANNING_DOC_TYPES, "planningDocType");
+  buildChips(document.getElementById("f-expertConsultTypes"), EXPERT_TYPES, "expertConsultTypes");
+  buildChips(document.getElementById("f-seasonalConsiderationTypes"), SEASONAL_CONSIDERATION_TYPES, "seasonalConsiderationTypes");
+  buildChips(document.getElementById("f-siteAccessTypes"), SITE_ACCESS_TYPES, "siteAccessTypes");
+  buildChips(document.getElementById("f-accessModeTypes"), ACCESS_MODES, "accessModeTypes");
+  buildChips(document.getElementById("f-workTimingTypes"), WORK_TIMING_TYPES, "workTimingTypes");
+  buildChips(document.getElementById("f-alterVisitorTypes"), VISITOR_SERVICE_TYPES, "alterVisitorTypes");
+  buildChips(document.getElementById("f-naturalEnvTypes"), NATURAL_ENV_TYPES, "naturalEnvTypes");
+  buildChips(document.getElementById("f-culturalEnvTypes"), CULTURAL_ENV_TYPES, "culturalEnvTypes");
+
+  /* ---------------- County & Trail Club selectors, filtered by selected State(s) ----------------
+     Rather than free-text entry, counties and clubs narrow to only the ones relevant to
+     whichever state(s) are checked in 3.1 — a much shorter, more accurate list than typing
+     county names from memory. Selections outside the currently-valid set are preserved in
+     memory (selectedCounties/selectedClubs) so re-checking a state restores them. */
+  let selectedCounties = new Set();
+  let selectedClubs = new Set();
+
+  function getSelectedStates(){ return getChecked("state"); }
+
+  function renderCountyChips(){
+    const states = getSelectedStates();
+    const container = document.getElementById("f-counties");
+    const hint = document.getElementById("counties-hint");
+    const counties = [...new Set(states.flatMap(s => COUNTIES_BY_STATE[s] || []))].sort();
+    if(counties.length === 0){
+      container.innerHTML = "";
+      hint.style.display = "block";
+      return;
+    }
+    hint.style.display = "none";
+    container.innerHTML = counties.map((c,i)=>{
+      const checked = selectedCounties.has(c) ? "checked" : "";
+      return `<label class="chip"><input type="checkbox" id="county-${i}" value="${escapeAttr(c)}" name="county" ${checked}><span>${escapeHtml(c)}</span></label>`;
+    }).join("");
+    container.querySelectorAll('input[name="county"]').forEach(box=>{
+      box.addEventListener("change", ()=>{
+        if(box.checked) selectedCounties.add(box.value); else selectedCounties.delete(box.value);
+      });
+    });
+  }
+
+  function renderClubChips(){
+    const states = getSelectedStates();
+    const container = document.getElementById("f-trailClub");
+    const hint = document.getElementById("trailclub-hint");
+    const clubs = states.length
+      ? TRAIL_CLUBS.filter(c => c.states.some(s => states.includes(s)))
+      : TRAIL_CLUBS;
+    hint.style.display = states.length ? "none" : "block";
+    container.innerHTML = clubs.map((c,i)=>{
+      const checked = selectedClubs.has(c.name) ? "checked" : "";
+      return `<label class="chip"><input type="checkbox" id="club-${i}" value="${escapeAttr(c.name)}" name="trailClub" ${checked}><span>${escapeHtml(c.name)}</span></label>`;
+    }).join("");
+    container.querySelectorAll('input[name="trailClub"]').forEach(box=>{
+      box.addEventListener("change", ()=>{
+        if(box.checked) selectedClubs.add(box.value); else selectedClubs.delete(box.value);
+      });
+    });
+  }
+
+  function setSelectedCounties(joined){
+    selectedCounties = new Set((joined||"").split("; ").filter(Boolean));
+    renderCountyChips();
+  }
+  function setSelectedClubs(joined){
+    selectedClubs = new Set((joined||"").split("; ").filter(Boolean));
+    renderClubChips();
+  }
+
+  document.getElementById("f-states").addEventListener("change", ()=>{
+    renderCountyChips();
+    renderClubChips();
+  });
+  renderCountyChips();
+  renderClubChips();
+
+  function buildPriorityCards(container, options, name){
+    container.innerHTML = "";
+    options.forEach(([label, cls, desc],i)=>{
+      const id = name+"-"+i;
+      const wrap = document.createElement("label");
+      wrap.className = "priority-card";
+      wrap.innerHTML = `<input type="radio" id="${id}" value="${label}" name="${name}">
+        <div class="pc-inner"><div class="pc-dot ${cls}"></div><div class="pc-text">${label} <span style="font-weight:400;color:var(--ink-soft);font-size:12px;">— ${desc}</span></div></div>`;
+      container.appendChild(wrap);
+    });
+  }
+  buildPriorityCards(document.getElementById("f-priority"), PRIORITY, "priority");
+
+  /* ---------------- Invasive species density (optional, no default) ----------------
+     A lightweight three-way selector (High/Medium/Low) distinct from the Yes/No/Unknown
+     toggle system below, since it has no natural default value the way a Yes/No answer does. */
+  let invasiveDensityValue = "";
+  const invasiveDensityWrap = document.getElementById("f-invasiveDensity");
+  invasiveDensityWrap.querySelectorAll(".toggle-btn").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const already = btn.classList.contains("active");
+      invasiveDensityWrap.querySelectorAll(".toggle-btn").forEach(b=>b.classList.remove("active"));
+      if(!already){ btn.classList.add("active"); invasiveDensityValue = btn.dataset.yn; }
+      else invasiveDensityValue = "";
+    });
+  });
+  function setInvasiveDensity(value){
+    invasiveDensityValue = value || "";
+    invasiveDensityWrap.querySelectorAll(".toggle-btn").forEach(b=>b.classList.toggle("active", b.dataset.yn===value));
+  }
+
+  /* ---------------- Yes/No/Unknown toggle groups ---------------- */
+  const TOGGLE_FIELDS = ["phased","sameFootprint","expandBoundary","stagingRequired","fieldCampRequired","hazMaterials","wasteProduced",
+    "closeRedirect","newSignage","alterVisitorServices","materialsHarvested","wildernessArea","groundDisturbanceCultural","archSite","nrhpProperty"];
+  // Maps a toggle field to the single conditional detail field it should reveal, and the
+  // Yes/No value that reveals it — this removes the old behavior of showing every "If Yes..."
+  // field regardless of the answer, which was the single biggest source of visual clutter.
+  const TOGGLE_CONDITIONAL_MAP = {
+    phased: {onValue:"Yes", target:"f-phases"},
+    sameFootprint: {onValue:"No", target:"f-footprintDistance"},
+    stagingRequired: {onValue:"Yes", target:"f-stagingDetails"},
+    fieldCampRequired: {onValue:"Yes", target:"f-fieldCampDetails"},
+    hazMaterials: {onValue:"Yes", target:"f-hazMaterialsDetails"},
+    wasteProduced: {onValue:"Yes", target:"f-wasteDetails"},
+    closeRedirect: {onValue:"Yes", target:"f-closeRedirectDetails"},
+    alterVisitorServices: {onValue:"Yes", target:["f-alterVisitorTypes","f-alterVisitorTypesOther","f-alterVisitorDetails"]},
+    materialsHarvested: {onValue:"Yes", target:"f-materialsHarvestedDetails"},
+    groundDisturbanceCultural: {onValue:"Yes", target:"f-groundDisturbanceCulturalDetails"},
+    nrhpProperty: {onValue:"Yes", target:"f-nrhpPropertyList"}
+  };
+  const toggleState = {};
+  function applyConditionalVisibility(field, value){
+    const rule = TOGGLE_CONDITIONAL_MAP[field];
+    if(!rule) return;
+    const targets = Array.isArray(rule.target) ? rule.target : [rule.target];
+    targets.forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.classList.toggle("show", value === rule.onValue);
+    });
+  }
+  TOGGLE_FIELDS.forEach(f=>{
+    const wrap = document.getElementById("f-"+f);
+    if(!wrap) return;
+    const active = wrap.querySelector(".toggle-btn.active");
+    toggleState[f] = active ? active.dataset.yn : "No";
+    applyConditionalVisibility(f, toggleState[f]);
+    wrap.querySelectorAll(".toggle-btn").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        wrap.querySelectorAll(".toggle-btn").forEach(b=>b.classList.remove("active"));
+        btn.classList.add("active");
+        toggleState[f] = btn.dataset.yn;
+        applyConditionalVisibility(f, btn.dataset.yn);
+      });
+    });
+  });
+
+  /* ---------------- "Other" chips reveal their free-text field ---------------- */
+  const OTHER_CHIP_MAP = [
+    {containerId:"f-workType", otherId:"f-workTypeOther"},
+    {containerId:"f-fmssTypes", otherId:"f-fmssTypeOther"},
+    {containerId:"f-nrSurveys", otherId:"f-nrSurveysOther"},
+    {containerId:"f-crSurveys", otherId:"f-crSurveysOther"},
+    {containerId:"f-whoWillDoWork", otherId:"f-whoWillDoWorkOther"},
+    {containerId:"f-landManagers", otherId:"f-landManagersOther"},
+    {containerId:"f-ownershipTypes", otherId:"f-ownershipTypesOther"},
+    {containerId:"f-planningDocType", otherId:"f-planningDocTypeOther"},
+    {containerId:"f-expertConsultTypes", otherId:"f-expertConsultTypesOther"},
+    {containerId:"f-seasonalConsiderationTypes", otherId:"f-seasonalConsiderationTypesOther"},
+    {containerId:"f-siteAccessTypes", otherId:"f-siteAccessTypesOther"},
+    {containerId:"f-accessModeTypes", otherId:"f-accessModeTypesOther"},
+    {containerId:"f-workTimingTypes", otherId:"f-workTimingTypesOther"},
+    {containerId:"f-alterVisitorTypes", otherId:"f-alterVisitorTypesOther"},
+    {containerId:"f-naturalEnvTypes", otherId:"f-naturalEnvTypesOther"},
+    {containerId:"f-culturalEnvTypes", otherId:"f-culturalEnvTypesOther"}
+  ];
+  function syncOtherVisibility(containerId, otherId){
+    const container = document.getElementById(containerId);
+    const other = document.getElementById(otherId);
+    if(!container || !other) return;
+    const otherBox = container.querySelector('input[value="Other"]');
+    other.classList.toggle("show", !!(otherBox && otherBox.checked));
+  }
+  OTHER_CHIP_MAP.forEach(({containerId, otherId})=>{
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    container.addEventListener("change", ()=> syncOtherVisibility(containerId, otherId));
+    syncOtherVisibility(containerId, otherId);
+  });
+
+  /* ---------------- Packet checklist (guide tab, local only) ---------------- */
+  const CHECKLIST_KEY = "appa_proposal_checklist_v1";
+  function renderPacketChecklist(){
+    let saved = {};
+    try{ saved = JSON.parse(localStorage.getItem(CHECKLIST_KEY) || "{}"); }catch(e){}
+    const wrap = document.getElementById("packet-checklist");
+    wrap.innerHTML = PACKET_ITEMS.map(([title,desc],i)=>{
+      const checked = saved[title] ? "checked" : "";
+      return `<div class="checklist-row">
+        <input type="checkbox" id="pk-${i}" data-key="${escapeAttr(title)}" ${checked}>
+        <label for="pk-${i}"><b>${escapeHtml(title)}</b> ${escapeHtml(desc)}</label>
+      </div>`;
+    }).join("");
+    wrap.querySelectorAll("input[type=checkbox]").forEach(cb=>{
+      cb.addEventListener("change", ()=>{
+        let s = {};
+        try{ s = JSON.parse(localStorage.getItem(CHECKLIST_KEY) || "{}"); }catch(e){}
+        s[cb.dataset.key] = cb.checked;
+        try{ localStorage.setItem(CHECKLIST_KEY, JSON.stringify(s)); }catch(e){}
+      });
+    });
+  }
+
+  /* ---------------- Tabs ---------------- */
+  document.querySelectorAll(".tab").forEach(tab=>{
+    tab.addEventListener("click", ()=>{
+      document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+      document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+      tab.classList.add("active");
+      document.getElementById("view-"+tab.dataset.view).classList.add("active");
+      document.getElementById("form-action-bar").style.display = tab.dataset.view==="form" ? "flex" : "none";
+      if(tab.dataset.view==="table") renderTable();
+      if(tab.dataset.view==="map") renderMap();
+      if(tab.dataset.view==="analytics") renderAnalytics();
+      if(tab.dataset.view==="guide") renderPacketChecklist();
+    });
+  });
+  document.getElementById("btn-recenter-map").addEventListener("click", ()=>{
+    if(!projMap) return;
+    projMap.invalidateSize();
+    fitProjMapToBounds(projMapLastBounds);
+  });
+
+  /* ---------------- Accordion sections + progress/jump nav ----------------
+     The form has 8 numbered sections. Rather than one long scroll, sections
+     collapse to their header and open one at a time, with a sticky strip of
+     jump chips at the top (numbered 1–8) so the applicant can see where they
+     are and skip straight to any section without scrolling past the rest. */
+  const SECTION_CARDS = [...document.querySelectorAll(".card[data-section]")];
+  const progressNav = document.getElementById("progress-nav");
+
+  function renderProgressNav(){
+    progressNav.innerHTML = SECTION_CARDS.map(card=>{
+      const n = card.dataset.section;
+      const filled = card.classList.contains("filled") ? "filled" : "";
+      const open = !card.classList.contains("collapsed") ? "open" : "";
+      return `<button type="button" class="progress-chip ${filled} ${open}" data-jump="${n}" title="Section ${n}">${filled ? "✓" : n}</button>`;
+    }).join("");
+  }
+  progressNav.addEventListener("click", e=>{
+    const btn = e.target.closest("[data-jump]");
+    if(!btn) return;
+    openSection(btn.dataset.jump, true);
+  });
+
+  function openSection(n, scrollTo){
+    SECTION_CARDS.forEach(card=>{
+      card.classList.toggle("collapsed", card.dataset.section !== String(n));
+    });
+    renderProgressNav();
+    if(scrollTo){
+      const el = document.getElementById("section-"+n);
+      if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+  }
+
+  SECTION_CARDS.forEach(card=>{
+    const head = card.querySelector(".card-head");
+    head.addEventListener("click", ()=>{
+      const willCollapse = !card.classList.contains("collapsed");
+      SECTION_CARDS.forEach(c=>c.classList.add("collapsed"));
+      if(!willCollapse) card.classList.remove("collapsed");
+      renderProgressNav();
+    });
+  });
+
+  // A section is marked "filled" once any input/textarea/select/checkbox inside it has
+  // a non-empty value — a lightweight progress signal, not full per-question validation.
+  function isFieldFilled(el){
+    if(el.type === "checkbox" || el.type === "radio") return el.checked;
+    return !!el.value && el.value.trim() !== "";
+  }
+  function refreshFilledState(){
+    SECTION_CARDS.forEach(card=>{
+      const fields = card.querySelectorAll("input, textarea, select");
+      const anyFilled = [...fields].some(isFieldFilled);
+      card.classList.toggle("filled", anyFilled);
+    });
+    renderProgressNav();
+  }
+  document.getElementById("proposal-form").addEventListener("input", debounce(refreshFilledState, 300));
+  document.getElementById("proposal-form").addEventListener("change", refreshFilledState);
+
+  function debounce(fn, ms){
+    let t;
+    return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), ms); };
+  }
+
+  // Start with Section 1 open, the rest collapsed.
+  openSection("1", false);
+  refreshFilledState();
+
+  /* ---------------- Next Record ID ---------------- */
+  function suggestNextId(){
+    let max = 0;
+    Object.keys(entries).forEach(id=>{
+      const m = /PP-(\d+)/.exec(id);
+      if(m) max = Math.max(max, parseInt(m[1]));
+    });
+    return "PP-" + String(max+1).padStart(3,"0");
+  }
+  document.getElementById("btn-next-id").addEventListener("click", ()=>{
+    document.getElementById("f-recordId").value = suggestNextId();
+  });
+
+  /* geolocation */
+  document.getElementById("btn-geo").addEventListener("click", ()=>{
+    if(!navigator.geolocation){ showToast("Geolocation not available on this device.", true); return; }
+    showToast("Getting location…");
+    navigator.geolocation.getCurrentPosition(pos=>{
+      document.getElementById("f-lat").value = pos.coords.latitude.toFixed(5);
+      document.getElementById("f-lng").value = pos.coords.longitude.toFixed(5);
+      showToast("Location captured.");
+    }, err=>{
+      showToast("Couldn't get location: " + err.message, true);
+    }, {enableHighAccuracy:true, timeout:10000});
+  });
+
+  /* ---------------- Save / Reset / Edit ---------------- */
+  function resetForm(clearId){
+    document.getElementById("proposal-form").reset();
+    document.getElementById("f-submissionDate").value = new Date().toISOString().slice(0,10);
+    photosTaken = "No";
+    document.querySelectorAll("[data-photos]").forEach(b=>b.classList.toggle("active", b.dataset.photos==="No"));
+    currentPhotos = [];
+    renderPhotoThumbs();
+    currentShapefile = null;
+    renderShapefileChip();
+    setInvasiveDensity("");
+    TOGGLE_FIELDS.forEach(f=>{
+      const wrap = document.getElementById("f-"+f);
+      if(!wrap) return;
+      const defaultBtn = wrap.querySelector('.toggle-btn[data-yn="No"]') || wrap.querySelector(".toggle-btn");
+      wrap.querySelectorAll(".toggle-btn").forEach(b=>b.classList.toggle("active", b===defaultBtn));
+      toggleState[f] = defaultBtn ? defaultBtn.dataset.yn : "No";
+      applyConditionalVisibility(f, toggleState[f]);
+    });
+    OTHER_CHIP_MAP.forEach(({containerId, otherId})=> syncOtherVisibility(containerId, otherId));
+    selectedCounties = new Set();
+    selectedClubs = new Set();
+    renderCountyChips();
+    renderClubChips();
+    editingId = null;
+    document.getElementById("edit-indicator").style.display = "none";
+    document.getElementById("btn-save").textContent = "Save Proposal";
+    if(clearId!==false) document.getElementById("f-recordId").value = suggestNextId();
+    if(typeof openSection === "function") openSection("1", false);
+    if(typeof refreshFilledState === "function") refreshFilledState();
+  }
+
+  function getChecked(name){ return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(b=>b.value); }
+  function getVal(id){ return document.getElementById(id).value; }
+  function getTrimmed(id){ return document.getElementById(id).value.trim(); }
+
+  function collectForm(){
+    const recordId = getTrimmed("f-recordId");
+    const title = getTrimmed("f-title");
+    const briefDesc = getTrimmed("f-briefDesc");
+    const problem = getTrimmed("f-problem");
+    const priority = (document.querySelector('input[name="priority"]:checked')||{}).value || "";
+    const projectType = getChecked("projectType");
+    const workType = getChecked("workType");
+
+    const errors = [];
+    if(!recordId) errors.push("Record ID");
+    if(!title) errors.push("Project Title");
+    if(!briefDesc) errors.push("Brief Project Description");
+    if(!problem) errors.push("Problem/Condition (2.1)");
+    if(!priority) errors.push("Priority Level");
+    if(projectType.length===0) errors.push("Project Type");
+    if(workType.length===0) errors.push("Work Type");
+
+    if(errors.length){
+      showToast("Missing required: " + errors.slice(0,3).join(", ") + (errors.length>3 ? "…" : ""), true);
+      return null;
+    }
+
+    return buildEntryObject();
+  }
+
+  // Gathers every field into an entry object with no required-field validation — used by
+  // collectForm() (after it validates) and by the draft autosave (which must tolerate a
+  // partially-filled form).
+  function buildEntryObject(){
+    const recordId = getTrimmed("f-recordId");
+    const title = getTrimmed("f-title");
+    const briefDesc = getTrimmed("f-briefDesc");
+    const problem = getTrimmed("f-problem");
+    const priority = (document.querySelector('input[name="priority"]:checked')||{}).value || "";
+    const projectType = getChecked("projectType");
+    const workType = getChecked("workType");
+    return {
+      recordId, title, briefDesc,
+      submissionDate: getVal("f-submissionDate"),
+      capitalPlanId: getTrimmed("f-capitalPlanId"),
+      pmisNo: getTrimmed("f-pmisNo"),
+      leadName: getTrimmed("f-leadName"), leadPosition: getTrimmed("f-leadPosition"), leadPhone: getTrimmed("f-leadPhone"), leadEmail: getTrimmed("f-leadEmail"),
+      atcName: getTrimmed("f-atcName"), atcPosition: getTrimmed("f-atcPosition"), atcPhone: getTrimmed("f-atcPhone"), atcEmail: getTrimmed("f-atcEmail"),
+      whoWillDoWork: getChecked("whoWillDoWork").join("; "), whoWillDoWorkOther: getTrimmed("f-whoWillDoWorkOther"),
+      problem, alternatives: getTrimmed("f-alternatives"),
+      planningDocType: getChecked("planningDocType").join("; "), planningDocTypeOther: getTrimmed("f-planningDocTypeOther"), planningDoc: getTrimmed("f-planningDoc"),
+      expertConsultTypes: getChecked("expertConsultTypes").join("; "), expertConsultTypesOther: getTrimmed("f-expertConsultTypesOther"), expertConsults: getTrimmed("f-expertConsults"),
+      partnerConsults: getTrimmed("f-partnerConsults"),
+      seasonalConsiderationTypes: getChecked("seasonalConsiderationTypes").join("; "), seasonalConsiderationTypesOther: getTrimmed("f-seasonalConsiderationTypesOther"), seasonalConsiderations: getTrimmed("f-seasonalConsiderations"), safetyConcerns: getTrimmed("f-safetyConcerns"),
+      priority, priorityExplanation: getTrimmed("f-priorityExplanation"),
+      projectType: projectType.join("; "), workType: workType.join("; "), workTypeOther: getTrimmed("f-workTypeOther"),
+      startDate: getVal("f-startDate"), completionDate: getVal("f-completionDate"),
+      phased: toggleState.phased, phases: getTrimmed("f-phases"),
+      states: getChecked("state").join("; "), counties: getChecked("county").join("; "), countiesOther: getTrimmed("f-countiesOther"),
+      atcRegion: getVal("f-atcRegion"), trailClub: getChecked("trailClub").join("; "), trailClubOther: getTrimmed("f-trailClubOther"),
+      landManagers: getChecked("landManagers").join("; "), landManagersOther: getTrimmed("f-landManagersOther"),
+      ownershipTypes: getChecked("ownershipTypes").join("; "), ownershipTypesOther: getTrimmed("f-ownershipTypesOther"),
+      tractNumbers: getTrimmed("f-tractNumbers"), lat: getVal("f-lat"), lng: getVal("f-lng"),
+      fmssNames: getTrimmed("f-fmssNames"), fmssNumbers: getTrimmed("f-fmssNumbers"),
+      fmssTypes: getChecked("fmssType").join("; "), fmssTypeOther: getTrimmed("f-fmssTypeOther"),
+      sameFootprint: toggleState.sameFootprint, footprintDistance: getTrimmed("f-footprintDistance"), expandBoundary: toggleState.expandBoundary,
+      siteAccessTypes: getChecked("siteAccessTypes").join("; "), siteAccessTypesOther: getTrimmed("f-siteAccessTypesOther"), siteAccess: getTrimmed("f-siteAccess"),
+      accessModeTypes: getChecked("accessModeTypes").join("; "), accessModeTypesOther: getTrimmed("f-accessModeTypesOther"), accessMode: getTrimmed("f-accessMode"),
+      materials: getTrimmed("f-materials"), equipment: getTrimmed("f-equipment"),
+      stagingRequired: toggleState.stagingRequired, stagingDetails: getTrimmed("f-stagingDetails"),
+      maxPeople: getVal("f-maxPeople"),
+      workTimingTypes: getChecked("workTimingTypes").join("; "), workTimingTypesOther: getTrimmed("f-workTimingTypesOther"), workDuration: getTrimmed("f-workDuration"),
+      fieldCampRequired: toggleState.fieldCampRequired, fieldCampDetails: getTrimmed("f-fieldCampDetails"),
+      hazMaterials: toggleState.hazMaterials, hazMaterialsDetails: getTrimmed("f-hazMaterialsDetails"),
+      wasteProduced: toggleState.wasteProduced, wasteDetails: getTrimmed("f-wasteDetails"),
+      closeRedirect: toggleState.closeRedirect, closeRedirectDetails: getTrimmed("f-closeRedirectDetails"),
+      newSignage: toggleState.newSignage,
+      alterVisitorServices: toggleState.alterVisitorServices,
+      alterVisitorTypes: getChecked("alterVisitorTypes").join("; "), alterVisitorTypesOther: getTrimmed("f-alterVisitorTypesOther"), alterVisitorDetails: getTrimmed("f-alterVisitorDetails"),
+      universalDesign: getTrimmed("f-universalDesign"),
+      naturalEnvTypes: getChecked("naturalEnvTypes").join("; "), naturalEnvTypesOther: getTrimmed("f-naturalEnvTypesOther"), naturalEnv: getTrimmed("f-naturalEnv"),
+      vegetationClearing: getTrimmed("f-vegetationClearing"),
+      groundDisturbanceArea: getTrimmed("f-groundDisturbanceArea"),
+      materialsHarvested: toggleState.materialsHarvested, materialsHarvestedDetails: getTrimmed("f-materialsHarvestedDetails"),
+      wildernessArea: toggleState.wildernessArea,
+      invasiveDensity: invasiveDensityValue, invasiveSpecies: getTrimmed("f-invasiveSpecies"), rareSpecies: getTrimmed("f-rareSpecies"),
+      nrSurveys: getChecked("nrSurvey").join("; "), nrSurveysOther: getTrimmed("f-nrSurveysOther"), nrSurveysPlannedWho: getTrimmed("f-nrSurveysPlannedWho"),
+      mitigationNR: getTrimmed("f-mitigationNR"),
+      culturalEnvTypes: getChecked("culturalEnvTypes").join("; "), culturalEnvTypesOther: getTrimmed("f-culturalEnvTypesOther"), culturalEnv: getTrimmed("f-culturalEnv"),
+      groundDisturbanceCultural: toggleState.groundDisturbanceCultural, groundDisturbanceCulturalDetails: getTrimmed("f-groundDisturbanceCulturalDetails"),
+      archSite: toggleState.archSite, nrhpProperty: toggleState.nrhpProperty, nrhpPropertyList: getTrimmed("f-nrhpPropertyList"),
+      crSurveys: getChecked("crSurvey").join("; "), crSurveysOther: getTrimmed("f-crSurveysOther"),
+      mitigationCR: getTrimmed("f-mitigationCR"),
+      photosTaken, photoRef: getTrimmed("f-photoref"), photos: currentPhotos.slice(),
+      shapefile: currentShapefile ? {...currentShapefile} : null,
+      notes: getTrimmed("f-notes"),
+      savedAt: new Date().toISOString()
+    };
+  }
+
+  async function saveEntry(){
+    const entry = collectForm();
+    if(!entry) return;
+    entries[entry.recordId] = entry;
+    updateCountBadge();
+    saveProfile(entry);
+    clearDraft();
+    const btn = document.getElementById("btn-save");
+    const btnOriginalText = btn.textContent;
+    btn.disabled = true;
+    btn.classList.remove("btn-success","btn-warn");
+    btn.classList.add("btn-saving");
+    btn.innerHTML = `<span class="btn-spinner"></span> Saving ${entry.recordId}…`;
+
+    let outcome = "success";
+    try{
+      if(BACKEND_CONFIGURED){
+        const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({ action:"save", token: CONFIG.SHARED_TOKEN, entry })
+        });
+        const data = await res.json();
+        if(!data.ok) throw new Error(data.error || "save failed");
+        if(data.photos){ entries[entry.recordId].photos = data.photos; }
+        if(data.shapefile){ entries[entry.recordId].shapefile = data.shapefile; }
+        if(data.photoErrors && data.photoErrors.length){
+          outcome = "warn";
+          showToast(`Saved ${entry.recordId}, but ${data.photoErrors.length} photo(s) had a note: ${data.photoErrors[0]}`, true);
+        } else {
+          showToast(`Saved ${entry.recordId} — shared with the proposal log.`);
+        }
+      } else {
+        saveLocal();
+        outcome = "warn";
+        showToast(`Saved ${entry.recordId} locally (no backend configured — see CONFIG at top of the script).`, true);
+      }
+    } catch(err){
+      saveLocal();
+      outcome = "warn";
+      showToast(`Saved ${entry.recordId} on this device only — ${err.message}`, true);
+    }
+
+    if(navigator.vibrate){ navigator.vibrate(outcome==="success" ? 60 : [40,60,40]); }
+
+    btn.classList.remove("btn-saving");
+    if(outcome==="success"){
+      btn.classList.add("btn-success");
+      btn.innerHTML = `✓ Saved ${entry.recordId}`;
+    } else {
+      btn.classList.add("btn-warn");
+      btn.innerHTML = `⚠ Saved locally — check log`;
+    }
+    await new Promise(r => setTimeout(r, 900));
+    btn.classList.remove("btn-success","btn-warn");
+    btn.disabled = false;
+    btn.textContent = btnOriginalText;
+    resetForm(true);
+  }
+  document.getElementById("btn-save").addEventListener("click", saveEntry);
+  document.getElementById("btn-reset").addEventListener("click", ()=>{
+    resetForm(true);
+    if(typeof clearDraft === "function") clearDraft();
+    if(typeof applyProfileToForm === "function") applyProfileToForm();
+  });
+
+  function setToggle(field, value){
+    const wrap = document.getElementById("f-"+field);
+    if(!wrap) return;
+    wrap.querySelectorAll(".toggle-btn").forEach(b=>b.classList.toggle("active", b.dataset.yn===value));
+    toggleState[field] = value || "No";
+    applyConditionalVisibility(field, toggleState[field]);
+  }
+  function setChecked(name, joined){
+    const values = (joined||"").split("; ").filter(Boolean);
+    values.forEach(v=>{
+      const box = document.querySelector(`input[name="${name}"][value="${CSS.escape(v)}"]`);
+      if(box) box.checked = true;
+    });
+  }
+
+  function loadIntoForm(e){
+    document.getElementById("f-recordId").value = e.recordId;
+    document.getElementById("f-title").value = e.title || "";
+    document.getElementById("f-briefDesc").value = e.briefDesc || "";
+    document.getElementById("f-submissionDate").value = e.submissionDate || "";
+    document.getElementById("f-capitalPlanId").value = e.capitalPlanId || "";
+    document.getElementById("f-pmisNo").value = e.pmisNo || "";
+    document.getElementById("f-leadName").value = e.leadName || "";
+    document.getElementById("f-leadPosition").value = e.leadPosition || "";
+    document.getElementById("f-leadPhone").value = e.leadPhone || "";
+    document.getElementById("f-leadEmail").value = e.leadEmail || "";
+    document.getElementById("f-atcName").value = e.atcName || "";
+    document.getElementById("f-atcPosition").value = e.atcPosition || "";
+    document.getElementById("f-atcPhone").value = e.atcPhone || "";
+    document.getElementById("f-atcEmail").value = e.atcEmail || "";
+    setChecked("whoWillDoWork", e.whoWillDoWork);
+    document.getElementById("f-whoWillDoWorkOther").value = e.whoWillDoWorkOther || "";
+    document.getElementById("f-problem").value = e.problem || "";
+    document.getElementById("f-alternatives").value = e.alternatives || "";
+    setChecked("planningDocType", e.planningDocType);
+    document.getElementById("f-planningDocTypeOther").value = e.planningDocTypeOther || "";
+    document.getElementById("f-planningDoc").value = e.planningDoc || "";
+    setChecked("expertConsultTypes", e.expertConsultTypes);
+    document.getElementById("f-expertConsultTypesOther").value = e.expertConsultTypesOther || "";
+    document.getElementById("f-expertConsults").value = e.expertConsults || "";
+    document.getElementById("f-partnerConsults").value = e.partnerConsults || "";
+    setChecked("seasonalConsiderationTypes", e.seasonalConsiderationTypes);
+    document.getElementById("f-seasonalConsiderationTypesOther").value = e.seasonalConsiderationTypesOther || "";
+    document.getElementById("f-seasonalConsiderations").value = e.seasonalConsiderations || "";
+    document.getElementById("f-safetyConcerns").value = e.safetyConcerns || "";
+    if(e.priority){ const r = document.querySelector(`input[name="priority"][value="${CSS.escape(e.priority)}"]`); if(r) r.checked = true; }
+    document.getElementById("f-priorityExplanation").value = e.priorityExplanation || "";
+    setChecked("projectType", e.projectType);
+    setChecked("workType", e.workType);
+    document.getElementById("f-workTypeOther").value = e.workTypeOther || "";
+    document.getElementById("f-startDate").value = e.startDate || "";
+    document.getElementById("f-completionDate").value = e.completionDate || "";
+    setToggle("phased", e.phased);
+    document.getElementById("f-phases").value = e.phases || "";
+    setChecked("state", e.states);
+    setSelectedCounties(e.counties);
+    document.getElementById("f-countiesOther").value = e.countiesOther || "";
+    document.getElementById("f-atcRegion").value = e.atcRegion || "";
+    setSelectedClubs(e.trailClub);
+    document.getElementById("f-trailClubOther").value = e.trailClubOther || "";
+    setChecked("landManagers", e.landManagers);
+    document.getElementById("f-landManagersOther").value = e.landManagersOther || "";
+    setChecked("ownershipTypes", e.ownershipTypes);
+    document.getElementById("f-ownershipTypesOther").value = e.ownershipTypesOther || "";
+    document.getElementById("f-tractNumbers").value = e.tractNumbers || "";
+    document.getElementById("f-lat").value = e.lat || "";
+    document.getElementById("f-lng").value = e.lng || "";
+    document.getElementById("f-fmssNames").value = e.fmssNames || "";
+    document.getElementById("f-fmssNumbers").value = e.fmssNumbers || "";
+    setChecked("fmssType", e.fmssTypes);
+    document.getElementById("f-fmssTypeOther").value = e.fmssTypeOther || "";
+    setToggle("sameFootprint", e.sameFootprint);
+    document.getElementById("f-footprintDistance").value = e.footprintDistance || "";
+    setToggle("expandBoundary", e.expandBoundary);
+    setChecked("siteAccessTypes", e.siteAccessTypes);
+    document.getElementById("f-siteAccessTypesOther").value = e.siteAccessTypesOther || "";
+    document.getElementById("f-siteAccess").value = e.siteAccess || "";
+    setChecked("accessModeTypes", e.accessModeTypes);
+    document.getElementById("f-accessModeTypesOther").value = e.accessModeTypesOther || "";
+    document.getElementById("f-accessMode").value = e.accessMode || "";
+    document.getElementById("f-materials").value = e.materials || "";
+    document.getElementById("f-equipment").value = e.equipment || "";
+    setToggle("stagingRequired", e.stagingRequired);
+    document.getElementById("f-stagingDetails").value = e.stagingDetails || "";
+    document.getElementById("f-maxPeople").value = e.maxPeople || "";
+    setChecked("workTimingTypes", e.workTimingTypes);
+    document.getElementById("f-workTimingTypesOther").value = e.workTimingTypesOther || "";
+    document.getElementById("f-workDuration").value = e.workDuration || "";
+    setToggle("fieldCampRequired", e.fieldCampRequired);
+    document.getElementById("f-fieldCampDetails").value = e.fieldCampDetails || "";
+    setToggle("hazMaterials", e.hazMaterials);
+    document.getElementById("f-hazMaterialsDetails").value = e.hazMaterialsDetails || "";
+    setToggle("wasteProduced", e.wasteProduced);
+    document.getElementById("f-wasteDetails").value = e.wasteDetails || "";
+    setToggle("closeRedirect", e.closeRedirect);
+    document.getElementById("f-closeRedirectDetails").value = e.closeRedirectDetails || "";
+    setToggle("newSignage", e.newSignage);
+    setToggle("alterVisitorServices", e.alterVisitorServices);
+    setChecked("alterVisitorTypes", e.alterVisitorTypes);
+    document.getElementById("f-alterVisitorTypesOther").value = e.alterVisitorTypesOther || "";
+    document.getElementById("f-alterVisitorDetails").value = e.alterVisitorDetails || "";
+    document.getElementById("f-universalDesign").value = e.universalDesign || "";
+    setChecked("naturalEnvTypes", e.naturalEnvTypes);
+    document.getElementById("f-naturalEnvTypesOther").value = e.naturalEnvTypesOther || "";
+    document.getElementById("f-naturalEnv").value = e.naturalEnv || "";
+    document.getElementById("f-vegetationClearing").value = e.vegetationClearing || "";
+    document.getElementById("f-groundDisturbanceArea").value = e.groundDisturbanceArea || "";
+    setToggle("materialsHarvested", e.materialsHarvested);
+    document.getElementById("f-materialsHarvestedDetails").value = e.materialsHarvestedDetails || "";
+    setToggle("wildernessArea", e.wildernessArea);
+    setInvasiveDensity(e.invasiveDensity);
+    document.getElementById("f-invasiveSpecies").value = e.invasiveSpecies || "";
+    document.getElementById("f-rareSpecies").value = e.rareSpecies || "";
+    setChecked("nrSurvey", e.nrSurveys);
+    document.getElementById("f-nrSurveysOther").value = e.nrSurveysOther || "";
+    document.getElementById("f-nrSurveysPlannedWho").value = e.nrSurveysPlannedWho || "";
+    document.getElementById("f-mitigationNR").value = e.mitigationNR || "";
+    setChecked("culturalEnvTypes", e.culturalEnvTypes);
+    document.getElementById("f-culturalEnvTypesOther").value = e.culturalEnvTypesOther || "";
+    document.getElementById("f-culturalEnv").value = e.culturalEnv || "";
+    setToggle("groundDisturbanceCultural", e.groundDisturbanceCultural);
+    document.getElementById("f-groundDisturbanceCulturalDetails").value = e.groundDisturbanceCulturalDetails || "";
+    setToggle("archSite", e.archSite);
+    setToggle("nrhpProperty", e.nrhpProperty);
+    document.getElementById("f-nrhpPropertyList").value = e.nrhpPropertyList || "";
+    setChecked("crSurvey", e.crSurveys);
+    document.getElementById("f-crSurveysOther").value = e.crSurveysOther || "";
+    document.getElementById("f-mitigationCR").value = e.mitigationCR || "";
+    OTHER_CHIP_MAP.forEach(({containerId, otherId})=> syncOtherVisibility(containerId, otherId));
+    photosTaken = e.photosTaken || "No";
+    document.querySelectorAll("[data-photos]").forEach(b=>b.classList.toggle("active", b.dataset.photos===photosTaken));
+    document.getElementById("f-photoref").value = e.photoRef || "";
+    currentPhotos = (e.photos || []).slice();
+    renderPhotoThumbs();
+    currentShapefile = e.shapefile ? {...e.shapefile} : null;
+    renderShapefileChip();
+    document.getElementById("f-notes").value = e.notes || "";
+    editingId = e.recordId;
+    document.getElementById("edit-indicator").style.display = "block";
+    document.getElementById("btn-save").textContent = "Update Proposal";
+    if(typeof openSection === "function") openSection("1", false);
+    if(typeof refreshFilledState === "function") refreshFilledState();
+  }
+
+  async function deleteEntry(recordId){
+    if(!confirm(`Delete record ${recordId}? This can't be undone.`)) return;
+    delete entries[recordId];
+    renderTable();
+    updateCountBadge();
+    try{
+      if(BACKEND_CONFIGURED){
+        const res = await fetch(CONFIG.APPS_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify({ action:"delete", token: CONFIG.SHARED_TOKEN, recordId })
+        });
+        const data = await res.json();
+        if(!data.ok) throw new Error(data.error || "delete failed");
+      } else {
+        saveLocal();
+      }
+      showToast(`Deleted ${recordId}.`);
+    }catch(err){
+      saveLocal();
+      showToast(`Deleted ${recordId} on this device. Couldn't reach the shared log to delete it there too.`, true);
+    }
+  }
+
+  /* ---------------- Local-only fallback ---------------- */
+  function saveLocal(){
+    try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(entries)); }catch(e){}
+  }
+  function loadLocal(){
+    try{
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if(raw) entries = JSON.parse(raw);
+    }catch(e){}
+  }
+
+  async function loadEntries(){
+    if(!BACKEND_CONFIGURED){
+      loadLocal();
+      updateCountBadge();
+      renderTable();
+      document.getElementById("f-recordId").value = suggestNextId();
+      return;
+    }
+    document.getElementById("entries-container").innerHTML = `<div class="empty-state"><div class="em-icon">↻</div><p>Loading proposal log…</p></div>`;
+    try{
+      const res = await fetch(CONFIG.APPS_SCRIPT_URL, { method:"GET" });
+      const data = await res.json();
+      if(!data.ok) throw new Error(data.error || "load failed");
+      entries = {};
+      (data.entries||[]).forEach(e=>{ entries[e.recordId] = e; });
+      updateCountBadge();
+      renderTable();
+      document.getElementById("f-recordId").value = suggestNextId();
+    }catch(err){
+      loadLocal();
+      updateCountBadge();
+      renderTable();
+      document.getElementById("f-recordId").value = suggestNextId();
+      showToast("Could not reach the shared proposal log — showing this device's local data instead.", true);
+    }
+  }
+  document.getElementById("btn-refresh").addEventListener("click", async ()=>{
+    entries = {};
+    document.getElementById("entries-container").innerHTML = `<div class="empty-state"><div class="em-icon">↻</div><p>Refreshing…</p></div>`;
+    await loadEntries();
+    showToast("Proposal log refreshed.");
+  });
+
+  /* ---------------- Render table ---------------- */
+  function priorityCls(p){
+    if(p==="Urgent") return "urgent";
+    if(p==="High") return "high";
+    if(p==="Medium") return "medium";
+    return "none";
+  }
+  function updateCountBadge(){
+    const n = Object.keys(entries).length;
+    document.getElementById("count-badge").textContent = n;
+    document.getElementById("tbl-count").textContent = n===1 ? "1 proposal logged" : n + " proposals logged";
+    document.getElementById("btn-export").disabled = n===0;
+  }
+  function renderTable(){
+    const container = document.getElementById("entries-container");
+    const list = Object.values(entries).sort((a,b)=> a.recordId.localeCompare(b.recordId, undefined, {numeric:true}));
+    if(list.length===0){
+      container.innerHTML = `<div class="empty-state"><div class="em-icon">📋</div><h3>No proposals logged yet</h3><p>Entries you save from the New Proposal tab will appear here.</p></div>`;
+      return;
+    }
+    container.innerHTML = list.map(e=>{
+      const cls = priorityCls(e.priority);
+      const types = (e.projectType||"").split("; ").filter(Boolean).map(t=>`<span class="type-pill">${escapeHtml(t)}</span>`).join("");
+      return `
+      <div class="entry-card">
+        <div class="entry-top">
+          <span class="eid">${escapeHtml(e.recordId)}</span>
+          <span class="esite">${escapeHtml(e.title||"Untitled")}</span>
+          <div class="priority-pill ${cls}">${escapeHtml(e.priority||"—")}</div>
+        </div>
+        <div class="entry-grid">
+          <div><b>Submitted</b><span>${escapeHtml(e.submissionDate||'—')}</span></div>
+          <div><b>State(s)</b><span>${escapeHtml(e.states||'—')}</span></div>
+          <div><b>ATC Region</b><span>${escapeHtml(e.atcRegion||'—')}</span></div>
+          <div><b>Lead</b><span>${escapeHtml(e.leadName||'—')}</span></div>
+          <div><b>Target Start</b><span>${escapeHtml(e.startDate||'—')}</span></div>
+          <div><b>Target Completion</b><span>${escapeHtml(e.completionDate||'—')}</span></div>
+          <div class="entry-full"><b>Project Type</b><span>${types||'—'}</span></div>
+          <div><b>Shapefile</b><span>${e.shapefile ? "🗺️ " + escapeHtml(e.shapefile.name) : "—"}</span></div>
+          <div class="entry-full"><b>Brief Description</b><span>${escapeHtml(e.briefDesc||'—')}</span></div>
+          ${e.notes ? `<div class="entry-full"><b>Notes</b><span>${escapeHtml(e.notes)}</span></div>` : ""}
+        </div>
+        ${(e.photos && e.photos.length) ? `<div class="entry-photo-strip">${e.photos.map(p=>`<div class="ep-thumb" data-photo-src="${escapeAttr(p.url || p.dataUrl)}"><img src="${p.url || p.dataUrl}" alt="${escapeAttr(p.name)}"></div>`).join("")}</div>` : ""}
+        <div class="entry-actions">
+          <button class="btn-edit" data-edit="${escapeAttr(e.recordId)}">Edit</button>
+          <button class="btn-dup" data-dup="${escapeAttr(e.recordId)}">Duplicate</button>
+          <button class="btn-pdf" data-pdf="${escapeAttr(e.recordId)}">Download PDF</button>
+          <button class="btn-del" data-del="${escapeAttr(e.recordId)}">Delete</button>
+        </div>
+      </div>`;
+    }).join("");
+
+    container.querySelectorAll("[data-photo-src]").forEach(el=>{
+      el.addEventListener("click", ()=> openLightbox(el.dataset.photoSrc));
+    });
+    container.querySelectorAll("[data-edit]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        loadIntoForm(entries[btn.dataset.edit]);
+        document.querySelector('.tab[data-view="form"]').click();
+        window.scrollTo({top:0, behavior:"smooth"});
+      });
+    });
+    container.querySelectorAll("[data-dup]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const source = entries[btn.dataset.dup];
+        if(!source) return;
+        loadIntoForm(source);
+        editingId = null;
+        document.getElementById("f-recordId").value = suggestNextId();
+        document.getElementById("f-submissionDate").value = new Date().toISOString().slice(0,10);
+        document.getElementById("edit-indicator").style.display = "none";
+        document.getElementById("btn-save").textContent = "Save Proposal";
+        document.querySelector('.tab[data-view="form"]').click();
+        window.scrollTo({top:0, behavior:"smooth"});
+        showToast("Duplicated — review the details and save as a new proposal.");
+      });
+    });
+    container.querySelectorAll("[data-pdf]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const source = entries[btn.dataset.pdf];
+        if(!source) return;
+        generateProposalPDF(source, btn);
+      });
+    });
+    container.querySelectorAll("[data-del]").forEach(btn=>{
+      btn.addEventListener("click", ()=> deleteEntry(btn.dataset.del));
+    });
+  }
+
+  /* ---------------- Map ---------------- */
+  const MAP_COLORS = { urgent:"#7E1F1F", high:"#BD4515", medium:"#C8871F" };
+  const MAP_UNSCORED_COLOR = "#615E4E";
+  let projMap = null, projMapMarkers = null, projMapEverFit = false, projMapLastBounds = [];
+
+  function fitProjMapToBounds(bounds){
+    if(bounds.length===1){ projMap.setView(bounds[0], 13); }
+    else if(bounds.length>1){ projMap.fitBounds(bounds, { padding: [30,30] }); }
+    else { projMap.setView([40.0, -77.5], 6); }
+  }
+  function initProjMap(){
+    if(projMap) return;
+    projMap = L.map("proj-map", { scrollWheelZoom: true });
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(projMap);
+    projMapMarkers = L.layerGroup().addTo(projMap);
+  }
+  function renderMap(){
+    const list = Object.values(entries).filter(e=>{
+      const lat = parseFloat(e.lat), lng = parseFloat(e.lng);
+      return !isNaN(lat) && !isNaN(lng) && lat!==0 && lng!==0;
+    });
+    initProjMap();
+    projMapMarkers.clearLayers();
+    const bounds = [];
+    list.forEach(e=>{
+      const lat = parseFloat(e.lat), lng = parseFloat(e.lng);
+      const cls = priorityCls(e.priority);
+      const color = MAP_COLORS[cls] || MAP_UNSCORED_COLOR;
+      const marker = L.circleMarker([lat, lng], { radius: 9, color: "#fff", weight: 2, fillColor: color, fillOpacity: 0.92 });
+      marker.bindPopup(`
+        <div class="map-popup-eid">${escapeHtml(e.recordId||"")}</div>
+        <b>${escapeHtml(e.title||"Untitled proposal")}</b>
+        <div class="map-popup-row"><b style="font-size:12.5px;">Priority:</b> ${escapeHtml(e.priority||"—")}</div>
+        <div class="map-popup-row"><b style="font-size:12.5px;">Project Type:</b> ${escapeHtml(e.projectType||"—")}</div>
+        <div class="map-popup-row"><b style="font-size:12.5px;">ATC Region:</b> ${escapeHtml(e.atcRegion||"—")}</div>
+      `);
+      marker.addTo(projMapMarkers);
+      bounds.push([lat, lng]);
+    });
+    projMapLastBounds = bounds;
+    requestAnimationFrame(()=>{
+      projMap.invalidateSize();
+      if(!projMapEverFit){ fitProjMapToBounds(bounds); projMapEverFit = true; }
+    });
+  }
+
+  /* ---------------- Analytics ---------------- */
+  const CHART_COLORS = ["#1B3A2E","#54724A","#C8871F","#BD4515","#7E1F1F","#2C5240","#8A6D3B","#4A6B5C"];
+  function renderBarChart(container, dataObj, options){
+    options = options || {};
+    const entriesArr = Object.entries(dataObj).sort((a,b)=> b[1]-a[1]);
+    const filtered = options.limit ? entriesArr.slice(0, options.limit) : entriesArr;
+    if(filtered.length===0){ container.innerHTML = `<div class="chart-empty-note">No data yet.</div>`; return; }
+    const max = Math.max(...filtered.map(e=>e[1]));
+    container.innerHTML = filtered.map(([label, count], i)=>{
+      const pct = max>0 ? Math.round((count/max)*100) : 0;
+      const color = options.colorFor ? options.colorFor(label) : CHART_COLORS[i % CHART_COLORS.length];
+      return `
+        <div class="chart-row">
+          <div class="chart-label" title="${escapeAttr(label)}">${escapeHtml(label)}</div>
+          <div class="chart-bar-line">
+            <div class="chart-track"><div class="chart-fill" style="width:${pct}%;background:${color};"></div></div>
+            <div class="chart-value">${count}</div>
+          </div>
+        </div>`;
+    }).join("");
+  }
+  function priorityColorFor(label){
+    if(label==="Urgent") return "#7E1F1F";
+    if(label==="High") return "#BD4515";
+    if(label==="Medium") return "#C8871F";
+    return "#615E4E";
+  }
+  function renderAnalytics(){
+    const list = Object.values(entries);
+    const emptyEl = document.getElementById("analytics-empty");
+    const contentEl = document.getElementById("analytics-content");
+    if(list.length===0){ emptyEl.style.display = "block"; contentEl.style.display = "none"; return; }
+    emptyEl.style.display = "none"; contentEl.style.display = "block";
+
+    const total = list.length;
+    const urgentHigh = list.filter(e=> e.priority==="Urgent" || e.priority==="High").length;
+    const phasedCount = list.filter(e=> e.phased==="Yes").length;
+    const closeCount = list.filter(e=> e.closeRedirect==="Yes").length;
+
+    document.getElementById("stat-grid").innerHTML = `
+      <div class="stat-card"><span class="stat-value">${total}</span><span class="stat-label">Proposals Logged</span></div>
+      <div class="stat-card"><span class="stat-value">${urgentHigh}</span><span class="stat-label">Urgent + High Priority</span></div>
+      <div class="stat-card"><span class="stat-value">${phasedCount}</span><span class="stat-label">Phased Projects</span></div>
+      <div class="stat-card"><span class="stat-value">${closeCount}</span><span class="stat-label">Involve Closures/Redirects</span></div>
+    `;
+
+    const byPriority = {Urgent:0, High:0, Medium:0};
+    list.forEach(e=>{ if(e.priority && byPriority[e.priority]!==undefined) byPriority[e.priority]++; });
+    const priorityOrdered = {};
+    ["Urgent","High","Medium"].forEach(k=>{ if(byPriority[k]>0) priorityOrdered[k]=byPriority[k]; });
+    if(Object.keys(priorityOrdered).length===0){
+      document.getElementById("chart-priority").innerHTML = `<div class="chart-empty-note">No prioritized proposals yet.</div>`;
+    } else {
+      const maxP = Math.max(...Object.values(priorityOrdered));
+      document.getElementById("chart-priority").innerHTML = Object.entries(priorityOrdered).map(([label,count])=>{
+        const pct = maxP>0 ? Math.round((count/maxP)*100) : 0;
+        return `<div class="chart-row"><div class="chart-label">${escapeHtml(label)}</div><div class="chart-bar-line"><div class="chart-track"><div class="chart-fill" style="width:${pct}%;background:${priorityColorFor(label)};"></div></div><div class="chart-value">${count}</div></div></div>`;
+      }).join("");
+    }
+
+    const byProjectType = {};
+    list.forEach(e=> (e.projectType||"").split("; ").filter(Boolean).forEach(t=>{ byProjectType[t]=(byProjectType[t]||0)+1; }));
+    renderBarChart(document.getElementById("chart-projecttype"), byProjectType);
+
+    const byWorkType = {};
+    list.forEach(e=> (e.workType||"").split("; ").filter(Boolean).forEach(t=>{ byWorkType[t]=(byWorkType[t]||0)+1; }));
+    renderBarChart(document.getElementById("chart-worktype"), byWorkType, {limit:8});
+
+    const byState = {};
+    list.forEach(e=> (e.states||"").split("; ").filter(Boolean).forEach(s=>{ byState[s]=(byState[s]||0)+1; }));
+    if(Object.keys(byState).length===0) byState["Unspecified"] = list.filter(e=>!e.states).length;
+    renderBarChart(document.getElementById("chart-state"), byState);
+
+    const byRegion = {};
+    list.forEach(e=>{ const k = e.atcRegion || "Unspecified"; byRegion[k] = (byRegion[k]||0)+1; });
+    renderBarChart(document.getElementById("chart-region"), byRegion);
+  }
+
+  function escapeHtml(s){
+    return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  }
+  function escapeAttr(s){ return escapeHtml(s); }
+
+  /* ---------------- CSV export ---------------- */
+  function toCsvValue(v){
+    v = v===undefined || v===null ? "" : String(v);
+    if(/[",\n]/.test(v)) v = '"' + v.replace(/"/g,'""') + '"';
+    return v;
+  }
+  function exportCsv(){
+    const list = Object.values(entries).sort((a,b)=> a.recordId.localeCompare(b.recordId, undefined, {numeric:true}));
+    if(list.length===0){ showToast("No entries to export yet.", true); return; }
+    const rows = [CSV_COLUMNS];
+    list.forEach(e=>{
+      rows.push([
+        e.recordId, e.submissionDate, e.title, e.briefDesc, e.capitalPlanId, e.pmisNo,
+        e.leadName, e.leadPosition, e.leadPhone, e.leadEmail, e.atcName, e.atcPosition, e.atcPhone, e.atcEmail, e.whoWillDoWork, e.whoWillDoWorkOther,
+        e.problem, e.alternatives, e.planningDocType, e.planningDocTypeOther, e.planningDoc, e.expertConsultTypes, e.expertConsultTypesOther, e.expertConsults, e.partnerConsults, e.seasonalConsiderationTypes, e.seasonalConsiderationTypesOther, e.seasonalConsiderations, e.safetyConcerns,
+        e.priority, e.priorityExplanation, e.projectType, e.workType, e.workTypeOther, e.startDate, e.completionDate, e.phased, e.phases,
+        e.states, e.counties, e.countiesOther, e.atcRegion, e.trailClub, e.trailClubOther, e.landManagers, e.landManagersOther, e.ownershipTypes, e.ownershipTypesOther, e.tractNumbers, e.lat, e.lng,
+        e.fmssNames, e.fmssNumbers, e.fmssTypes, e.fmssTypeOther, e.sameFootprint, e.footprintDistance, e.expandBoundary,
+        e.siteAccessTypes, e.siteAccessTypesOther, e.siteAccess, e.accessModeTypes, e.accessModeTypesOther, e.accessMode, e.materials, e.equipment, e.stagingRequired, e.stagingDetails, e.maxPeople, e.workTimingTypes, e.workTimingTypesOther, e.workDuration,
+        e.fieldCampRequired, e.fieldCampDetails, e.hazMaterials, e.hazMaterialsDetails, e.wasteProduced, e.wasteDetails,
+        e.closeRedirect, e.closeRedirectDetails, e.newSignage, e.alterVisitorServices, e.alterVisitorTypes, e.alterVisitorTypesOther, e.alterVisitorDetails, e.universalDesign,
+        e.naturalEnvTypes, e.naturalEnvTypesOther, e.naturalEnv, e.vegetationClearing, e.groundDisturbanceArea, e.materialsHarvested, e.materialsHarvestedDetails, e.wildernessArea,
+        e.invasiveDensity, e.invasiveSpecies, e.rareSpecies, e.nrSurveys, e.nrSurveysOther, e.nrSurveysPlannedWho, e.mitigationNR,
+        e.culturalEnvTypes, e.culturalEnvTypesOther, e.culturalEnv, e.groundDisturbanceCultural, e.groundDisturbanceCulturalDetails, e.archSite, e.nrhpProperty, e.nrhpPropertyList,
+        e.crSurveys, e.crSurveysOther, e.mitigationCR, e.photosTaken, e.photoRef, (e.shapefile ? "Yes" : "No"), (e.shapefile ? e.shapefile.name : ""), e.notes
+      ]);
+    });
+    const csv = rows.map(r=>r.map(toCsvValue).join(",")).join("\r\n");
+    const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    const stamp = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = `APPA_Project_Proposals_${stamp}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`Exported ${list.length} record${list.length===1?"":"s"} as CSV.`);
+  }
+  document.getElementById("btn-export").addEventListener("click", exportCsv);
+
+  /* ---------------- Per-record PDF export ----------------
+     Renders a single proposal as a document that mirrors the paper form's section
+     numbering (1–9) and field labels, using jsPDF + autoTable for layout. Site photos
+     are embedded when available locally; backend-hosted photos are linked instead since
+     they can't be fetched client-side without CORS support. A blank 1.8 signature block
+     is included since that step still happens on paper/PDF outside the app. */
+  function val(v){ return (v!==undefined && v!==null && String(v).trim()!=="") ? String(v) : "—"; }
+  function withOther(list, other){
+    let s = (list && String(list).trim()) ? String(list) : "";
+    if(other && String(other).trim()){
+      s = s ? s + "; Other: " + other : "Other: " + other;
+    }
+    return s || "—";
+  }
+  function ynDetail(yn, detail, onValue){
+    onValue = onValue || "Yes";
+    let s = val(yn);
+    if(yn === onValue && detail && String(detail).trim()) s += " — " + detail;
+    return s;
+  }
+
+  function loadImageDims(dataUrl){
+    return new Promise(resolve=>{
+      const img = new Image();
+      img.onload = ()=> resolve({w: img.naturalWidth || img.width || 800, h: img.naturalHeight || img.height || 600});
+      img.onerror = ()=> resolve({w: 800, h: 600});
+      img.src = dataUrl;
+    });
+  }
+
+  async function generateProposalPDF(entry, triggerBtn){
+    if(!window.jspdf || !window.jspdf.jsPDF){
+      showToast("PDF library still loading — try again in a moment.", true);
+      return;
+    }
+    const originalLabel = triggerBtn ? triggerBtn.textContent : null;
+    if(triggerBtn){ triggerBtn.textContent = "Building PDF…"; triggerBtn.disabled = true; }
+
+    try{
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({unit:"pt", format:"letter"});
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 40;
+      let y = 42;
+
+      const FOREST = [15,33,25], FOREST_LIGHT=[27,58,46], INK=[38,38,31], INK_SOFT=[97,94,78], PARCH=[234,224,198], RUST=[189,69,21];
+
+      doc.setFont("helvetica","bold"); doc.setFontSize(16); doc.setTextColor(...FOREST);
+      doc.text("Appalachian Trail Project Proposal", margin, y);
+      y += 18;
+      doc.setFont("helvetica","normal"); doc.setFontSize(10); doc.setTextColor(...INK_SOFT);
+      doc.text(`Record ${entry.recordId}  |  Submitted ${val(entry.submissionDate)}  |  Generated ${new Date().toLocaleDateString()}`, margin, y);
+      y += 10;
+      doc.setDrawColor(220,207,168);
+      doc.line(margin, y, pageWidth-margin, y);
+      y += 16;
+
+      function ensureSpace(h){
+        if(y + h > pageHeight - 50){ doc.addPage(); y = 42; }
+      }
+      function sectionTitle(text){
+        ensureSpace(28);
+        doc.setFillColor(...PARCH);
+        doc.rect(margin, y, pageWidth-margin*2, 20, "F");
+        doc.setFont("helvetica","bold"); doc.setFontSize(10.5); doc.setTextColor(...FOREST);
+        doc.text(text, margin+6, y+14);
+        y += 28;
+      }
+      function table(rows){
+        doc.autoTable({
+          startY: y,
+          margin: {left: margin, right: margin, bottom: 50},
+          body: rows,
+          theme: "plain",
+          styles: {fontSize:9, cellPadding:{top:3,bottom:6,left:2,right:2}, valign:"top", textColor: INK},
+          columnStyles: {
+            0: {fontStyle:"bold", cellWidth:150, textColor: FOREST_LIGHT},
+            1: {cellWidth: pageWidth - margin*2 - 150}
+          }
+        });
+        y = doc.lastAutoTable.finalY + 10;
+      }
+
+      sectionTitle("1. Identifying Information");
+      table([
+        ["1.1 Project Title", val(entry.title)],
+        ["1.2 Brief Project Description", val(entry.briefDesc)],
+        ["1.3 Project ID No. (Capital Plan)", val(entry.capitalPlanId)],
+        ["1.4 PMIS No.", val(entry.pmisNo)],
+        ["1.5 Project Submission Date", val(entry.submissionDate)],
+        ["1.6 Project Lead / Proposer", `${val(entry.leadName)} — ${val(entry.leadPosition)}\n${val(entry.leadPhone)}  /  ${val(entry.leadEmail)}`],
+        ["1.7 ATC Point of Contact", (entry.atcName ? `${val(entry.atcName)} — ${val(entry.atcPosition)}\n${val(entry.atcPhone)}  /  ${val(entry.atcEmail)}` : "—")],
+        ["1.9 Who Will Do The Work", withOther(entry.whoWillDoWork, entry.whoWillDoWorkOther)]
+      ]);
+
+      sectionTitle("2. Project Planning Details");
+      table([
+        ["2.1 Problem / Condition", val(entry.problem)],
+        ["2.2 Alternatives Considered", val(entry.alternatives)],
+        ["2.3 Identified in Planning Document?", withOther(entry.planningDocType, entry.planningDocTypeOther) + (entry.planningDoc ? " — " + entry.planningDoc : "")],
+        ["2.4 Consultations with Experts", withOther(entry.expertConsultTypes, entry.expertConsultTypesOther) + (entry.expertConsults ? " — " + entry.expertConsults : "")],
+        ["2.5 Consultations with Partners/Landowners", val(entry.partnerConsults)],
+        ["2.6 Seasonal/Timing Considerations", withOther(entry.seasonalConsiderationTypes, entry.seasonalConsiderationTypesOther) + (entry.seasonalConsiderations ? " — " + entry.seasonalConsiderations : "")],
+        ["2.7 Immediate Safety Concerns", val(entry.safetyConcerns)],
+        ["2.8 Priority Level", val(entry.priority) + (entry.priorityExplanation ? " — " + entry.priorityExplanation : "")],
+        ["2.9 Project Type", val(entry.projectType)],
+        ["2.10 Work Type", withOther(entry.workType, entry.workTypeOther)],
+        ["2.11 Target Start Date", val(entry.startDate)],
+        ["2.12 Target Completion Date", val(entry.completionDate)],
+        ["2.13 Phased Project?", ynDetail(entry.phased, entry.phases)]
+      ]);
+
+      sectionTitle("3. Project Location");
+      table([
+        ["3.1 Project State(s)", val(entry.states)],
+        ["3.2 Project County(s)", withOther(entry.counties, entry.countiesOther)],
+        ["3.3 ATC Region", val(entry.atcRegion)],
+        ["3.4 Trail Club / Partner Org(s)", withOther(entry.trailClub, entry.trailClubOther)],
+        ["3.5 Land Manager(s)/Owner(s)", withOther(entry.landManagers, entry.landManagersOther)],
+        ["3.6 Ownership Type(s)", withOther(entry.ownershipTypes, entry.ownershipTypesOther)],
+        ["3.7 APPA Tract Number(s)", val(entry.tractNumbers)],
+        ["3.8 GPS Lat/Long", (entry.lat && entry.lng) ? `${entry.lat}, ${entry.lng}` : "—"]
+      ]);
+
+      sectionTitle("4. Facility Management Software System (FMSS)");
+      table([
+        ["4.1 FMSS Location Name(s)", val(entry.fmssNames)],
+        ["4.2 FMSS Location Number(s)", val(entry.fmssNumbers)],
+        ["4.3 FMSS Location Type(s)", withOther(entry.fmssTypes, entry.fmssTypeOther)],
+        ["4.4 Repair/Replace Within Existing Footprint?", ynDetail(entry.sameFootprint, entry.footprintDistance, "No")],
+        ["      Expand Outside Existing Boundary?", val(entry.expandBoundary)]
+      ]);
+
+      sectionTitle("5. Compliance Screening — Materials & Methods");
+      table([
+        ["5.1 Site Access/Parking", withOther(entry.siteAccessTypes, entry.siteAccessTypesOther) + (entry.siteAccess ? " — " + entry.siteAccess : "")],
+        ["5.2 Mode of Access", withOther(entry.accessModeTypes, entry.accessModeTypesOther) + (entry.accessMode ? " — " + entry.accessMode : "")],
+        ["5.3 Materials", val(entry.materials)],
+        ["5.4 Equipment/Tools", val(entry.equipment)],
+        ["5.5 Staging Area Required?", ynDetail(entry.stagingRequired, entry.stagingDetails)],
+        ["5.6 Max People On Site", val(entry.maxPeople)],
+        ["5.7 Duration/Timing of Work", withOther(entry.workTimingTypes, entry.workTimingTypesOther) + (entry.workDuration ? " — " + entry.workDuration : "")],
+        ["5.8 Field Camp Required?", ynDetail(entry.fieldCampRequired, entry.fieldCampDetails)],
+        ["5.9 Hazardous Materials Involved?", ynDetail(entry.hazMaterials, entry.hazMaterialsDetails)],
+        ["5.10 Disposable Waste/Debris Produced?", ynDetail(entry.wasteProduced, entry.wasteDetails)]
+      ]);
+
+      sectionTitle("6. Compliance Screening — Land / Visitor Use");
+      table([
+        ["6.1 Close/Redirect Site, Trail, or Road?", ynDetail(entry.closeRedirect, entry.closeRedirectDetails)],
+        ["6.2 New Signage Required?", val(entry.newSignage)],
+        ["6.3 Alter Visitor Services/ABA Accessibility?", val(entry.alterVisitorServices) + (entry.alterVisitorServices==="Yes" ? " — " + withOther(entry.alterVisitorTypes, entry.alterVisitorTypesOther) + (entry.alterVisitorDetails ? "; " + entry.alterVisitorDetails : "") : "")],
+        ["6.4 Universal Design Considered?", val(entry.universalDesign)]
+      ]);
+
+      sectionTitle("7. Compliance Screening — Natural Resources");
+      table([
+        ["7.1 Surrounding Natural Environment", withOther(entry.naturalEnvTypes, entry.naturalEnvTypesOther) + (entry.naturalEnv ? " — " + entry.naturalEnv : "")],
+        ["7.2 Vegetation Trimming/Clearing", val(entry.vegetationClearing)],
+        ["7.3 Ground Surface Area Disturbed", val(entry.groundDisturbanceArea)],
+        ["7.4 Materials Harvested from Adjacent Areas?", ynDetail(entry.materialsHarvested, entry.materialsHarvestedDetails)],
+        ["7.5 Within/Adjacent to Wilderness Area?", val(entry.wildernessArea)],
+        ["7.6 Known Invasive Species", (entry.invasiveDensity ? "Density: " + entry.invasiveDensity + " — " : "") + val(entry.invasiveSpecies)],
+        ["7.7 Known Rare/T&E Species", val(entry.rareSpecies)],
+        ["7.8 Natural Resource Surveys", withOther(entry.nrSurveys, entry.nrSurveysOther) + (entry.nrSurveysPlannedWho ? " | Planned: " + entry.nrSurveysPlannedWho : "")],
+        ["7.9 Mitigation Measures / BMPs", val(entry.mitigationNR)]
+      ]);
+
+      sectionTitle("8. Compliance Screening — Cultural Resources");
+      table([
+        ["8.1 Surrounding Built/Cultural Environment", withOther(entry.culturalEnvTypes, entry.culturalEnvTypesOther) + (entry.culturalEnv ? " — " + entry.culturalEnv : "")],
+        ["8.2 Ground Disturbance (Digging/Excavation)?", ynDetail(entry.groundDisturbanceCultural, entry.groundDisturbanceCulturalDetails)],
+        ["8.3 Near Known Archaeological Site?", val(entry.archSite)],
+        ["8.4 Near NRHP Listed/Eligible Property?", val(entry.nrhpProperty) + (entry.nrhpProperty==="Yes" && entry.nrhpPropertyList ? " — " + entry.nrhpPropertyList : "")],
+        ["8.5 Cultural Resource Surveys", withOther(entry.crSurveys, entry.crSurveysOther)],
+        ["8.6 Mitigation Measures / BMPs", val(entry.mitigationCR)]
+      ]);
+
+      sectionTitle("Site Photos, Shapefile & Notes");
+      table([
+        ["Photos Taken?", val(entry.photosTaken)],
+        ["Photo File(s)/Reference", val(entry.photoRef)],
+        ["Shapefile / Site Map (.zip)", entry.shapefile ? `${entry.shapefile.name} (${formatBytes(entry.shapefile.size)})${entry.shapefile.dataUrl ? " — attached to this record" : (entry.shapefile.url ? " — see link below" : " — reference only, not attached; include with packet separately")}` : "—"],
+        ["Additional Notes", val(entry.notes)]
+      ]);
+      if(entry.shapefile && entry.shapefile.url){
+        doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(189,69,21);
+        ensureSpace(16);
+        doc.textWithLink(`Shapefile: ${entry.shapefile.name}`, margin, y, {url: entry.shapefile.url});
+        y += 16;
+      }
+
+      // ---- Embedded/linked site photos ----
+      const photos = entry.photos || [];
+      const embeddable = photos.filter(p=>p.dataUrl);
+      const linkOnly = photos.filter(p=>!p.dataUrl && p.url);
+      if(embeddable.length || linkOnly.length){
+        doc.addPage();
+        y = 42;
+        doc.setFont("helvetica","bold"); doc.setFontSize(13); doc.setTextColor(...FOREST);
+        doc.text("Site Photos", margin, y);
+        y += 20;
+        for(const p of embeddable){
+          const dims = await loadImageDims(p.dataUrl);
+          const maxW = pageWidth - margin*2;
+          let w = maxW, h = w * dims.h / dims.w;
+          const maxH = 280;
+          if(h > maxH){ h = maxH; w = h * dims.w / dims.h; }
+          if(y + h + 30 > pageHeight - 50){ doc.addPage(); y = 42; }
+          const fmtMatch = /image\/(\w+)/.exec(p.dataUrl);
+          let fmt = fmtMatch ? fmtMatch[1].toUpperCase() : "JPEG";
+          if(fmt === "JPG") fmt = "JPEG";
+          try{ doc.addImage(p.dataUrl, fmt, margin, y, w, h); }catch(err){ /* skip unreadable image */ }
+          y += h + 4;
+          doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(...INK_SOFT);
+          doc.text(p.name || "", margin, y);
+          y += 16;
+        }
+        if(linkOnly.length){
+          ensureSpace(18 + linkOnly.length*14);
+          doc.setFont("helvetica","bold"); doc.setFontSize(10); doc.setTextColor(...FOREST);
+          doc.text("Additional photos (hosted, not embedded):", margin, y);
+          y += 14;
+          doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...RUST);
+          linkOnly.forEach(p=>{
+            if(y > pageHeight - 60){ doc.addPage(); y = 42; }
+            doc.textWithLink(p.name || p.url, margin, y, {url: p.url});
+            y += 14;
+          });
+        }
+      }
+
+      // ---- 1.8 Review/Recommendation — blank signature block for the paper packet ----
+      ensureSpace(150);
+      doc.setFillColor(...PARCH);
+      doc.rect(margin, y, pageWidth-margin*2, 20, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(10.5); doc.setTextColor(...FOREST);
+      doc.text("1.8 Review / Recommendation (complete before submission)", margin+6, y+14);
+      y += 32;
+      function sigLine(label){
+        ensureSpace(40);
+        doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...INK);
+        doc.text(label, margin, y);
+        y += 16;
+        doc.setDrawColor(180,180,170);
+        doc.line(margin, y, margin+220, y);
+        doc.line(margin+240, y, margin+400, y);
+        doc.line(margin+420, y, pageWidth-margin, y);
+        doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...INK_SOFT);
+        doc.text("Name (please print)", margin, y+10);
+        doc.text("Signature", margin+240, y+10);
+        doc.text("Date", margin+420, y+10);
+        y += 26;
+      }
+      sigLine("Club Representative");
+      sigLine("RPC Representative");
+      sigLine("ATC Representative / Regional Manager");
+
+      // ---- Footer on every page ----
+      const totalPages = doc.internal.getNumberOfPages();
+      for(let i=1; i<=totalPages; i++){
+        doc.setPage(i);
+        doc.setFont("helvetica","normal"); doc.setFontSize(8); doc.setTextColor(...INK_SOFT);
+        doc.text(`APPA Project Proposal — ${entry.recordId}`, margin, pageHeight-18);
+        doc.text(`Page ${i} of ${totalPages}`, pageWidth-margin-70, pageHeight-18);
+      }
+
+      const safeTitle = (entry.title || "Project_Proposal").replace(/[^\w\-]+/g,"_").slice(0,50);
+      doc.save(`${entry.recordId}_${safeTitle}.pdf`);
+      showToast(`PDF generated for ${entry.recordId}.`);
+    }catch(err){
+      showToast(`Couldn't build the PDF: ${err.message}`, true);
+    }finally{
+      if(triggerBtn){ triggerBtn.textContent = originalLabel; triggerBtn.disabled = false; }
+    }
+  }
+
+
+  /* ---------------- Toast ---------------- */
+  let toastTimer;
+  function showToast(msg, warn){
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.className = "toast show" + (warn ? " warn" : "");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{ t.className = "toast"; }, 3800);
+  }
+
+  /* ---------------- Same as Project Lead ---------------- */
+  document.getElementById("btn-same-lead").addEventListener("click", ()=>{
+    document.getElementById("f-atcName").value = document.getElementById("f-leadName").value;
+    document.getElementById("f-atcPosition").value = document.getElementById("f-leadPosition").value;
+    document.getElementById("f-atcPhone").value = document.getElementById("f-leadPhone").value;
+    document.getElementById("f-atcEmail").value = document.getElementById("f-leadEmail").value;
+    showToast("Copied from Project Lead.");
+  });
+
+  /* ---------------- Remembered applicant profile ----------------
+     Fields an applicant re-enters on nearly every proposal (their own contact info,
+     usual trail club, ATC region, land manager) are remembered locally and pre-filled
+     on the next NEW proposal, so repeat submitters aren't retyping the same details. */
+  const PROFILE_KEY = "appa_proposal_profile_v1";
+  const PROFILE_FIELDS = ["leadName","leadPosition","leadPhone","leadEmail","trailClub","atcRegion","landManagers"];
+
+  function saveProfile(entry){
+    const profile = {};
+    PROFILE_FIELDS.forEach(f=>{ if(entry[f]) profile[f] = entry[f]; });
+    if(Object.keys(profile).length===0) return;
+    try{ localStorage.setItem(PROFILE_KEY, JSON.stringify(profile)); }catch(e){}
+  }
+  function loadProfile(){
+    try{ return JSON.parse(localStorage.getItem(PROFILE_KEY) || "null"); }catch(e){ return null; }
+  }
+  function applyProfileToForm(){
+    const profile = loadProfile();
+    const hint = document.getElementById("remember-hint");
+    if(!profile){ hint.style.display = "none"; return; }
+    if(profile.leadName) document.getElementById("f-leadName").value = profile.leadName;
+    if(profile.leadPosition) document.getElementById("f-leadPosition").value = profile.leadPosition;
+    if(profile.leadPhone) document.getElementById("f-leadPhone").value = profile.leadPhone;
+    if(profile.leadEmail) document.getElementById("f-leadEmail").value = profile.leadEmail;
+    if(profile.trailClub) setSelectedClubs(profile.trailClub);
+    if(profile.atcRegion) document.getElementById("f-atcRegion").value = profile.atcRegion;
+    if(profile.landManagers) setChecked("landManagers", profile.landManagers);
+    hint.style.display = "flex";
+    refreshFilledState();
+  }
+  document.getElementById("btn-clear-remembered").addEventListener("click", ()=>{
+    try{ localStorage.removeItem(PROFILE_KEY); }catch(e){}
+    document.getElementById("remember-hint").style.display = "none";
+    showToast("Cleared remembered info. It won't be pre-filled next time.");
+  });
+
+  /* ---------------- Autosave draft ----------------
+     Prevents losing a half-filled, long form to an accidental tab close or navigation —
+     re-entering nine sections of work is exactly the kind of duplication this is meant
+     to avoid. Drafts are local-only and distinct from saved/submitted proposals. */
+  const DRAFT_KEY = "appa_proposal_draft_v1";
+  function draftIsMeaningful(entryLike){
+    return !!(entryLike.title || entryLike.briefDesc || entryLike.problem);
+  }
+  function autosaveDraft(){
+    if(editingId) return; // don't clobber an in-progress edit of a saved record with draft logic
+    const raw = collectFormRaw();
+    if(!draftIsMeaningful(raw)) return;
+    try{ localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: new Date().toISOString(), data: raw })); }catch(e){}
+  }
+  function collectFormRaw(){
+    // Same shape as collectForm()'s return value but skips required-field validation,
+    // since a draft can legitimately be partial.
+    return buildEntryObject();
+  }
+  function clearDraft(){
+    try{ localStorage.removeItem(DRAFT_KEY); }catch(e){}
+    document.getElementById("draft-banner").classList.remove("show");
+  }
+  function checkForDraft(){
+    let raw;
+    try{ raw = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null"); }catch(e){ raw = null; }
+    if(!raw || !raw.data || !draftIsMeaningful(raw.data)) return;
+    document.getElementById("draft-time").textContent = new Date(raw.savedAt).toLocaleString();
+    document.getElementById("draft-banner").classList.add("show");
+    document.getElementById("btn-restore-draft").onclick = ()=>{
+      loadIntoForm(raw.data);
+      editingId = null;
+      document.getElementById("edit-indicator").style.display = "none";
+      document.getElementById("btn-save").textContent = "Save Proposal";
+      document.getElementById("draft-banner").classList.remove("show");
+      showToast("Draft restored.");
+    };
+    document.getElementById("btn-discard-draft").onclick = ()=>{
+      clearDraft();
+      showToast("Draft discarded.");
+    };
+  }
+  document.getElementById("proposal-form").addEventListener("input", debounce(autosaveDraft, 800));
+  document.getElementById("proposal-form").addEventListener("change", autosaveDraft);
+
+  /* ---------------- Init ---------------- */
+  if(!BACKEND_CONFIGURED) document.getElementById("config-banner").classList.add("show");
+  resetForm(false);
+  document.getElementById("f-recordId").value = "PP-001";
+  updateCountBadge();
+  loadEntries();
+  applyProfileToForm();
+  checkForDraft();
+
+  function syncTabsWidth(){
+    const sub = document.getElementById("brand-sub");
+    const tabs = document.getElementById("tabs-row");
+    if(sub && tabs){
+      const w = sub.getBoundingClientRect().width;
+      const tabCount = tabs.querySelectorAll(".tab").length || 3;
+      if(w > 0) tabs.style.maxWidth = Math.round(w * (tabCount / 3)) + "px";
+    }
+  }
+  syncTabsWidth();
+  window.addEventListener("resize", syncTabsWidth);
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(syncTabsWidth).catch(()=>{});
+  }
+
+})();
+</script>
+</body>
+</html>
