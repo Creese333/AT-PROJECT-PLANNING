@@ -1,5 +1,5 @@
 # Save this file as: .github/workflows/deploy-pages.yml
-# (Yes, that dot at the start of ".github" is required — it's a hidden folder.)
+# (That leading dot on ".github" is required — it's a hidden folder.)
 #
 # This workflow builds config.js from two repository secrets every time you
 # push to main, then publishes the site. config.js itself never gets
@@ -32,13 +32,25 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate config.js from repository secrets
+        env:
+          APPS_SCRIPT_URL: ${{ secrets.APPS_SCRIPT_URL }}
+          SHARED_TOKEN: ${{ secrets.SHARED_TOKEN }}
         run: |
-          cat > config.js << EOF
-          window.APP_CONFIG = {
-            APPS_SCRIPT_URL: "${{ secrets.APPS_SCRIPT_URL }}",
-            SHARED_TOKEN: "${{ secrets.SHARED_TOKEN }}"
-          };
-          EOF
+          printf 'window.APP_CONFIG = {\n  APPS_SCRIPT_URL: "%s",\n  SHARED_TOKEN: "%s"\n};\n' "$APPS_SCRIPT_URL" "$SHARED_TOKEN" > config.js
+          echo "----- config.js contents -----"
+          cat config.js
+          echo "-------------------------------"
+
+      - name: Fail early if secrets were empty
+        run: |
+          if grep -q 'APPS_SCRIPT_URL: ""' config.js; then
+            echo "::error::APPS_SCRIPT_URL secret is empty or missing. Check Settings > Secrets and variables > Actions."
+            exit 1
+          fi
+          if grep -q 'SHARED_TOKEN: ""' config.js; then
+            echo "::error::SHARED_TOKEN secret is empty or missing. Check Settings > Secrets and variables > Actions."
+            exit 1
+          fi
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
