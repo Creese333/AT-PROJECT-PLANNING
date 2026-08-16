@@ -799,8 +799,8 @@
           </div>
         </div>
 
-        <div class="card">
-          <div class="card-head"><div class="card-num">📷</div><h2>Site Photos, Shapefile &amp; Notes</h2></div>
+        <div class="card collapsed" id="section-photos">
+          <div class="card-head" style="cursor:pointer;"><div class="card-num">📷</div><div class="card-head-main"><h2>Site Photos, Shapefile &amp; Notes</h2></div><div class="card-chevron">▾</div></div>
           <div class="card-body">
             <div class="field">
               <label class="flabel">Photos Taken?</label>
@@ -1581,6 +1581,11 @@
     }
   }
 
+  function collapseAll(){
+    SECTION_CARDS.forEach(card=> card.classList.add("collapsed"));
+    renderProgressNav();
+  }
+
   SECTION_CARDS.forEach(card=>{
     const head = card.querySelector(".card-head");
     head.addEventListener("click", ()=>{
@@ -1613,8 +1618,8 @@
     return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), ms); };
   }
 
-  // Start with Section 1 open, the rest collapsed.
-  openSection("1", false);
+  // Start with every section collapsed — nothing forced open by default.
+  collapseAll();
   refreshFilledState();
 
   /* ---------------- Next Record ID ---------------- */
@@ -1671,7 +1676,7 @@
     document.getElementById("edit-indicator").style.display = "none";
     document.getElementById("btn-save").textContent = "Save Proposal";
     if(clearId!==false) document.getElementById("f-recordId").value = suggestNextId();
-    if(typeof openSection === "function") openSection("1", false);
+    if(typeof collapseAll === "function") collapseAll();
     if(typeof refreshFilledState === "function") refreshFilledState();
   }
 
@@ -1979,7 +1984,7 @@
     editingId = e.recordId;
     document.getElementById("edit-indicator").style.display = "block";
     document.getElementById("btn-save").textContent = "Update Proposal";
-    if(typeof openSection === "function") openSection("1", false);
+    if(typeof collapseAll === "function") collapseAll();
     if(typeof refreshFilledState === "function") refreshFilledState();
   }
 
