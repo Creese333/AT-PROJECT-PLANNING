@@ -338,6 +338,10 @@
   </div>
 
   <div class="config-banner" id="config-banner">⚠ No shared backend configured — entries are only saved on this device. Set APPS_SCRIPT_URL in the CONFIG block near the top of the script to enable the shared proposal log.</div>
+  <div class="config-banner" id="connection-banner">
+    <span id="connection-banner-text">Shared backend configured.</span>
+    <button type="button" id="btn-test-connection" style="margin-left:8px;background:none;border:1px solid currentColor;border-radius:6px;padding:2px 8px;font-size:11.5px;font-weight:700;cursor:pointer;color:inherit;">Test Connection</button>
+  </div>
 
   <main>
 
@@ -968,6 +972,16 @@
   </div>
 </div>
 
+<!--
+  config.js sets window.APP_CONFIG = { APPS_SCRIPT_URL, SHARED_TOKEN }.
+  It is intentionally NOT committed to this repo (see .gitignore) so the
+  live Apps Script URL and shared token never appear in git history or
+  public source browsing. See config.example.js for the template, and the
+  deployment notes distributed with this app for the GitHub Actions setup
+  that generates a real config.js at deploy time from a repo secret.
+  If config.js is missing, the app simply runs in local-only preview mode.
+-->
+<script src="config.js"></script>
 <script>
 (function(){
 
@@ -1081,16 +1095,15 @@
     "CR Surveys","CR Surveys Other","Mitigation (Cultural Resources)","Photos Taken?","Photo File(s)/Reference","Shapefile Attached?","Shapefile Name","Notes"];
 
   /* ---------------- State ---------------- */
-  /* ================= CONFIGURE THIS ================= */
-  // Deploy the companion Code.gs (Google Apps Script) as a Web App, then paste
-  // its /exec URL and the SHARED_TOKEN you set in its Script Properties here
-  // to enable a shared proposal log across devices. See the setup notes at
-  // the top of Code.gs for step-by-step deployment instructions.
-  // Leave APPS_SCRIPT_URL blank to run in local-only preview mode.
-  const CONFIG = {
-    APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbzOTQaMbJIqR4HYEUTQRUp5W1U-D8DIKejkn3KM-4LdtP5DJoO4VMc9RqKW542HzepK/exec",
-    SHARED_TOKEN: "LTVLKlEnWdsMgynupk52TWE7c14ulBlsYgaxT0PJmPU"
-  };
+  /* ================= CONFIGURE THIS =================
+   * Do NOT hardcode APPS_SCRIPT_URL/SHARED_TOKEN here — this file is meant to
+   * be safe to commit to a public repo. Real values come from config.js,
+   * loaded via <script src="config.js"> above this script tag, which sets
+   * window.APP_CONFIG. config.js itself should be .gitignore'd (see
+   * config.example.js for the template) or generated at deploy time from a
+   * CI secret — see the "Config & Secrets" notes distributed with this app.
+   * Leave config.js absent/blank to run in local-only preview mode. */
+  const CONFIG = window.APP_CONFIG || { APPS_SCRIPT_URL: "", SHARED_TOKEN: "" };
   /* ==================================================== */
 
   const BACKEND_CONFIGURED = !!CONFIG.APPS_SCRIPT_URL;
@@ -2017,19 +2030,28 @@
     document.getElementById("entries-container").innerHTML = `<div class="empty-state"><div class="em-icon">↻</div><p>Loading proposal log…</p></div>`;
     try{
       const res = await fetch(CONFIG.APPS_SCRIPT_URL, { method:"GET" });
-      const data = await res.json();
-      if(!data.ok) throw new Error(data.error || "load failed");
+      let data;
+      const rawText = await res.text();
+      try{
+        data = JSON.parse(rawText);
+      }catch(parseErr){
+        console.error("Proposal log GET returned non-JSON (first 400 chars):", rawText.slice(0,400));
+        throw new Error(`Server returned HTTP ${res.status} and non-JSON content — likely a deployment access/auth issue. See console for the raw response.`);
+      }
+      if(!res.ok) throw new Error(`HTTP ${res.status}: ${data.error || rawText.slice(0,200)}`);
+      if(!data.ok) throw new Error(data.error || "Backend reported an error with no message.");
       entries = {};
       (data.entries||[]).forEach(e=>{ entries[e.recordId] = e; });
       updateCountBadge();
       renderTable();
       document.getElementById("f-recordId").value = suggestNextId();
     }catch(err){
+      console.error("loadEntries failed:", err);
       loadLocal();
       updateCountBadge();
       renderTable();
       document.getElementById("f-recordId").value = suggestNextId();
-      showToast("Could not reach the shared proposal log — showing this device's local data instead.", true);
+      showToast(`Could not reach the shared proposal log — ${err.message} (showing local data)`, true);
     }
   }
   document.getElementById("btn-refresh").addEventListener("click", async ()=>{
@@ -2681,8 +2703,53 @@
   document.getElementById("proposal-form").addEventListener("input", debounce(autosaveDraft, 800));
   document.getElementById("proposal-form").addEventListener("change", autosaveDraft);
 
+  /* ---------------- Backend connection diagnostics ----------------
+     A one-click way to see exactly what the Apps Script backend is
+     returning — the raw HTTP status and body — rather than guessing from a
+     generic "could not reach" toast. Useful when first wiring up Code.gs or
+     after a deployment/permissions change. */
+  async function testConnection(){
+    const btn = document.getElementById("btn-test-connection");
+    const textEl = document.getElementById("connection-banner-text");
+    const originalBtnText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = "Testing…";
+    textEl.textContent = "Testing connection…";
+    try{
+      const pingUrl = CONFIG.APPS_SCRIPT_URL + (CONFIG.APPS_SCRIPT_URL.includes("?") ? "&" : "?") + "action=ping";
+      const res = await fetch(pingUrl, { method:"GET" });
+      const rawText = await res.text();
+      let parsed = null;
+      try{ parsed = JSON.parse(rawText); }catch(e){ /* not JSON */ }
+
+      console.log("Test Connection — status:", res.status, "body:", rawText);
+
+      if(parsed && parsed.ok){
+        textEl.textContent = `✓ Connected — Apps Script responded OK (HTTP ${res.status}).`;
+      } else if(parsed){
+        textEl.textContent = `⚠ Reached the script, but it reported an error: ${parsed.error || "unknown"} (HTTP ${res.status}).`;
+      } else if(rawText.toLowerCase().includes("sign in") || rawText.toLowerCase().includes("accounts.google.com")){
+        textEl.textContent = `⚠ HTTP ${res.status} — got a Google sign-in page instead of JSON. In Apps Script: Deploy > Manage deployments, edit the deployment, set "Who has access" to Anyone, and deploy a new version.`;
+      } else {
+        textEl.textContent = `⚠ HTTP ${res.status} — got non-JSON back. First 200 chars logged to console: ${rawText.slice(0,120)}…`;
+      }
+    }catch(err){
+      console.error("Test Connection failed:", err);
+      textEl.textContent = `✗ Network error — couldn't reach the URL at all: ${err.message}. Check the URL in config.js is correct and ends in /exec.`;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = originalBtnText;
+    }
+  }
+  document.getElementById("btn-test-connection").addEventListener("click", testConnection);
+
   /* ---------------- Init ---------------- */
-  if(!BACKEND_CONFIGURED) document.getElementById("config-banner").classList.add("show");
+  if(!BACKEND_CONFIGURED){
+    document.getElementById("config-banner").classList.add("show");
+  } else {
+    document.getElementById("connection-banner-text").textContent = "Shared backend configured.";
+    document.getElementById("connection-banner").classList.add("show");
+  }
   resetForm(false);
   document.getElementById("f-recordId").value = "PP-001";
   updateCountBadge();
