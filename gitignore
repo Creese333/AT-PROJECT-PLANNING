@@ -1,0 +1,7 @@
+# Real secrets — never commit. Copy config.example.js to config.js locally,
+# or let the GitHub Actions deploy workflow generate it from repo secrets.
+config.js
+
+# Common OS/editor cruft
+.DS_Store
+Thumbs.db
