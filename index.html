@@ -338,10 +338,6 @@
   </div>
 
   <div class="config-banner" id="config-banner">⚠ No shared backend configured — entries are only saved on this device. Set APPS_SCRIPT_URL in the CONFIG block near the top of the script to enable the shared proposal log.</div>
-  <div class="config-banner" id="connection-banner">
-    <span id="connection-banner-text">Shared backend configured.</span>
-    <button type="button" id="btn-test-connection" style="margin-left:8px;background:none;border:1px solid currentColor;border-radius:6px;padding:2px 8px;font-size:11.5px;font-weight:700;cursor:pointer;color:inherit;">Test Connection</button>
-  </div>
 
   <main>
 
@@ -398,7 +394,7 @@
             <div class="field">
               <label class="flabel"><span class="qnum">1.6</span>Project Lead / Project Proposer</label>
               <div class="row2">
-                <input type="text" id="f-leadName" placeholder="Name (please print)">
+                <input type="text" id="f-leadName" placeholder="Name">
                 <input type="text" id="f-leadPosition" placeholder="Position/Title/Organization">
               </div>
               <div class="row2" style="margin-top:10px;">
@@ -411,7 +407,7 @@
               <label class="flabel"><span class="qnum">1.7</span>ATC Point of Contact (if different from above)</label>
               <button type="button" class="same-lead-btn" id="btn-same-lead">Same as Project Lead ↑</button>
               <div class="row2" style="margin-top:8px;">
-                <input type="text" id="f-atcName" placeholder="Name (please print)">
+                <input type="text" id="f-atcName" placeholder="Name">
                 <input type="text" id="f-atcPosition" placeholder="Position/Title">
               </div>
               <div class="row2" style="margin-top:10px;">
@@ -536,7 +532,6 @@
               <div class="field">
                 <label class="flabel"><span class="qnum">3.6</span>Ownership Type(s)</label>
                 <div class="chip-grid" id="f-ownershipTypes"></div>
-                <input type="text" id="f-ownershipTypesOther" placeholder="If Other, describe" class="conditional-field">
               </div>
             </div>
             <div class="field">
@@ -575,15 +570,17 @@
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">4.4</span>Does the project repair/replace assets within the same existing footprint?</label>
-              <div class="toggle-row" id="f-sameFootprint">
+              <div class="toggle-row" id="f-sameFootprint" style="max-width:360px;">
                 <button type="button" class="toggle-btn active" data-field="sameFootprint" data-yn="Yes">Yes</button>
                 <button type="button" class="toggle-btn" data-field="sameFootprint" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="sameFootprint" data-yn="Unknown">Unk.</button>
               </div>
               <input type="text" id="f-footprintDistance" placeholder="If No, distance from the original footprint" class="conditional-field">
               <label class="flabel" style="margin-top:12px;">If Yes, will the asset expand outside the boundary of the existing footprint?</label>
-              <div class="toggle-row" id="f-expandBoundary">
+              <div class="toggle-row" id="f-expandBoundary" style="max-width:360px;">
                 <button type="button" class="toggle-btn" data-field="expandBoundary" data-yn="Yes">Yes</button>
                 <button type="button" class="toggle-btn active" data-field="expandBoundary" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="expandBoundary" data-yn="Unknown">Unk.</button>
               </div>
             </div>
           </div>
@@ -640,9 +637,10 @@
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">5.9</span>Will the project involve working with or around known Hazardous Materials?</label>
-              <div class="toggle-row" id="f-hazMaterials">
+              <div class="toggle-row" id="f-hazMaterials" style="max-width:360px;">
                 <button type="button" class="toggle-btn" data-field="hazMaterials" data-yn="Yes">Yes</button>
                 <button type="button" class="toggle-btn active" data-field="hazMaterials" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="hazMaterials" data-yn="Unknown">Unk.</button>
               </div>
               <textarea id="f-hazMaterialsDetails" placeholder="If Yes: list each hazardous material. Attach a safety plan to the packet." class="conditional-field"></textarea>
             </div>
@@ -711,9 +709,10 @@
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">7.4</span>Will any project materials be harvested or removed from adjacent areas?</label>
-              <div class="toggle-row" id="f-materialsHarvested">
+              <div class="toggle-row" id="f-materialsHarvested" style="max-width:360px;">
                 <button type="button" class="toggle-btn" data-field="materialsHarvested" data-yn="Yes">Yes</button>
                 <button type="button" class="toggle-btn active" data-field="materialsHarvested" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="materialsHarvested" data-yn="Unknown">Unk.</button>
               </div>
               <textarea id="f-materialsHarvestedDetails" placeholder="If Yes: type(s)/amount(s) of native materials, method of removal, storage. Identify location(s) on a map." class="conditional-field"></textarea>
             </div>
@@ -728,10 +727,11 @@
             <div class="field">
               <label class="flabel"><span class="qnum">7.6</span>Known invasive species at or adjacent to the site</label>
               <label class="flabel" style="font-size:12.5px;margin-top:2px;">Overall Density (if uniform)</label>
-              <div class="toggle-row" id="f-invasiveDensity" style="max-width:360px;">
+              <div class="toggle-row" id="f-invasiveDensity" style="max-width:420px;">
                 <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="High">High</button>
                 <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="Medium">Medium</button>
                 <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="Low">Low</button>
+                <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="Unknown">Unk.</button>
               </div>
               <textarea id="f-invasiveSpecies" placeholder="Species names and approximate location(s) relative to the project area. Note per-species density here if it varies." style="margin-top:9px;"></textarea>
             </div>
@@ -1048,8 +1048,8 @@
   ];
 
   const WORK_DOERS = ["Volunteers","ATC Paid Crew","NPS Crew","USFS Crew","Contractor","Volunteer + Crew Combination","Other"];
-  const LAND_MANAGER_OPTIONS = ["APPA (NPS)","ATC","USFS","Other NPS Unit","State Agency","County/Local Government","Private Landowner","Other"];
-  const OWNERSHIP_TYPES = ["Fee (NPS-owned)","Easement","Right-of-Way/License","Cooperative Agreement","State/Other Federal Reservation","Other"];
+  const LAND_MANAGER_OPTIONS = ["APPA (NPS)","ATC","USFS","Other NPS Unit","State Agency","County/Local Government","Private Landowner","Unknown","Other"];
+  const OWNERSHIP_TYPES = ["Fee","Easement","Right of Way","Unknown"];
   const PLANNING_DOC_TYPES = ["A.T. Club Local Management Plan","State Recreation Plan","Local Recreation Plan","Capital Plan","Other"];
   const EXPERT_TYPES = ["Natural Resource Specialist","State/Federal Wildlife Agency","Engineer","Recreation Planner","SHPO/Cultural Resource Specialist","Other"];
   const SEASONAL_CONSIDERATION_TYPES = ["High Use Period","Natural Resource Sensitivities/Requirements","Agency Policy","Fund Source","Access","Other"];
@@ -1084,7 +1084,7 @@
     "Lead Name","Lead Position/Org","Lead Phone","Lead Email","ATC POC Name","ATC POC Position","ATC POC Phone","ATC POC Email","Who Will Do The Work","Who Will Do The Work (Other)",
     "Problem/Condition","Alternatives Considered","Planning Document Type","Planning Document Type (Other)","Planning Document Name","Expert Consultation Type","Expert Consultation Type (Other)","Expert Consultations","Partner/Landowner Consultations","Seasonal/Timing Consideration Type","Seasonal/Timing Consideration Type (Other)","Seasonal/Timing Considerations","Safety Concerns",
     "Priority","Priority Explanation","Project Type","Work Type","Work Type Other","Target Start Date","Target Completion Date","Phased Project","Phases",
-    "State(s)","County(s)","County(s) Other","ATC Region","Trail Club/Partner","Trail Club/Partner Other","Land Manager(s)/Owner(s)","Land Manager(s)/Owner(s) Other","Ownership Type(s)","Ownership Type(s) Other","APPA Tract Number(s)","Latitude","Longitude",
+    "State(s)","County(s)","County(s) Other","ATC Region","Trail Club/Partner","Trail Club/Partner Other","Land Manager(s)/Owner(s)","Land Manager(s)/Owner(s) Other","Ownership Type(s)","APPA Tract Number(s)","Latitude","Longitude",
     "FMSS Location Name(s)","FMSS Location Number(s)","FMSS Location Type(s)","FMSS Type Other","Same Footprint","Footprint Distance","Expand Boundary",
     "Site Access Type","Site Access Type (Other)","Site Access/Parking","Access Mode Type","Access Mode Type (Other)","Access Mode","Materials","Equipment/Tools","Staging Required","Staging Details","Max People On Site","Work Timing Type","Work Timing Type (Other)","Work Duration/Timing",
     "Field Camp Required","Field Camp Details","Hazardous Materials","Hazardous Materials Details","Waste Produced","Waste Details",
@@ -1481,7 +1481,6 @@
     {containerId:"f-crSurveys", otherId:"f-crSurveysOther"},
     {containerId:"f-whoWillDoWork", otherId:"f-whoWillDoWorkOther"},
     {containerId:"f-landManagers", otherId:"f-landManagersOther"},
-    {containerId:"f-ownershipTypes", otherId:"f-ownershipTypesOther"},
     {containerId:"f-planningDocType", otherId:"f-planningDocTypeOther"},
     {containerId:"f-expertConsultTypes", otherId:"f-expertConsultTypesOther"},
     {containerId:"f-seasonalConsiderationTypes", otherId:"f-seasonalConsiderationTypesOther"},
@@ -1737,7 +1736,7 @@
       states: getChecked("state").join("; "), counties: getChecked("county").join("; "), countiesOther: getTrimmed("f-countiesOther"),
       atcRegion: getVal("f-atcRegion"), trailClub: getChecked("trailClub").join("; "), trailClubOther: getTrimmed("f-trailClubOther"),
       landManagers: getChecked("landManagers").join("; "), landManagersOther: getTrimmed("f-landManagersOther"),
-      ownershipTypes: getChecked("ownershipTypes").join("; "), ownershipTypesOther: getTrimmed("f-ownershipTypesOther"),
+      ownershipTypes: getChecked("ownershipTypes").join("; "),
       tractNumbers: getTrimmed("f-tractNumbers"), lat: getVal("f-lat"), lng: getVal("f-lng"),
       fmssNames: getTrimmed("f-fmssNames"), fmssNumbers: getTrimmed("f-fmssNumbers"),
       fmssTypes: getChecked("fmssType").join("; "), fmssTypeOther: getTrimmed("f-fmssTypeOther"),
@@ -1904,7 +1903,6 @@
     setChecked("landManagers", e.landManagers);
     document.getElementById("f-landManagersOther").value = e.landManagersOther || "";
     setChecked("ownershipTypes", e.ownershipTypes);
-    document.getElementById("f-ownershipTypesOther").value = e.ownershipTypesOther || "";
     document.getElementById("f-tractNumbers").value = e.tractNumbers || "";
     document.getElementById("f-lat").value = e.lat || "";
     document.getElementById("f-lng").value = e.lng || "";
@@ -2298,7 +2296,7 @@
         e.leadName, e.leadPosition, e.leadPhone, e.leadEmail, e.atcName, e.atcPosition, e.atcPhone, e.atcEmail, e.whoWillDoWork, e.whoWillDoWorkOther,
         e.problem, e.alternatives, e.planningDocType, e.planningDocTypeOther, e.planningDoc, e.expertConsultTypes, e.expertConsultTypesOther, e.expertConsults, e.partnerConsults, e.seasonalConsiderationTypes, e.seasonalConsiderationTypesOther, e.seasonalConsiderations, e.safetyConcerns,
         e.priority, e.priorityExplanation, e.projectType, e.workType, e.workTypeOther, e.startDate, e.completionDate, e.phased, e.phases,
-        e.states, e.counties, e.countiesOther, e.atcRegion, e.trailClub, e.trailClubOther, e.landManagers, e.landManagersOther, e.ownershipTypes, e.ownershipTypesOther, e.tractNumbers, e.lat, e.lng,
+        e.states, e.counties, e.countiesOther, e.atcRegion, e.trailClub, e.trailClubOther, e.landManagers, e.landManagersOther, e.ownershipTypes, e.tractNumbers, e.lat, e.lng,
         e.fmssNames, e.fmssNumbers, e.fmssTypes, e.fmssTypeOther, e.sameFootprint, e.footprintDistance, e.expandBoundary,
         e.siteAccessTypes, e.siteAccessTypesOther, e.siteAccess, e.accessModeTypes, e.accessModeTypesOther, e.accessMode, e.materials, e.equipment, e.stagingRequired, e.stagingDetails, e.maxPeople, e.workTimingTypes, e.workTimingTypesOther, e.workDuration,
         e.fieldCampRequired, e.fieldCampDetails, e.hazMaterials, e.hazMaterialsDetails, e.wasteProduced, e.wasteDetails,
@@ -2444,7 +2442,7 @@
         ["3.3 ATC Region", val(entry.atcRegion)],
         ["3.4 Trail Club / Partner Org(s)", withOther(entry.trailClub, entry.trailClubOther)],
         ["3.5 Land Manager(s)/Owner(s)", withOther(entry.landManagers, entry.landManagersOther)],
-        ["3.6 Ownership Type(s)", withOther(entry.ownershipTypes, entry.ownershipTypesOther)],
+        ["3.6 Ownership Type(s)", val(entry.ownershipTypes)],
         ["3.7 APPA Tract Number(s)", val(entry.tractNumbers)],
         ["3.8 GPS Lat/Long", (entry.lat && entry.lng) ? `${entry.lat}, ${entry.lng}` : "—"]
       ]);
@@ -2574,7 +2572,7 @@
         doc.line(margin+240, y, margin+400, y);
         doc.line(margin+420, y, pageWidth-margin, y);
         doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...INK_SOFT);
-        doc.text("Name (please print)", margin, y+10);
+        doc.text("Name", margin, y+10);
         doc.text("Signature", margin+240, y+10);
         doc.text("Date", margin+420, y+10);
         y += 26;
@@ -2703,52 +2701,9 @@
   document.getElementById("proposal-form").addEventListener("input", debounce(autosaveDraft, 800));
   document.getElementById("proposal-form").addEventListener("change", autosaveDraft);
 
-  /* ---------------- Backend connection diagnostics ----------------
-     A one-click way to see exactly what the Apps Script backend is
-     returning — the raw HTTP status and body — rather than guessing from a
-     generic "could not reach" toast. Useful when first wiring up Code.gs or
-     after a deployment/permissions change. */
-  async function testConnection(){
-    const btn = document.getElementById("btn-test-connection");
-    const textEl = document.getElementById("connection-banner-text");
-    const originalBtnText = btn.textContent;
-    btn.disabled = true;
-    btn.textContent = "Testing…";
-    textEl.textContent = "Testing connection…";
-    try{
-      const pingUrl = CONFIG.APPS_SCRIPT_URL + (CONFIG.APPS_SCRIPT_URL.includes("?") ? "&" : "?") + "action=ping";
-      const res = await fetch(pingUrl, { method:"GET" });
-      const rawText = await res.text();
-      let parsed = null;
-      try{ parsed = JSON.parse(rawText); }catch(e){ /* not JSON */ }
-
-      console.log("Test Connection — status:", res.status, "body:", rawText);
-
-      if(parsed && parsed.ok){
-        textEl.textContent = `✓ Connected — Apps Script responded OK (HTTP ${res.status}).`;
-      } else if(parsed){
-        textEl.textContent = `⚠ Reached the script, but it reported an error: ${parsed.error || "unknown"} (HTTP ${res.status}).`;
-      } else if(rawText.toLowerCase().includes("sign in") || rawText.toLowerCase().includes("accounts.google.com")){
-        textEl.textContent = `⚠ HTTP ${res.status} — got a Google sign-in page instead of JSON. In Apps Script: Deploy > Manage deployments, edit the deployment, set "Who has access" to Anyone, and deploy a new version.`;
-      } else {
-        textEl.textContent = `⚠ HTTP ${res.status} — got non-JSON back. First 200 chars logged to console: ${rawText.slice(0,120)}…`;
-      }
-    }catch(err){
-      console.error("Test Connection failed:", err);
-      textEl.textContent = `✗ Network error — couldn't reach the URL at all: ${err.message}. Check the URL in config.js is correct and ends in /exec.`;
-    } finally {
-      btn.disabled = false;
-      btn.textContent = originalBtnText;
-    }
-  }
-  document.getElementById("btn-test-connection").addEventListener("click", testConnection);
-
   /* ---------------- Init ---------------- */
   if(!BACKEND_CONFIGURED){
     document.getElementById("config-banner").classList.add("show");
-  } else {
-    document.getElementById("connection-banner-text").textContent = "Shared backend configured.";
-    document.getElementById("connection-banner").classList.add("show");
   }
   resetForm(false);
   document.getElementById("f-recordId").value = "PP-001";
