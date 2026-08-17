@@ -771,7 +771,10 @@
                   <input type="number" min="0" id="f-treesRemovedOver3">
                 </div>
               </div>
-              <label class="flabel" style="font-size:12.5px;margin-top:9px;">Vegetation Clearing Amount</label>
+              <div class="hint">Include species and locations on a map where relevant.</div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">7.3</span>Vegetation Clearing Amount</label>
               <div class="row2">
                 <input type="number" min="0" step="any" id="f-vegClearingAmount" placeholder="Amount">
                 <select id="f-vegClearingUnit">
@@ -781,11 +784,6 @@
                   <option value="hectares">Hectares</option>
                 </select>
               </div>
-              <div class="hint">Include species and locations on a map where relevant.</div>
-            </div>
-            <div class="field">
-              <label class="flabel"><span class="qnum">7.3</span>Ground surface area disturbed, cleared, or denuded of vegetation</label>
-              <input type="text" id="f-groundDisturbanceArea" placeholder="sq ft / acres">
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">7.4</span>Will any project materials be harvested or removed from adjacent areas?</label>
@@ -1192,7 +1190,7 @@
     "Site Access Type","Site Access Type (Other)","Site Access/Parking","Access Mode Type","Access Mode Type (Other)","Access Mode","Materials","Equipment/Tools","Staging Required","Staging Details","Max People On Site","Work Timing Type","Work Timing Type (Other)","Work Duration/Timing",
     "Field Camp Required","Field Camp Details","Hazardous Materials","Hazardous Materials Details","Waste Produced","Waste Details",
     "Close/Redirect Site","Close/Redirect Details","New Signage","Alter Visitor Services","Alter Visitor Service Type","Alter Visitor Service Type (Other)","Alter Visitor Details","Universal Design Considered?","Universal Design Details",
-    "Natural Environment Type","Natural Environment Type (Other)","Natural Environment","Trees Removed (<3in DBH)","Trees Removed (>3in DBH)","Vegetation Clearing Amount","Vegetation Clearing Unit","Ground Disturbance Area","Materials Harvested","Materials Harvested Details","Wilderness Area",
+    "Natural Environment Type","Natural Environment Type (Other)","Natural Environment","Trees Removed (<3in DBH)","Trees Removed (>3in DBH)","Vegetation Clearing Amount","Vegetation Clearing Unit","Materials Harvested","Materials Harvested Details","Wilderness Area",
     "Invasive Plant Population Size","Invasive Species (of note)","Rare/T&E Species","NR Surveys","NR Surveys Other","NR Surveys Planned Who/When","Mitigation (Natural Resources)",
     "Cultural Environment Type","Cultural Environment Type (Other)","Cultural Environment","Ground Disturbance (Cultural)","Ground Disturbance (Cultural) Details","Archaeological Site Nearby","NRHP Property Nearby","NRHP Property List",
     "CR Surveys","CR Surveys Other","Mitigation (Cultural Resources)","Photos Taken?","Photo File(s)/Reference","Shapefile Attached?","Shapefile Name","Notes"];
@@ -1869,7 +1867,6 @@
       naturalEnvTypes: getChecked("naturalEnvTypes").join("; "), naturalEnvTypesOther: getTrimmed("f-naturalEnvTypesOther"), naturalEnv: getTrimmed("f-naturalEnv"),
       treesRemovedUnder3: getVal("f-treesRemovedUnder3"), treesRemovedOver3: getVal("f-treesRemovedOver3"),
       vegClearingAmount: getVal("f-vegClearingAmount"), vegClearingUnit: getVal("f-vegClearingUnit"),
-      groundDisturbanceArea: getTrimmed("f-groundDisturbanceArea"),
       materialsHarvested: toggleState.materialsHarvested, materialsHarvestedDetails: getTrimmed("f-materialsHarvestedDetails"),
       wildernessArea: toggleState.wildernessArea,
       invasivePopSize: (document.querySelector('input[name="invasivePopSize"]:checked')||{}).value || "",
@@ -2063,7 +2060,6 @@
     document.getElementById("f-treesRemovedOver3").value = e.treesRemovedOver3 || "";
     document.getElementById("f-vegClearingAmount").value = e.vegClearingAmount || "";
     document.getElementById("f-vegClearingUnit").value = e.vegClearingUnit || "";
-    document.getElementById("f-groundDisturbanceArea").value = e.groundDisturbanceArea || "";
     setToggle("materialsHarvested", e.materialsHarvested);
     document.getElementById("f-materialsHarvestedDetails").value = e.materialsHarvestedDetails || "";
     setToggle("wildernessArea", e.wildernessArea);
@@ -2503,7 +2499,7 @@
         e.siteAccessTypes, e.siteAccessTypesOther, e.siteAccess, e.accessModeTypes, e.accessModeTypesOther, e.accessMode, e.materials, e.equipment, e.stagingRequired, e.stagingDetails, e.maxPeople, e.workTimingTypes, e.workTimingTypesOther, e.workDuration,
         e.fieldCampRequired, e.fieldCampDetails, e.hazMaterials, e.hazMaterialsDetails, e.wasteProduced, e.wasteDetails,
         e.closeRedirect, e.closeRedirectDetails, e.newSignage, e.alterVisitorServices, e.alterVisitorTypes, e.alterVisitorTypesOther, e.alterVisitorDetails, e.universalDesignConsidered, e.universalDesign,
-        e.naturalEnvTypes, e.naturalEnvTypesOther, e.naturalEnv, e.treesRemovedUnder3, e.treesRemovedOver3, e.vegClearingAmount, e.vegClearingUnit, e.groundDisturbanceArea, e.materialsHarvested, e.materialsHarvestedDetails, e.wildernessArea,
+        e.naturalEnvTypes, e.naturalEnvTypesOther, e.naturalEnv, e.treesRemovedUnder3, e.treesRemovedOver3, e.vegClearingAmount, e.vegClearingUnit, e.materialsHarvested, e.materialsHarvestedDetails, e.wildernessArea,
         e.invasivePopSize, e.invasiveSpecies, e.rareSpecies, e.nrSurveys, e.nrSurveysOther, e.nrSurveysPlannedWho, e.mitigationNR,
         e.culturalEnvTypes, e.culturalEnvTypesOther, e.culturalEnv, e.groundDisturbanceCultural, e.groundDisturbanceCulturalDetails, e.archSite, e.nrhpProperty, e.nrhpPropertyList,
         e.crSurveys, e.crSurveysOther, e.mitigationCR, e.photosTaken, e.photoRef, (e.shapefile ? "Yes" : "No"), (e.shapefile ? e.shapefile.name : ""), e.notes
@@ -2685,8 +2681,7 @@
         ["7.1 Surrounding Natural Environment", withOther(entry.naturalEnvTypes, entry.naturalEnvTypesOther) + (entry.naturalEnv ? " — " + entry.naturalEnv : "")],
         ["7.2 Trees Removed (<3in DBH)", val(entry.treesRemovedUnder3)],
         ["      Trees Removed (>3in DBH)", val(entry.treesRemovedOver3)],
-        ["      Vegetation Clearing Amount", (entry.vegClearingAmount && entry.vegClearingUnit) ? `${entry.vegClearingAmount} ${entry.vegClearingUnit}` : val(entry.vegClearingAmount)],
-        ["7.3 Ground Surface Area Disturbed", val(entry.groundDisturbanceArea)],
+        ["7.3 Vegetation Clearing Amount", (entry.vegClearingAmount && entry.vegClearingUnit) ? `${entry.vegClearingAmount} ${entry.vegClearingUnit}` : val(entry.vegClearingAmount)],
         ["7.4 Materials Harvested from Adjacent Areas?", ynDetail(entry.materialsHarvested, entry.materialsHarvestedDetails)],
         ["7.5 Within/Adjacent to Wilderness Area?", val(entry.wildernessArea)],
         ["7.6 Invasive Plant Population Size", (entry.invasivePopSize ? entry.invasivePopSize + " — " : "") + val(entry.invasiveSpecies)],
