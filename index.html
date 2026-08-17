@@ -500,7 +500,10 @@
               <label class="flabel"><span class="qnum">2.6</span>Seasonal or timing considerations/restrictions</label>
               <div class="chip-grid" id="f-seasonalConsiderationTypes"></div>
               <input type="text" id="f-seasonalConsiderationTypesOther" placeholder="If Other, describe" class="conditional-field">
-              <textarea id="f-seasonalConsiderations" placeholder="Details" style="margin-top:9px;"></textarea>
+              <div class="conditional-field" id="f-taExpirationWrap">
+                <label class="flabel" style="font-size:12.5px;margin-top:9px;">TA Expiration Date</label>
+                <input type="date" id="f-seasonalFundSourceTAExpiration">
+              </div>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">2.7</span>Immediate safety concerns?</label>
@@ -1146,7 +1149,7 @@
   const OWNERSHIP_TYPES = ["Fee","Easement","Right of Way","Unknown"];
   const PLANNING_DOC_TYPES = ["A.T. Club Local Management Plan","State Recreation Plan","Local Recreation Plan","Capital Plan","Unknown","Other"];
   const EXPERT_TYPES = ["Natural Resource Specialist","State/Federal Wildlife Agency","Engineer","Recreation Planner","SHPO/Cultural Resource Specialist","Other"];
-  const SEASONAL_CONSIDERATION_TYPES = ["High Use Period","Natural Resource Sensitivities","Agency Policy","Fund Source","Access","Other"];
+  const SEASONAL_CONSIDERATION_TYPES = ["Fund Source","High Use Period","Natural Resource Sensitivities","Agency Policy","Access","Other"];
   const SITE_ACCESS_TYPES = ["A.T. Treadway","Side Trail","Bushwhack/Off-Trail","Road","Air","Water","Other"];
   const ACCESS_MODES = ["Foot","ATV","Vehicle","Snowmobile","Watercraft","Pack Animal","Other"];
   const WORK_TIMING_TYPES = ["Weekdays","Weekends","Daytime Only","Extends Into Evening","Multi-Day/Overnight","Other"];
@@ -1183,7 +1186,7 @@
 
   const CSV_COLUMNS = ["Record ID","Submission Date","Project Title","Brief Description","Capital Plan ID","PMIS No.",
     "Lead Name","Lead Position/Org","Lead Phone","Lead Email","ATC POC Name","ATC POC Position","ATC POC Phone","ATC POC Email","Who Will Do The Work","Who Will Do The Work (Other)",
-    "Problem/Condition","Alternatives Considered","Planning Document Type","Planning Document Type (Other)","Planning Document Name","Expert Consultation Type","Expert Consultation Type (Other)","Expert Consultations","Partner/Landowner Consultations","Seasonal/Timing Consideration Type","Seasonal/Timing Consideration Type (Other)","Seasonal/Timing Considerations","Immediate Safety Concerns?","Safety Concerns Details",
+    "Problem/Condition","Alternatives Considered","Planning Document Type","Planning Document Type (Other)","Planning Document Name","Expert Consultation Type","Expert Consultation Type (Other)","Expert Consultations","Partner/Landowner Consultations","Seasonal/Timing Consideration Type","Seasonal/Timing Consideration Type (Other)","Fund Source TA Expiration Date","Immediate Safety Concerns?","Safety Concerns Details",
     "Priority","Priority Explanation","Project Type","Work Type","Work Type Other","Target Start Date","Target Completion Date","Phased Project","Phases",
     "State(s)","County(s)","County(s) Other","ATC Region","Trail Club/Partner","Trail Club/Partner Other","Land Manager(s)/Owner(s)","Land Manager(s)/Owner(s) Other","Ownership Type(s)","APPA Tract Number(s)","Latitude","Longitude",
     "FMSS Location Name(s)","FMSS Location Number(s)","FMSS Location Type(s)","FMSS Type Other","Same Footprint","Footprint Distance","Expand Boundary",
@@ -1579,11 +1582,14 @@
     {containerId:"f-culturalEnvTypes", otherId:"f-culturalEnvTypesOther"}
   ];
   function syncOtherVisibility(containerId, otherId){
+    syncChipRevealVisibility(containerId, otherId, "Other");
+  }
+  function syncChipRevealVisibility(containerId, targetId, chipValue){
     const container = document.getElementById(containerId);
-    const other = document.getElementById(otherId);
-    if(!container || !other) return;
-    const otherBox = container.querySelector('input[value="Other"]');
-    other.classList.toggle("show", !!(otherBox && otherBox.checked));
+    const target = document.getElementById(targetId);
+    if(!container || !target) return;
+    const box = container.querySelector(`input[value="${chipValue}"]`);
+    target.classList.toggle("show", !!(box && box.checked));
   }
   OTHER_CHIP_MAP.forEach(({containerId, otherId})=>{
     const container = document.getElementById(containerId);
@@ -1591,6 +1597,16 @@
     container.addEventListener("change", ()=> syncOtherVisibility(containerId, otherId));
     syncOtherVisibility(containerId, otherId);
   });
+
+  // 2.6: the TA Expiration Date field only makes sense when "Fund Source" is
+  // checked as a seasonal/timing consideration.
+  (()=>{
+    const containerId = "f-seasonalConsiderationTypes", targetId = "f-taExpirationWrap";
+    const container = document.getElementById(containerId);
+    if(!container) return;
+    container.addEventListener("change", ()=> syncChipRevealVisibility(containerId, targetId, "Fund Source"));
+    syncChipRevealVisibility(containerId, targetId, "Fund Source");
+  })();
 
   /* ---------------- Packet checklist (guide tab, local only) ---------------- */
   const CHECKLIST_KEY = "appa_proposal_checklist_v1";
@@ -1767,6 +1783,7 @@
       applyConditionalVisibility(f, toggleState[f]);
     });
     OTHER_CHIP_MAP.forEach(({containerId, otherId})=> syncOtherVisibility(containerId, otherId));
+    syncChipRevealVisibility("f-seasonalConsiderationTypes", "f-taExpirationWrap", "Fund Source");
     selectedCounties = new Set();
     selectedClubs = new Set();
     renderCountyChips();
@@ -1836,7 +1853,7 @@
       planningDocType: getChecked("planningDocType").join("; "), planningDocTypeOther: getTrimmed("f-planningDocTypeOther"), planningDoc: getTrimmed("f-planningDoc"),
       expertConsultTypes: getChecked("expertConsultTypes").join("; "), expertConsultTypesOther: getTrimmed("f-expertConsultTypesOther"), expertConsults: getTrimmed("f-expertConsults"),
       partnerConsults: getTrimmed("f-partnerConsults"),
-      seasonalConsiderationTypes: getChecked("seasonalConsiderationTypes").join("; "), seasonalConsiderationTypesOther: getTrimmed("f-seasonalConsiderationTypesOther"), seasonalConsiderations: getTrimmed("f-seasonalConsiderations"),
+      seasonalConsiderationTypes: getChecked("seasonalConsiderationTypes").join("; "), seasonalConsiderationTypesOther: getTrimmed("f-seasonalConsiderationTypesOther"), seasonalFundSourceTAExpiration: getVal("f-seasonalFundSourceTAExpiration"),
       safetyConcernsPresent: toggleState.safetyConcernsPresent, safetyConcerns: getTrimmed("f-safetyConcerns"),
       priority, priorityExplanation: getTrimmed("f-priorityExplanation"),
       projectType: projectType.join("; "), workType: workType.join("; "), workTypeOther: getTrimmed("f-workTypeOther"),
@@ -1993,7 +2010,7 @@
     document.getElementById("f-partnerConsults").value = e.partnerConsults || "";
     setChecked("seasonalConsiderationTypes", e.seasonalConsiderationTypes);
     document.getElementById("f-seasonalConsiderationTypesOther").value = e.seasonalConsiderationTypesOther || "";
-    document.getElementById("f-seasonalConsiderations").value = e.seasonalConsiderations || "";
+    document.getElementById("f-seasonalFundSourceTAExpiration").value = e.seasonalFundSourceTAExpiration || "";
     setToggle("safetyConcernsPresent", e.safetyConcernsPresent);
     document.getElementById("f-safetyConcerns").value = e.safetyConcerns || "";
     if(e.priority){ const r = document.querySelector(`input[name="priority"][value="${CSS.escape(e.priority)}"]`); if(r) r.checked = true; }
@@ -2082,6 +2099,7 @@
     document.getElementById("f-crSurveysOther").value = e.crSurveysOther || "";
     document.getElementById("f-mitigationCR").value = e.mitigationCR || "";
     OTHER_CHIP_MAP.forEach(({containerId, otherId})=> syncOtherVisibility(containerId, otherId));
+    syncChipRevealVisibility("f-seasonalConsiderationTypes", "f-taExpirationWrap", "Fund Source");
     photosTaken = e.photosTaken || "No";
     document.querySelectorAll("[data-photos]").forEach(b=>b.classList.toggle("active", b.dataset.photos===photosTaken));
     document.getElementById("f-photoref").value = e.photoRef || "";
@@ -2492,7 +2510,7 @@
       rows.push([
         e.recordId, e.submissionDate, e.title, e.briefDesc, e.capitalPlanId, e.pmisNo,
         e.leadName, e.leadPosition, e.leadPhone, e.leadEmail, e.atcName, e.atcPosition, e.atcPhone, e.atcEmail, e.whoWillDoWork, e.whoWillDoWorkOther,
-        e.problem, e.alternatives, e.planningDocType, e.planningDocTypeOther, e.planningDoc, e.expertConsultTypes, e.expertConsultTypesOther, e.expertConsults, e.partnerConsults, e.seasonalConsiderationTypes, e.seasonalConsiderationTypesOther, e.seasonalConsiderations, e.safetyConcernsPresent, e.safetyConcerns,
+        e.problem, e.alternatives, e.planningDocType, e.planningDocTypeOther, e.planningDoc, e.expertConsultTypes, e.expertConsultTypesOther, e.expertConsults, e.partnerConsults, e.seasonalConsiderationTypes, e.seasonalConsiderationTypesOther, e.seasonalFundSourceTAExpiration, e.safetyConcernsPresent, e.safetyConcerns,
         e.priority, e.priorityExplanation, e.projectType, e.workType, e.workTypeOther, e.startDate, e.completionDate, e.phased, e.phases,
         e.states, e.counties, e.countiesOther, e.atcRegion, e.trailClub, e.trailClubOther, e.landManagers, e.landManagersOther, e.ownershipTypes, e.tractNumbers, e.lat, e.lng,
         e.fmssNames, e.fmssNumbers, e.fmssTypes, e.fmssTypeOther, e.sameFootprint, e.footprintDistance, e.expandBoundary,
@@ -2623,7 +2641,7 @@
         ["2.3 Identified in Planning Document?", withOther(entry.planningDocType, entry.planningDocTypeOther) + (entry.planningDoc ? " — " + entry.planningDoc : "")],
         ["2.4 Consultations with Experts", withOther(entry.expertConsultTypes, entry.expertConsultTypesOther) + (entry.expertConsults ? " — " + entry.expertConsults : "")],
         ["2.5 Consultations with Partners/Landowners", val(entry.partnerConsults)],
-        ["2.6 Seasonal/Timing Considerations", withOther(entry.seasonalConsiderationTypes, entry.seasonalConsiderationTypesOther) + (entry.seasonalConsiderations ? " — " + entry.seasonalConsiderations : "")],
+        ["2.6 Seasonal/Timing Considerations", withOther(entry.seasonalConsiderationTypes, entry.seasonalConsiderationTypesOther) + (entry.seasonalFundSourceTAExpiration ? " — TA Expires: " + entry.seasonalFundSourceTAExpiration : "")],
         ["2.7 Immediate Safety Concerns?", ynDetail(entry.safetyConcernsPresent, entry.safetyConcerns)],
         ["2.8 Priority Level", val(entry.priority) + (entry.priorityExplanation ? " — " + entry.priorityExplanation : "")],
         ["2.9 Project Type", val(entry.projectType)],
