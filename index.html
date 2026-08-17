@@ -28,7 +28,10 @@
     --white:#FFFFFF;
     --radius:10px;
     --shadow: 0 1px 2px rgba(27,58,46,0.08), 0 4px 14px rgba(27,58,46,0.06);
+    --app-max-width: 760px;
   }
+  @media (min-width: 900px){ :root{ --app-max-width: 1100px; } }
+  @media (min-width: 1300px){ :root{ --app-max-width: 1320px; } }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;}
   body{
@@ -41,7 +44,7 @@
   }
   h1,h2,h3{font-family:'Roboto Slab',serif; color:var(--forest-dark); margin:0;}
   .mono{font-family:'IBM Plex Mono',monospace;}
-  #app{max-width:760px;margin:0 auto;min-height:100vh;background:var(--parchment);display:flex;flex-direction:column;}
+  #app{max-width:var(--app-max-width);margin:0 auto;min-height:100vh;background:var(--parchment);display:flex;flex-direction:column;}
 
   .topbar{
     background:linear-gradient(180deg,var(--forest) 0%, var(--forest-dark) 100%);
@@ -68,6 +71,7 @@
   .tab.active .badge{background:var(--amber);}
 
   main{flex:1;padding:16px 14px 100px;}
+  @media (min-width:900px){ main{padding:24px 28px 110px;} }
   .config-banner{
     background:#F3E6E0;border:1.5px solid var(--rust);color:var(--rust);padding:10px 12px;border-radius:8px;
     font-size:12.5px;font-weight:600;line-height:1.5;margin:12px 14px 0;display:none;
@@ -147,7 +151,7 @@
   .pc-text{font-size:14px;font-weight:600;color:var(--ink);}
 
   .action-bar{
-    position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:760px;background:var(--white);
+    position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:var(--app-max-width);background:var(--white);
     border-top:1px solid var(--line);padding:10px 14px;display:flex;gap:10px;box-shadow:0 -4px 14px rgba(0,0,0,0.08);z-index:15;
   }
   .btn{flex:1;padding:13px;border-radius:9px;border:none;font-weight:700;font-size:14.5px;cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:0.2px;}
@@ -218,6 +222,35 @@
   .empty-state h3{color:var(--forest-dark);margin-bottom:6px;font-size:16px;}
   .empty-state p{font-size:13px;line-height:1.5;max-width:320px;margin:0 auto;}
 
+  /* ---- Wide-screen sortable table (Proposals view) ---- */
+  .wide-table-wrap{display:none;}
+  @media (min-width:900px){
+    #entries-container{display:none;}
+    .wide-table-wrap{display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
+  }
+  .wide-table{width:100%;border-collapse:collapse;font-size:13px;}
+  .wide-table thead th{
+    background:var(--parchment-deep);color:var(--forest-dark);font-family:'Roboto Slab',serif;font-weight:700;
+    text-align:left;padding:11px 13px;border-bottom:2px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none;
+  }
+  .wide-table thead th:hover{background:#E3D6AE;}
+  .wide-table thead th .sort-arrow{font-size:10px;margin-left:5px;color:var(--ink-soft);display:inline-block;width:10px;}
+  .wide-table thead th.sorted .sort-arrow{color:var(--rust);}
+  .wide-table tbody tr{border-bottom:1px solid var(--parchment-deep);}
+  .wide-table tbody tr:last-child{border-bottom:none;}
+  .wide-table tbody tr:hover{background:#FBF6EA;}
+  .wide-table td{padding:10px 13px;vertical-align:top;color:var(--ink);}
+  .wide-table td.wt-id{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--forest-dark);white-space:nowrap;}
+  .wide-table td.wt-title{font-weight:600;max-width:280px;}
+  .wide-table td.wt-actions{white-space:nowrap;}
+  .wide-table td.wt-actions button{
+    padding:5px 10px;margin-right:5px;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;
+    border:1px solid var(--line);background:var(--white);color:var(--forest-dark);
+  }
+  .wide-table td.wt-actions button:last-child{margin-right:0;}
+  .wide-table td.wt-actions .btn-del{background:#F3E6E0;border-color:var(--rust);color:var(--rust);}
+  .wide-table-wrap .empty-state{padding:50px 20px;}
+
   #proj-map{width:100%;height:60vh;min-height:340px;border-radius:var(--radius);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;z-index:0;isolation:isolate;}
   .map-legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin-top:12px;padding:10px 12px;background:var(--card);border:1px solid var(--line);border-radius:8px;}
   .map-legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--ink);font-weight:600;}
@@ -228,6 +261,7 @@
   .map-popup-row{font-size:12.5px;margin-top:3px;}
 
   .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  @media (min-width:700px){ .stat-grid{grid-template-columns:repeat(4,1fr);} }
   .stat-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);}
   .stat-card .stat-value{font-family:'Roboto Slab',serif;font-weight:900;font-size:26px;color:var(--forest-dark);line-height:1;}
   .stat-card .stat-label{font-size:11px;text-transform:uppercase;letter-spacing:0.4px;color:var(--ink-soft);font-weight:600;margin-top:5px;display:block;}
@@ -852,6 +886,28 @@
         <button class="tb-btn primary" id="btn-export">⬇ Download CSV</button>
       </div>
       <div id="entries-container"></div>
+      <div class="wide-table-wrap" id="wide-table-wrap">
+        <table class="wide-table">
+          <thead>
+            <tr>
+              <th data-sort="recordId">ID</th>
+              <th data-sort="title">Title</th>
+              <th data-sort="priority">Priority</th>
+              <th data-sort="states">State(s)</th>
+              <th data-sort="atcRegion">Region</th>
+              <th data-sort="submissionDate">Submitted</th>
+              <th data-sort="startDate">Target Start</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="wide-table-body"></tbody>
+        </table>
+        <div class="empty-state" id="wide-table-empty" style="display:none;">
+          <div class="em-icon">📋</div>
+          <h3>No proposals logged yet</h3>
+          <p>Entries you save from the New Proposal tab will appear here.</p>
+        </div>
+      </div>
     </section>
 
     <!-- ============ MAP VIEW ============ -->
@@ -1583,6 +1639,8 @@
 
   function collapseAll(){
     SECTION_CARDS.forEach(card=> card.classList.add("collapsed"));
+    const photosCardEl = document.getElementById("section-photos");
+    if(photosCardEl) photosCardEl.classList.add("collapsed");
     renderProgressNav();
   }
 
@@ -1595,6 +1653,17 @@
       renderProgressNav();
     });
   });
+
+  // Site Photos/Shapefile/Notes isn't one of the numbered compliance sections,
+  // so it collapses independently rather than joining the "only one open at a
+  // time" group above — opening it doesn't close whichever numbered section
+  // you're working in, and vice versa.
+  const photosCard = document.getElementById("section-photos");
+  if(photosCard){
+    photosCard.querySelector(".card-head").addEventListener("click", ()=>{
+      photosCard.classList.toggle("collapsed");
+    });
+  }
 
   // A section is marked "filled" once any input/textarea/select/checkbox inside it has
   // a non-empty value — a lightweight progress signal, not full per-question validation.
@@ -2077,45 +2146,7 @@
     document.getElementById("tbl-count").textContent = n===1 ? "1 proposal logged" : n + " proposals logged";
     document.getElementById("btn-export").disabled = n===0;
   }
-  function renderTable(){
-    const container = document.getElementById("entries-container");
-    const list = Object.values(entries).sort((a,b)=> a.recordId.localeCompare(b.recordId, undefined, {numeric:true}));
-    if(list.length===0){
-      container.innerHTML = `<div class="empty-state"><div class="em-icon">📋</div><h3>No proposals logged yet</h3><p>Entries you save from the New Proposal tab will appear here.</p></div>`;
-      return;
-    }
-    container.innerHTML = list.map(e=>{
-      const cls = priorityCls(e.priority);
-      const types = (e.projectType||"").split("; ").filter(Boolean).map(t=>`<span class="type-pill">${escapeHtml(t)}</span>`).join("");
-      return `
-      <div class="entry-card">
-        <div class="entry-top">
-          <span class="eid">${escapeHtml(e.recordId)}</span>
-          <span class="esite">${escapeHtml(e.title||"Untitled")}</span>
-          <div class="priority-pill ${cls}">${escapeHtml(e.priority||"—")}</div>
-        </div>
-        <div class="entry-grid">
-          <div><b>Submitted</b><span>${escapeHtml(e.submissionDate||'—')}</span></div>
-          <div><b>State(s)</b><span>${escapeHtml(e.states||'—')}</span></div>
-          <div><b>ATC Region</b><span>${escapeHtml(e.atcRegion||'—')}</span></div>
-          <div><b>Lead</b><span>${escapeHtml(e.leadName||'—')}</span></div>
-          <div><b>Target Start</b><span>${escapeHtml(e.startDate||'—')}</span></div>
-          <div><b>Target Completion</b><span>${escapeHtml(e.completionDate||'—')}</span></div>
-          <div class="entry-full"><b>Project Type</b><span>${types||'—'}</span></div>
-          <div><b>Shapefile</b><span>${e.shapefile ? "🗺️ " + escapeHtml(e.shapefile.name) : "—"}</span></div>
-          <div class="entry-full"><b>Brief Description</b><span>${escapeHtml(e.briefDesc||'—')}</span></div>
-          ${e.notes ? `<div class="entry-full"><b>Notes</b><span>${escapeHtml(e.notes)}</span></div>` : ""}
-        </div>
-        ${(e.photos && e.photos.length) ? `<div class="entry-photo-strip">${e.photos.map(p=>`<div class="ep-thumb" data-photo-src="${escapeAttr(p.url || p.dataUrl)}"><img src="${p.url || p.dataUrl}" alt="${escapeAttr(p.name)}"></div>`).join("")}</div>` : ""}
-        <div class="entry-actions">
-          <button class="btn-edit" data-edit="${escapeAttr(e.recordId)}">Edit</button>
-          <button class="btn-dup" data-dup="${escapeAttr(e.recordId)}">Duplicate</button>
-          <button class="btn-pdf" data-pdf="${escapeAttr(e.recordId)}">Download PDF</button>
-          <button class="btn-del" data-del="${escapeAttr(e.recordId)}">Delete</button>
-        </div>
-      </div>`;
-    }).join("");
-
+  function wireEntryActions(container){
     container.querySelectorAll("[data-photo-src]").forEach(el=>{
       el.addEventListener("click", ()=> openLightbox(el.dataset.photoSrc));
     });
@@ -2152,6 +2183,128 @@
       btn.addEventListener("click", ()=> deleteEntry(btn.dataset.del));
     });
   }
+
+  function actionButtonsHtml(recordId){
+    return `
+          <button class="btn-edit" data-edit="${escapeAttr(recordId)}">Edit</button>
+          <button class="btn-dup" data-dup="${escapeAttr(recordId)}">Duplicate</button>
+          <button class="btn-pdf" data-pdf="${escapeAttr(recordId)}">PDF</button>
+          <button class="btn-del" data-del="${escapeAttr(recordId)}">Delete</button>`;
+  }
+
+  function renderTable(){
+    const container = document.getElementById("entries-container");
+    const list = Object.values(entries).sort((a,b)=> a.recordId.localeCompare(b.recordId, undefined, {numeric:true}));
+    if(list.length===0){
+      container.innerHTML = `<div class="empty-state"><div class="em-icon">📋</div><h3>No proposals logged yet</h3><p>Entries you save from the New Proposal tab will appear here.</p></div>`;
+    } else {
+      container.innerHTML = list.map(e=>{
+        const cls = priorityCls(e.priority);
+        const types = (e.projectType||"").split("; ").filter(Boolean).map(t=>`<span class="type-pill">${escapeHtml(t)}</span>`).join("");
+        return `
+        <div class="entry-card">
+          <div class="entry-top">
+            <span class="eid">${escapeHtml(e.recordId)}</span>
+            <span class="esite">${escapeHtml(e.title||"Untitled")}</span>
+            <div class="priority-pill ${cls}">${escapeHtml(e.priority||"—")}</div>
+          </div>
+          <div class="entry-grid">
+            <div><b>Submitted</b><span>${escapeHtml(e.submissionDate||'—')}</span></div>
+            <div><b>State(s)</b><span>${escapeHtml(e.states||'—')}</span></div>
+            <div><b>ATC Region</b><span>${escapeHtml(e.atcRegion||'—')}</span></div>
+            <div><b>Lead</b><span>${escapeHtml(e.leadName||'—')}</span></div>
+            <div><b>Target Start</b><span>${escapeHtml(e.startDate||'—')}</span></div>
+            <div><b>Target Completion</b><span>${escapeHtml(e.completionDate||'—')}</span></div>
+            <div class="entry-full"><b>Project Type</b><span>${types||'—'}</span></div>
+            <div><b>Shapefile</b><span>${e.shapefile ? "🗺️ " + escapeHtml(e.shapefile.name) : "—"}</span></div>
+            <div class="entry-full"><b>Brief Description</b><span>${escapeHtml(e.briefDesc||'—')}</span></div>
+            ${e.notes ? `<div class="entry-full"><b>Notes</b><span>${escapeHtml(e.notes)}</span></div>` : ""}
+          </div>
+          ${(e.photos && e.photos.length) ? `<div class="entry-photo-strip">${e.photos.map(p=>`<div class="ep-thumb" data-photo-src="${escapeAttr(p.url || p.dataUrl)}"><img src="${p.url || p.dataUrl}" alt="${escapeAttr(p.name)}"></div>`).join("")}</div>` : ""}
+          <div class="entry-actions">${actionButtonsHtml(e.recordId)}</div>
+        </div>`;
+      }).join("");
+    }
+    wireEntryActions(container);
+    renderWideTable();
+  }
+
+  /* ---------------- Wide-screen table (Proposals view, desktop) ----------------
+     A real, sortable <table> that swaps in above the 900px breakpoint via CSS
+     (see .wide-table-wrap). Populated alongside the card list every time
+     renderTable() runs, using the same data and action handlers. */
+  let wideTableSort = { key: "recordId", dir: "asc" };
+
+  function wideTableValue(e, key){
+    if(key==="priority"){
+      const order = { Urgent:0, High:1, Medium:2 };
+      return order[e.priority] !== undefined ? order[e.priority] : 99;
+    }
+    return (e[key] || "").toString().toLowerCase();
+  }
+
+  function renderWideTable(){
+    const tbody = document.getElementById("wide-table-body");
+    const emptyEl = document.getElementById("wide-table-empty");
+    if(!tbody) return;
+    const list = Object.values(entries);
+    if(list.length===0){
+      tbody.innerHTML = "";
+      emptyEl.style.display = "block";
+      return;
+    }
+    emptyEl.style.display = "none";
+
+    const { key, dir } = wideTableSort;
+    const sorted = list.slice().sort((a,b)=>{
+      const va = wideTableValue(a, key), vb = wideTableValue(b, key);
+      let cmp;
+      if(typeof va === "number" && typeof vb === "number") cmp = va - vb;
+      else cmp = va.localeCompare(vb, undefined, {numeric:true});
+      return dir==="asc" ? cmp : -cmp;
+    });
+
+    tbody.innerHTML = sorted.map(e=>{
+      const cls = priorityCls(e.priority);
+      return `
+        <tr>
+          <td class="wt-id">${escapeHtml(e.recordId)}</td>
+          <td class="wt-title">${escapeHtml(e.title||"Untitled")}</td>
+          <td><span class="priority-pill ${cls}">${escapeHtml(e.priority||"—")}</span></td>
+          <td>${escapeHtml(e.states||"—")}</td>
+          <td>${escapeHtml(e.atcRegion||"—")}</td>
+          <td>${escapeHtml(e.submissionDate||"—")}</td>
+          <td>${escapeHtml(e.startDate||"—")}</td>
+          <td class="wt-actions">${actionButtonsHtml(e.recordId)}</td>
+        </tr>`;
+    }).join("");
+
+    wireEntryActions(tbody);
+    updateSortHeaders();
+  }
+
+  function updateSortHeaders(){
+    document.querySelectorAll(".wide-table thead th[data-sort]").forEach(th=>{
+      if(th.dataset.label === undefined) th.dataset.label = th.textContent.trim();
+      const isSorted = th.dataset.sort === wideTableSort.key;
+      th.classList.toggle("sorted", isSorted);
+      const arrow = isSorted ? (wideTableSort.dir==="asc" ? "▲" : "▼") : "↕";
+      th.innerHTML = th.dataset.label + ` <span class="sort-arrow">${arrow}</span>`;
+    });
+  }
+
+  document.querySelectorAll(".wide-table thead th[data-sort]").forEach(th=>{
+    th.addEventListener("click", ()=>{
+      const key = th.dataset.sort;
+      if(wideTableSort.key === key){
+        wideTableSort.dir = wideTableSort.dir==="asc" ? "desc" : "asc";
+      } else {
+        wideTableSort = { key, dir: "asc" };
+      }
+      renderWideTable();
+    });
+  });
+  updateSortHeaders();
 
   /* ---------------- Map ---------------- */
   const MAP_COLORS = { urgent:"#7E1F1F", high:"#BD4515", medium:"#C8871F" };
