@@ -134,6 +134,11 @@
   .toggle-btn.active[data-yn="Yes"]{background:var(--rust);border-color:var(--rust);}
   .toggle-btn.active[data-yn="No"]{background:var(--moss);border-color:var(--moss);}
   .toggle-btn.active[data-yn="Unknown"]{background:var(--amber);border-color:var(--amber);}
+  /* 4.4 specifically uses the opposite convention: Yes = green, No = red. */
+  #f-sameFootprint.toggle-row .toggle-btn.active[data-yn="Yes"],
+  #f-expandBoundary.toggle-row .toggle-btn.active[data-yn="Yes"]{background:var(--moss);border-color:var(--moss);}
+  #f-sameFootprint.toggle-row .toggle-btn.active[data-yn="No"],
+  #f-expandBoundary.toggle-row .toggle-btn.active[data-yn="No"]{background:var(--rust);border-color:var(--rust);}
 
   .priority-cards{display:flex;flex-direction:column;gap:8px;}
   .priority-card{position:relative;}
@@ -148,6 +153,10 @@
   .pc-dot.urgent{background:var(--deep-red);}
   .pc-dot.high{background:var(--rust);}
   .pc-dot.medium{background:var(--amber);}
+  .pc-dot.point{background:var(--moss);}
+  .pc-dot.small{background:var(--amber);}
+  .pc-dot.large{background:var(--deep-red);}
+  .pc-dot.verylarge{background:var(--forest-dark);}
   .pc-text{font-size:14px;font-weight:600;color:var(--ink);}
 
   .action-bar{
@@ -426,9 +435,9 @@
             </div>
 
             <div class="field">
-              <label class="flabel"><span class="qnum">1.6</span>Project Lead / Project Proposer</label>
+              <label class="flabel"><span class="qnum">1.6</span>Project Lead / Project Proposer <span class="req">*</span></label>
               <div class="row2">
-                <input type="text" id="f-leadName" placeholder="Name">
+                <input type="text" id="f-leadName" placeholder="Name" required>
                 <input type="text" id="f-leadPosition" placeholder="Position/Title/Organization">
               </div>
               <div class="row2" style="margin-top:10px;">
@@ -438,10 +447,10 @@
             </div>
 
             <div class="field">
-              <label class="flabel"><span class="qnum">1.7</span>ATC Point of Contact (if different from above)</label>
+              <label class="flabel"><span class="qnum">1.7</span>ATC Point of Contact <span class="req">*</span></label>
               <button type="button" class="same-lead-btn" id="btn-same-lead">Same as Project Lead ↑</button>
               <div class="row2" style="margin-top:8px;">
-                <input type="text" id="f-atcName" placeholder="Name">
+                <input type="text" id="f-atcName" placeholder="Name" required>
                 <input type="text" id="f-atcPosition" placeholder="Position/Title">
               </div>
               <div class="row2" style="margin-top:10px;">
@@ -494,8 +503,13 @@
               <textarea id="f-seasonalConsiderations" placeholder="Details" style="margin-top:9px;"></textarea>
             </div>
             <div class="field">
-              <label class="flabel"><span class="qnum">2.7</span>Immediate safety concerns</label>
-              <textarea id="f-safetyConcerns"></textarea>
+              <label class="flabel"><span class="qnum">2.7</span>Immediate safety concerns?</label>
+              <div class="toggle-row" id="f-safetyConcernsPresent" style="max-width:360px;">
+                <button type="button" class="toggle-btn" data-field="safetyConcernsPresent" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="safetyConcernsPresent" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="safetyConcernsPresent" data-yn="Unknown">Unk.</button>
+              </div>
+              <textarea id="f-safetyConcerns" placeholder="If Yes, describe" class="conditional-field"></textarea>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">2.8</span>Priority Level <span class="req">*</span></label>
@@ -653,7 +667,13 @@
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">5.6</span>Maximum number of people working on site at any given time</label>
-              <input type="number" min="0" id="f-maxPeople">
+              <select id="f-maxPeople">
+                <option value="">Select...</option>
+                <option value="<5">&lt;5</option>
+                <option value="6-10">6-10</option>
+                <option value="11-15">11-15</option>
+                <option value="16-20">16-20</option>
+              </select>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">5.7</span>Duration and timing of the work</label>
@@ -680,9 +700,10 @@
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">5.10</span>Will the project produce disposable waste/debris?</label>
-              <div class="toggle-row" id="f-wasteProduced">
+              <div class="toggle-row" id="f-wasteProduced" style="max-width:360px;">
                 <button type="button" class="toggle-btn" data-field="wasteProduced" data-yn="Yes">Yes</button>
                 <button type="button" class="toggle-btn active" data-field="wasteProduced" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="wasteProduced" data-yn="Unknown">Unk.</button>
               </div>
               <textarea id="f-wasteDetails" placeholder="If Yes: how/where will construction/project debris be disposed of?" class="conditional-field"></textarea>
             </div>
@@ -719,7 +740,12 @@
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">6.4</span>For new construction/alterations: have universal design principles been considered for ABA accessibility?</label>
-              <textarea id="f-universalDesign"></textarea>
+              <div class="toggle-row" id="f-universalDesignConsidered" style="max-width:360px;">
+                <button type="button" class="toggle-btn" data-field="universalDesignConsidered" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="universalDesignConsidered" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="universalDesignConsidered" data-yn="Unknown">Unk.</button>
+              </div>
+              <textarea id="f-universalDesign" placeholder="If Yes, describe" class="conditional-field"></textarea>
             </div>
           </div>
         </div>
@@ -731,11 +757,31 @@
               <label class="flabel"><span class="qnum">7.1</span>Surrounding natural environment</label>
               <div class="chip-grid" id="f-naturalEnvTypes"></div>
               <input type="text" id="f-naturalEnvTypesOther" placeholder="If Other, describe" class="conditional-field">
-              <textarea id="f-naturalEnv" placeholder="Include representative photographs." style="margin-top:9px;"></textarea>
+              <textarea id="f-naturalEnv" placeholder="Describe vegetation type" style="margin-top:9px;"></textarea>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">7.2</span>Vegetation trimming, cutting, or clearing</label>
-              <textarea id="f-vegetationClearing" placeholder="For removal of trees larger than saplings/3 in. DBH: include the #, species, and locations on a map."></textarea>
+              <div class="row2">
+                <div class="field">
+                  <label class="flabel" style="font-size:12.5px;">Number of Trees Removed (&lt;3 in. DBH)</label>
+                  <input type="number" min="0" id="f-treesRemovedUnder3">
+                </div>
+                <div class="field">
+                  <label class="flabel" style="font-size:12.5px;">Number of Trees Removed (&gt;3 in. DBH)</label>
+                  <input type="number" min="0" id="f-treesRemovedOver3">
+                </div>
+              </div>
+              <label class="flabel" style="font-size:12.5px;margin-top:9px;">Vegetation Clearing Amount</label>
+              <div class="row2">
+                <input type="number" min="0" step="any" id="f-vegClearingAmount" placeholder="Amount">
+                <select id="f-vegClearingUnit">
+                  <option value="">Unit...</option>
+                  <option value="sq ft">Sq. Ft.</option>
+                  <option value="acres">Acres</option>
+                  <option value="hectares">Hectares</option>
+                </select>
+              </div>
+              <div class="hint">Include species and locations on a map where relevant.</div>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">7.3</span>Ground surface area disturbed, cleared, or denuded of vegetation</label>
@@ -759,15 +805,9 @@
               </div>
             </div>
             <div class="field">
-              <label class="flabel"><span class="qnum">7.6</span>Known invasive species at or adjacent to the site</label>
-              <label class="flabel" style="font-size:12.5px;margin-top:2px;">Overall Density (if uniform)</label>
-              <div class="toggle-row" id="f-invasiveDensity" style="max-width:420px;">
-                <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="High">High</button>
-                <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="Medium">Medium</button>
-                <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="Low">Low</button>
-                <button type="button" class="toggle-btn" data-field="invasiveDensity" data-yn="Unknown">Unk.</button>
-              </div>
-              <textarea id="f-invasiveSpecies" placeholder="Species names and approximate location(s) relative to the project area. Note per-species density here if it varies." style="margin-top:9px;"></textarea>
+              <label class="flabel"><span class="qnum">7.6</span>Invasive Plant Population Size</label>
+              <div class="priority-cards" id="f-invasivePopSize"></div>
+              <textarea id="f-invasiveSpecies" placeholder="Species of note" style="margin-top:9px;"></textarea>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">7.7</span>Known state/federally recognized rare, threatened, or endangered species</label>
@@ -793,7 +833,7 @@
               <label class="flabel"><span class="qnum">8.1</span>Surrounding built environment and/or adjacent cultural resources</label>
               <div class="chip-grid" id="f-culturalEnvTypes"></div>
               <input type="text" id="f-culturalEnvTypesOther" placeholder="If Other, describe" class="conditional-field">
-              <textarea id="f-culturalEnv" placeholder="Include photos." style="margin-top:9px;"></textarea>
+              <textarea id="f-culturalEnv" placeholder="Description of cultural resource" style="margin-top:9px;"></textarea>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">8.2</span>Does the project entail ground disturbance (digging, boring, excavation, grading, etc.)?</label>
@@ -1103,12 +1143,12 @@
     {name:"Georgia Appalachian Trail Club", states:["GA"]}
   ];
 
-  const WORK_DOERS = ["Volunteers","ATC Paid Crew","NPS Crew","USFS Crew","Contractor","Volunteer + Crew Combination","Other"];
+  const WORK_DOERS = ["Volunteers","ATC Paid Crew","NPS Crew","USFS Crew","Contractor","Other"];
   const LAND_MANAGER_OPTIONS = ["APPA (NPS)","ATC","USFS","Other NPS Unit","State Agency","County/Local Government","Private Landowner","Unknown","Other"];
   const OWNERSHIP_TYPES = ["Fee","Easement","Right of Way","Unknown"];
-  const PLANNING_DOC_TYPES = ["A.T. Club Local Management Plan","State Recreation Plan","Local Recreation Plan","Capital Plan","Other"];
+  const PLANNING_DOC_TYPES = ["A.T. Club Local Management Plan","State Recreation Plan","Local Recreation Plan","Capital Plan","Unknown","Other"];
   const EXPERT_TYPES = ["Natural Resource Specialist","State/Federal Wildlife Agency","Engineer","Recreation Planner","SHPO/Cultural Resource Specialist","Other"];
-  const SEASONAL_CONSIDERATION_TYPES = ["High Use Period","Natural Resource Sensitivities/Requirements","Agency Policy","Fund Source","Access","Other"];
+  const SEASONAL_CONSIDERATION_TYPES = ["High Use Period","Natural Resource Sensitivities","Agency Policy","Fund Source","Access","Other"];
   const SITE_ACCESS_TYPES = ["A.T. Treadway","Side Trail","Bushwhack/Off-Trail","Road","Air","Water","Other"];
   const ACCESS_MODES = ["Foot","ATV","Vehicle","Snowmobile","Watercraft","Pack Animal","Other"];
   const WORK_TIMING_TYPES = ["Weekdays","Weekends","Daytime Only","Extends Into Evening","Multi-Day/Overnight","Other"];
@@ -1121,11 +1161,18 @@
     ["High","high","Significant need; should be scheduled in the near term."],
     ["Medium","medium","Worthwhile; fits the ordinary planning cycle."]
   ];
+  const POPULATION_SIZE = [
+    ["Point","point","<10 sq ft"],
+    ["Small","small","10-100 sq ft"],
+    ["Medium","medium","100 sq ft - 0.25 ac"],
+    ["Large","large","0.25-1 ac"],
+    ["Very Large","verylarge",">1 ac"]
+  ];
   const PROJECT_TYPES = ["Facilities","Natural Resources","Cultural Resources"];
   const WORK_TYPES = ["Cyclic Maintenance","New Construction","Inventory and Monitoring","Routine Maintenance","Replace","Invasive Species Management","Repair/Rehabilitation","Emergency Repair","Restoration","Remove/Demolish","Resource Management","Other"];
   const FMSS_TYPES = ["AT Treadway","Boundary","Building","Bridge","Campground","Dam","Maintained Landscape","Parking Area","Road","Side Trail","Vista","Water System","Other","N/A"];
-  const NR_SURVEYS = ["Botanical","T&E Species","Wetlands","Other"];
-  const CR_SURVEYS = ["Archaeological","Historic Structures","Other"];
+  const NR_SURVEYS = ["Botanical","Wetlands","Other"];
+  const CR_SURVEYS = ["Archaeological","Historic Structures","Unknown","Other"];
   const PACKET_ITEMS = [
     ["Detailed Project Description*","A complete narrative of the problem/condition and alternatives considered. Include WHO, WHY, WHERE, WHEN, and HOW, including measures to reduce impacts."],
     ["Site Maps*","Broad project area & detailed site map."],
@@ -1138,15 +1185,15 @@
 
   const CSV_COLUMNS = ["Record ID","Submission Date","Project Title","Brief Description","Capital Plan ID","PMIS No.",
     "Lead Name","Lead Position/Org","Lead Phone","Lead Email","ATC POC Name","ATC POC Position","ATC POC Phone","ATC POC Email","Who Will Do The Work","Who Will Do The Work (Other)",
-    "Problem/Condition","Alternatives Considered","Planning Document Type","Planning Document Type (Other)","Planning Document Name","Expert Consultation Type","Expert Consultation Type (Other)","Expert Consultations","Partner/Landowner Consultations","Seasonal/Timing Consideration Type","Seasonal/Timing Consideration Type (Other)","Seasonal/Timing Considerations","Safety Concerns",
+    "Problem/Condition","Alternatives Considered","Planning Document Type","Planning Document Type (Other)","Planning Document Name","Expert Consultation Type","Expert Consultation Type (Other)","Expert Consultations","Partner/Landowner Consultations","Seasonal/Timing Consideration Type","Seasonal/Timing Consideration Type (Other)","Seasonal/Timing Considerations","Immediate Safety Concerns?","Safety Concerns Details",
     "Priority","Priority Explanation","Project Type","Work Type","Work Type Other","Target Start Date","Target Completion Date","Phased Project","Phases",
     "State(s)","County(s)","County(s) Other","ATC Region","Trail Club/Partner","Trail Club/Partner Other","Land Manager(s)/Owner(s)","Land Manager(s)/Owner(s) Other","Ownership Type(s)","APPA Tract Number(s)","Latitude","Longitude",
     "FMSS Location Name(s)","FMSS Location Number(s)","FMSS Location Type(s)","FMSS Type Other","Same Footprint","Footprint Distance","Expand Boundary",
     "Site Access Type","Site Access Type (Other)","Site Access/Parking","Access Mode Type","Access Mode Type (Other)","Access Mode","Materials","Equipment/Tools","Staging Required","Staging Details","Max People On Site","Work Timing Type","Work Timing Type (Other)","Work Duration/Timing",
     "Field Camp Required","Field Camp Details","Hazardous Materials","Hazardous Materials Details","Waste Produced","Waste Details",
-    "Close/Redirect Site","Close/Redirect Details","New Signage","Alter Visitor Services","Alter Visitor Service Type","Alter Visitor Service Type (Other)","Alter Visitor Details","Universal Design Considered",
-    "Natural Environment Type","Natural Environment Type (Other)","Natural Environment","Vegetation Clearing","Ground Disturbance Area","Materials Harvested","Materials Harvested Details","Wilderness Area",
-    "Invasive Species Density","Invasive Species","Rare/T&E Species","NR Surveys","NR Surveys Other","NR Surveys Planned Who/When","Mitigation (Natural Resources)",
+    "Close/Redirect Site","Close/Redirect Details","New Signage","Alter Visitor Services","Alter Visitor Service Type","Alter Visitor Service Type (Other)","Alter Visitor Details","Universal Design Considered?","Universal Design Details",
+    "Natural Environment Type","Natural Environment Type (Other)","Natural Environment","Trees Removed (<3in DBH)","Trees Removed (>3in DBH)","Vegetation Clearing Amount","Vegetation Clearing Unit","Ground Disturbance Area","Materials Harvested","Materials Harvested Details","Wilderness Area",
+    "Invasive Plant Population Size","Invasive Species (of note)","Rare/T&E Species","NR Surveys","NR Surveys Other","NR Surveys Planned Who/When","Mitigation (Natural Resources)",
     "Cultural Environment Type","Cultural Environment Type (Other)","Cultural Environment","Ground Disturbance (Cultural)","Ground Disturbance (Cultural) Details","Archaeological Site Nearby","NRHP Property Nearby","NRHP Property List",
     "CR Surveys","CR Surveys Other","Mitigation (Cultural Resources)","Photos Taken?","Photo File(s)/Reference","Shapefile Attached?","Shapefile Name","Notes"];
 
@@ -1465,28 +1512,12 @@
     });
   }
   buildPriorityCards(document.getElementById("f-priority"), PRIORITY, "priority");
-
-  /* ---------------- Invasive species density (optional, no default) ----------------
-     A lightweight three-way selector (High/Medium/Low) distinct from the Yes/No/Unknown
-     toggle system below, since it has no natural default value the way a Yes/No answer does. */
-  let invasiveDensityValue = "";
-  const invasiveDensityWrap = document.getElementById("f-invasiveDensity");
-  invasiveDensityWrap.querySelectorAll(".toggle-btn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const already = btn.classList.contains("active");
-      invasiveDensityWrap.querySelectorAll(".toggle-btn").forEach(b=>b.classList.remove("active"));
-      if(!already){ btn.classList.add("active"); invasiveDensityValue = btn.dataset.yn; }
-      else invasiveDensityValue = "";
-    });
-  });
-  function setInvasiveDensity(value){
-    invasiveDensityValue = value || "";
-    invasiveDensityWrap.querySelectorAll(".toggle-btn").forEach(b=>b.classList.toggle("active", b.dataset.yn===value));
-  }
+  buildPriorityCards(document.getElementById("f-invasivePopSize"), POPULATION_SIZE, "invasivePopSize");
 
   /* ---------------- Yes/No/Unknown toggle groups ---------------- */
   const TOGGLE_FIELDS = ["phased","sameFootprint","expandBoundary","stagingRequired","fieldCampRequired","hazMaterials","wasteProduced",
-    "closeRedirect","newSignage","alterVisitorServices","materialsHarvested","wildernessArea","groundDisturbanceCultural","archSite","nrhpProperty"];
+    "closeRedirect","newSignage","alterVisitorServices","materialsHarvested","wildernessArea","groundDisturbanceCultural","archSite","nrhpProperty",
+    "safetyConcernsPresent","universalDesignConsidered"];
   // Maps a toggle field to the single conditional detail field it should reveal, and the
   // Yes/No value that reveals it — this removes the old behavior of showing every "If Yes..."
   // field regardless of the answer, which was the single biggest source of visual clutter.
@@ -1501,7 +1532,9 @@
     alterVisitorServices: {onValue:"Yes", target:["f-alterVisitorTypes","f-alterVisitorTypesOther","f-alterVisitorDetails"]},
     materialsHarvested: {onValue:"Yes", target:"f-materialsHarvestedDetails"},
     groundDisturbanceCultural: {onValue:"Yes", target:"f-groundDisturbanceCulturalDetails"},
-    nrhpProperty: {onValue:"Yes", target:"f-nrhpPropertyList"}
+    nrhpProperty: {onValue:"Yes", target:"f-nrhpPropertyList"},
+    safetyConcernsPresent: {onValue:"Yes", target:"f-safetyConcerns"},
+    universalDesignConsidered: {onValue:"Yes", target:"f-universalDesign"}
   };
   const toggleState = {};
   function applyConditionalVisibility(field, value){
@@ -1687,8 +1720,8 @@
     return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), ms); };
   }
 
-  // Start with every section collapsed — nothing forced open by default.
-  collapseAll();
+  // Start with Section 1 expanded, the rest collapsed.
+  openSection("1", false);
   refreshFilledState();
 
   /* ---------------- Next Record ID ---------------- */
@@ -1727,7 +1760,6 @@
     renderPhotoThumbs();
     currentShapefile = null;
     renderShapefileChip();
-    setInvasiveDensity("");
     TOGGLE_FIELDS.forEach(f=>{
       const wrap = document.getElementById("f-"+f);
       if(!wrap) return;
@@ -1745,7 +1777,7 @@
     document.getElementById("edit-indicator").style.display = "none";
     document.getElementById("btn-save").textContent = "Save Proposal";
     if(clearId!==false) document.getElementById("f-recordId").value = suggestNextId();
-    if(typeof collapseAll === "function") collapseAll();
+    if(typeof openSection === "function") openSection("1", false);
     if(typeof refreshFilledState === "function") refreshFilledState();
   }
 
@@ -1757,6 +1789,8 @@
     const recordId = getTrimmed("f-recordId");
     const title = getTrimmed("f-title");
     const briefDesc = getTrimmed("f-briefDesc");
+    const leadName = getTrimmed("f-leadName");
+    const atcName = getTrimmed("f-atcName");
     const problem = getTrimmed("f-problem");
     const priority = (document.querySelector('input[name="priority"]:checked')||{}).value || "";
     const projectType = getChecked("projectType");
@@ -1766,6 +1800,8 @@
     if(!recordId) errors.push("Record ID");
     if(!title) errors.push("Project Title");
     if(!briefDesc) errors.push("Brief Project Description");
+    if(!leadName) errors.push("Project Lead Name (1.6)");
+    if(!atcName) errors.push("ATC Point of Contact Name (1.7)");
     if(!problem) errors.push("Problem/Condition (2.1)");
     if(!priority) errors.push("Priority Level");
     if(projectType.length===0) errors.push("Project Type");
@@ -1802,7 +1838,8 @@
       planningDocType: getChecked("planningDocType").join("; "), planningDocTypeOther: getTrimmed("f-planningDocTypeOther"), planningDoc: getTrimmed("f-planningDoc"),
       expertConsultTypes: getChecked("expertConsultTypes").join("; "), expertConsultTypesOther: getTrimmed("f-expertConsultTypesOther"), expertConsults: getTrimmed("f-expertConsults"),
       partnerConsults: getTrimmed("f-partnerConsults"),
-      seasonalConsiderationTypes: getChecked("seasonalConsiderationTypes").join("; "), seasonalConsiderationTypesOther: getTrimmed("f-seasonalConsiderationTypesOther"), seasonalConsiderations: getTrimmed("f-seasonalConsiderations"), safetyConcerns: getTrimmed("f-safetyConcerns"),
+      seasonalConsiderationTypes: getChecked("seasonalConsiderationTypes").join("; "), seasonalConsiderationTypesOther: getTrimmed("f-seasonalConsiderationTypesOther"), seasonalConsiderations: getTrimmed("f-seasonalConsiderations"),
+      safetyConcernsPresent: toggleState.safetyConcernsPresent, safetyConcerns: getTrimmed("f-safetyConcerns"),
       priority, priorityExplanation: getTrimmed("f-priorityExplanation"),
       projectType: projectType.join("; "), workType: workType.join("; "), workTypeOther: getTrimmed("f-workTypeOther"),
       startDate: getVal("f-startDate"), completionDate: getVal("f-completionDate"),
@@ -1828,13 +1865,15 @@
       newSignage: toggleState.newSignage,
       alterVisitorServices: toggleState.alterVisitorServices,
       alterVisitorTypes: getChecked("alterVisitorTypes").join("; "), alterVisitorTypesOther: getTrimmed("f-alterVisitorTypesOther"), alterVisitorDetails: getTrimmed("f-alterVisitorDetails"),
-      universalDesign: getTrimmed("f-universalDesign"),
+      universalDesignConsidered: toggleState.universalDesignConsidered, universalDesign: getTrimmed("f-universalDesign"),
       naturalEnvTypes: getChecked("naturalEnvTypes").join("; "), naturalEnvTypesOther: getTrimmed("f-naturalEnvTypesOther"), naturalEnv: getTrimmed("f-naturalEnv"),
-      vegetationClearing: getTrimmed("f-vegetationClearing"),
+      treesRemovedUnder3: getVal("f-treesRemovedUnder3"), treesRemovedOver3: getVal("f-treesRemovedOver3"),
+      vegClearingAmount: getVal("f-vegClearingAmount"), vegClearingUnit: getVal("f-vegClearingUnit"),
       groundDisturbanceArea: getTrimmed("f-groundDisturbanceArea"),
       materialsHarvested: toggleState.materialsHarvested, materialsHarvestedDetails: getTrimmed("f-materialsHarvestedDetails"),
       wildernessArea: toggleState.wildernessArea,
-      invasiveDensity: invasiveDensityValue, invasiveSpecies: getTrimmed("f-invasiveSpecies"), rareSpecies: getTrimmed("f-rareSpecies"),
+      invasivePopSize: (document.querySelector('input[name="invasivePopSize"]:checked')||{}).value || "",
+      invasiveSpecies: getTrimmed("f-invasiveSpecies"), rareSpecies: getTrimmed("f-rareSpecies"),
       nrSurveys: getChecked("nrSurvey").join("; "), nrSurveysOther: getTrimmed("f-nrSurveysOther"), nrSurveysPlannedWho: getTrimmed("f-nrSurveysPlannedWho"),
       mitigationNR: getTrimmed("f-mitigationNR"),
       culturalEnvTypes: getChecked("culturalEnvTypes").join("; "), culturalEnvTypesOther: getTrimmed("f-culturalEnvTypesOther"), culturalEnv: getTrimmed("f-culturalEnv"),
@@ -1958,6 +1997,7 @@
     setChecked("seasonalConsiderationTypes", e.seasonalConsiderationTypes);
     document.getElementById("f-seasonalConsiderationTypesOther").value = e.seasonalConsiderationTypesOther || "";
     document.getElementById("f-seasonalConsiderations").value = e.seasonalConsiderations || "";
+    setToggle("safetyConcernsPresent", e.safetyConcernsPresent);
     document.getElementById("f-safetyConcerns").value = e.safetyConcerns || "";
     if(e.priority){ const r = document.querySelector(`input[name="priority"][value="${CSS.escape(e.priority)}"]`); if(r) r.checked = true; }
     document.getElementById("f-priorityExplanation").value = e.priorityExplanation || "";
@@ -2014,16 +2054,20 @@
     setChecked("alterVisitorTypes", e.alterVisitorTypes);
     document.getElementById("f-alterVisitorTypesOther").value = e.alterVisitorTypesOther || "";
     document.getElementById("f-alterVisitorDetails").value = e.alterVisitorDetails || "";
+    setToggle("universalDesignConsidered", e.universalDesignConsidered);
     document.getElementById("f-universalDesign").value = e.universalDesign || "";
     setChecked("naturalEnvTypes", e.naturalEnvTypes);
     document.getElementById("f-naturalEnvTypesOther").value = e.naturalEnvTypesOther || "";
     document.getElementById("f-naturalEnv").value = e.naturalEnv || "";
-    document.getElementById("f-vegetationClearing").value = e.vegetationClearing || "";
+    document.getElementById("f-treesRemovedUnder3").value = e.treesRemovedUnder3 || "";
+    document.getElementById("f-treesRemovedOver3").value = e.treesRemovedOver3 || "";
+    document.getElementById("f-vegClearingAmount").value = e.vegClearingAmount || "";
+    document.getElementById("f-vegClearingUnit").value = e.vegClearingUnit || "";
     document.getElementById("f-groundDisturbanceArea").value = e.groundDisturbanceArea || "";
     setToggle("materialsHarvested", e.materialsHarvested);
     document.getElementById("f-materialsHarvestedDetails").value = e.materialsHarvestedDetails || "";
     setToggle("wildernessArea", e.wildernessArea);
-    setInvasiveDensity(e.invasiveDensity);
+    if(e.invasivePopSize){ const ips = document.querySelector(`input[name="invasivePopSize"][value="${CSS.escape(e.invasivePopSize)}"]`); if(ips) ips.checked = true; }
     document.getElementById("f-invasiveSpecies").value = e.invasiveSpecies || "";
     document.getElementById("f-rareSpecies").value = e.rareSpecies || "";
     setChecked("nrSurvey", e.nrSurveys);
@@ -2053,7 +2097,7 @@
     editingId = e.recordId;
     document.getElementById("edit-indicator").style.display = "block";
     document.getElementById("btn-save").textContent = "Update Proposal";
-    if(typeof collapseAll === "function") collapseAll();
+    if(typeof openSection === "function") openSection("1", false);
     if(typeof refreshFilledState === "function") refreshFilledState();
   }
 
@@ -2452,15 +2496,15 @@
       rows.push([
         e.recordId, e.submissionDate, e.title, e.briefDesc, e.capitalPlanId, e.pmisNo,
         e.leadName, e.leadPosition, e.leadPhone, e.leadEmail, e.atcName, e.atcPosition, e.atcPhone, e.atcEmail, e.whoWillDoWork, e.whoWillDoWorkOther,
-        e.problem, e.alternatives, e.planningDocType, e.planningDocTypeOther, e.planningDoc, e.expertConsultTypes, e.expertConsultTypesOther, e.expertConsults, e.partnerConsults, e.seasonalConsiderationTypes, e.seasonalConsiderationTypesOther, e.seasonalConsiderations, e.safetyConcerns,
+        e.problem, e.alternatives, e.planningDocType, e.planningDocTypeOther, e.planningDoc, e.expertConsultTypes, e.expertConsultTypesOther, e.expertConsults, e.partnerConsults, e.seasonalConsiderationTypes, e.seasonalConsiderationTypesOther, e.seasonalConsiderations, e.safetyConcernsPresent, e.safetyConcerns,
         e.priority, e.priorityExplanation, e.projectType, e.workType, e.workTypeOther, e.startDate, e.completionDate, e.phased, e.phases,
         e.states, e.counties, e.countiesOther, e.atcRegion, e.trailClub, e.trailClubOther, e.landManagers, e.landManagersOther, e.ownershipTypes, e.tractNumbers, e.lat, e.lng,
         e.fmssNames, e.fmssNumbers, e.fmssTypes, e.fmssTypeOther, e.sameFootprint, e.footprintDistance, e.expandBoundary,
         e.siteAccessTypes, e.siteAccessTypesOther, e.siteAccess, e.accessModeTypes, e.accessModeTypesOther, e.accessMode, e.materials, e.equipment, e.stagingRequired, e.stagingDetails, e.maxPeople, e.workTimingTypes, e.workTimingTypesOther, e.workDuration,
         e.fieldCampRequired, e.fieldCampDetails, e.hazMaterials, e.hazMaterialsDetails, e.wasteProduced, e.wasteDetails,
-        e.closeRedirect, e.closeRedirectDetails, e.newSignage, e.alterVisitorServices, e.alterVisitorTypes, e.alterVisitorTypesOther, e.alterVisitorDetails, e.universalDesign,
-        e.naturalEnvTypes, e.naturalEnvTypesOther, e.naturalEnv, e.vegetationClearing, e.groundDisturbanceArea, e.materialsHarvested, e.materialsHarvestedDetails, e.wildernessArea,
-        e.invasiveDensity, e.invasiveSpecies, e.rareSpecies, e.nrSurveys, e.nrSurveysOther, e.nrSurveysPlannedWho, e.mitigationNR,
+        e.closeRedirect, e.closeRedirectDetails, e.newSignage, e.alterVisitorServices, e.alterVisitorTypes, e.alterVisitorTypesOther, e.alterVisitorDetails, e.universalDesignConsidered, e.universalDesign,
+        e.naturalEnvTypes, e.naturalEnvTypesOther, e.naturalEnv, e.treesRemovedUnder3, e.treesRemovedOver3, e.vegClearingAmount, e.vegClearingUnit, e.groundDisturbanceArea, e.materialsHarvested, e.materialsHarvestedDetails, e.wildernessArea,
+        e.invasivePopSize, e.invasiveSpecies, e.rareSpecies, e.nrSurveys, e.nrSurveysOther, e.nrSurveysPlannedWho, e.mitigationNR,
         e.culturalEnvTypes, e.culturalEnvTypesOther, e.culturalEnv, e.groundDisturbanceCultural, e.groundDisturbanceCulturalDetails, e.archSite, e.nrhpProperty, e.nrhpPropertyList,
         e.crSurveys, e.crSurveysOther, e.mitigationCR, e.photosTaken, e.photoRef, (e.shapefile ? "Yes" : "No"), (e.shapefile ? e.shapefile.name : ""), e.notes
       ]);
@@ -2584,7 +2628,7 @@
         ["2.4 Consultations with Experts", withOther(entry.expertConsultTypes, entry.expertConsultTypesOther) + (entry.expertConsults ? " — " + entry.expertConsults : "")],
         ["2.5 Consultations with Partners/Landowners", val(entry.partnerConsults)],
         ["2.6 Seasonal/Timing Considerations", withOther(entry.seasonalConsiderationTypes, entry.seasonalConsiderationTypesOther) + (entry.seasonalConsiderations ? " — " + entry.seasonalConsiderations : "")],
-        ["2.7 Immediate Safety Concerns", val(entry.safetyConcerns)],
+        ["2.7 Immediate Safety Concerns?", ynDetail(entry.safetyConcernsPresent, entry.safetyConcerns)],
         ["2.8 Priority Level", val(entry.priority) + (entry.priorityExplanation ? " — " + entry.priorityExplanation : "")],
         ["2.9 Project Type", val(entry.projectType)],
         ["2.10 Work Type", withOther(entry.workType, entry.workTypeOther)],
@@ -2633,17 +2677,19 @@
         ["6.1 Close/Redirect Site, Trail, or Road?", ynDetail(entry.closeRedirect, entry.closeRedirectDetails)],
         ["6.2 New Signage Required?", val(entry.newSignage)],
         ["6.3 Alter Visitor Services/ABA Accessibility?", val(entry.alterVisitorServices) + (entry.alterVisitorServices==="Yes" ? " — " + withOther(entry.alterVisitorTypes, entry.alterVisitorTypesOther) + (entry.alterVisitorDetails ? "; " + entry.alterVisitorDetails : "") : "")],
-        ["6.4 Universal Design Considered?", val(entry.universalDesign)]
+        ["6.4 Universal Design Considered?", ynDetail(entry.universalDesignConsidered, entry.universalDesign)]
       ]);
 
       sectionTitle("7. Compliance Screening — Natural Resources");
       table([
         ["7.1 Surrounding Natural Environment", withOther(entry.naturalEnvTypes, entry.naturalEnvTypesOther) + (entry.naturalEnv ? " — " + entry.naturalEnv : "")],
-        ["7.2 Vegetation Trimming/Clearing", val(entry.vegetationClearing)],
+        ["7.2 Trees Removed (<3in DBH)", val(entry.treesRemovedUnder3)],
+        ["      Trees Removed (>3in DBH)", val(entry.treesRemovedOver3)],
+        ["      Vegetation Clearing Amount", (entry.vegClearingAmount && entry.vegClearingUnit) ? `${entry.vegClearingAmount} ${entry.vegClearingUnit}` : val(entry.vegClearingAmount)],
         ["7.3 Ground Surface Area Disturbed", val(entry.groundDisturbanceArea)],
         ["7.4 Materials Harvested from Adjacent Areas?", ynDetail(entry.materialsHarvested, entry.materialsHarvestedDetails)],
         ["7.5 Within/Adjacent to Wilderness Area?", val(entry.wildernessArea)],
-        ["7.6 Known Invasive Species", (entry.invasiveDensity ? "Density: " + entry.invasiveDensity + " — " : "") + val(entry.invasiveSpecies)],
+        ["7.6 Invasive Plant Population Size", (entry.invasivePopSize ? entry.invasivePopSize + " — " : "") + val(entry.invasiveSpecies)],
         ["7.7 Known Rare/T&E Species", val(entry.rareSpecies)],
         ["7.8 Natural Resource Surveys", withOther(entry.nrSurveys, entry.nrSurveysOther) + (entry.nrSurveysPlannedWho ? " | Planned: " + entry.nrSurveysPlannedWho : "")],
         ["7.9 Mitigation Measures / BMPs", val(entry.mitigationNR)]
