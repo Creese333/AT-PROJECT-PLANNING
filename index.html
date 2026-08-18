@@ -134,11 +134,11 @@
   .toggle-btn.active[data-yn="Yes"]{background:var(--rust);border-color:var(--rust);}
   .toggle-btn.active[data-yn="No"]{background:var(--moss);border-color:var(--moss);}
   .toggle-btn.active[data-yn="Unknown"]{background:var(--amber);border-color:var(--amber);}
-  /* 4.4 specifically uses the opposite convention: Yes = green, No = red. */
-  #f-sameFootprint.toggle-row .toggle-btn.active[data-yn="Yes"],
-  #f-expandBoundary.toggle-row .toggle-btn.active[data-yn="Yes"]{background:var(--moss);border-color:var(--moss);}
-  #f-sameFootprint.toggle-row .toggle-btn.active[data-yn="No"],
-  #f-expandBoundary.toggle-row .toggle-btn.active[data-yn="No"]{background:var(--rust);border-color:var(--rust);}
+  /* 4.4 first question specifically uses the opposite convention: Yes = green, No = red.
+     The second question (expandBoundary) uses the standard scheme below, where No is
+     green — since "No, it won't expand" is the lower-impact answer there. */
+  #f-sameFootprint.toggle-row .toggle-btn.active[data-yn="Yes"]{background:var(--moss);border-color:var(--moss);}
+  #f-sameFootprint.toggle-row .toggle-btn.active[data-yn="No"]{background:var(--rust);border-color:var(--rust);}
 
   .priority-cards{display:flex;flex-direction:column;gap:8px;}
   .priority-card{position:relative;}
@@ -357,6 +357,16 @@
     cursor:pointer;text-decoration:underline;padding:0;
   }
 
+  /* ---- Signature pads ---- */
+  .sig-pad-wrap{border:1.5px solid var(--line);border-radius:8px;background:#FFFFFF;overflow:hidden;}
+  .sig-pad{display:block;width:100%;height:140px;cursor:crosshair;touch-action:none;background:
+    repeating-linear-gradient(transparent, transparent 111px, var(--parchment-deep) 111px, var(--parchment-deep) 112px);}
+  .sig-pad-actions{display:flex;justify-content:space-between;align-items:center;margin-top:7px;}
+  .sig-status{font-size:12px;color:var(--ink-soft);font-weight:600;}
+  .sig-status.signed{color:var(--moss);}
+  .signer-block{border-top:1px dashed var(--line);padding-top:14px;margin-top:14px;}
+  .signer-block:first-child{border-top:none;padding-top:0;margin-top:0;}
+
   ::selection{background:var(--rust);color:var(--white);}
   @media (min-width:600px){ .entry-grid{grid-template-columns:1fr 1fr 1fr;} }
 </style>
@@ -459,7 +469,7 @@
               </div>
             </div>
 
-            <div class="hint" style="margin-bottom:12px;">Section 1.8 Review/Recommendation (Club, RPC, ATC Regional Manager sign-off) is completed on the paper/PDF packet outside this app.</div>
+            <div class="hint" style="margin-bottom:12px;">Section 1.8 Review/Recommendation (Club, RPC, ATC Regional Manager sign-off) can be signed on-screen at the end of this form — see Certification &amp; Signatures.</div>
 
             <div class="field">
               <label class="flabel"><span class="qnum">1.9</span>Who will do the work?</label>
@@ -811,18 +821,24 @@
               <textarea id="f-invasiveSpecies" placeholder="Species of note" style="margin-top:9px;"></textarea>
             </div>
             <div class="field">
-              <label class="flabel"><span class="qnum">7.7</span>Known state/federally recognized rare, threatened, or endangered species</label>
-              <textarea id="f-rareSpecies" placeholder="Species and approximate location(s)."></textarea>
+              <label class="flabel"><span class="qnum">7.7</span>Known state/federally recognized rare, threatened, or endangered species?</label>
+              <div class="toggle-row" id="f-rareSpeciesPresent" style="max-width:360px;">
+                <button type="button" class="toggle-btn" data-field="rareSpeciesPresent" data-yn="Yes">Yes</button>
+                <button type="button" class="toggle-btn active" data-field="rareSpeciesPresent" data-yn="No">No</button>
+                <button type="button" class="toggle-btn" data-field="rareSpeciesPresent" data-yn="Unknown">Unk.</button>
+              </div>
+              <textarea id="f-rareSpecies" placeholder="If Yes: species and approximate location(s)." class="conditional-field"></textarea>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">7.8</span>Natural resource surveys completed or planned</label>
               <div class="chip-grid" id="f-nrSurveys"></div>
               <input type="text" id="f-nrSurveysOther" placeholder="If Other, describe" class="conditional-field">
-              <textarea id="f-nrSurveysPlannedWho" placeholder="If Planned: who will conduct the survey and approximately when? Coordination with APPA required prior to any natural resource surveys on APPA land by a contractor." style="margin-top:9px;"></textarea>
+              <textarea id="f-nrSurveysPlannedWho" placeholder="If Planned: who will conduct the survey and when." style="margin-top:9px;"></textarea>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">7.9</span>Anticipated mitigation measures / BMPs (natural resources)</label>
-              <textarea id="f-mitigationNR"></textarea>
+              <div class="chip-grid" id="f-mitigationNRTypes"></div>
+              <textarea id="f-mitigationNR" placeholder="Describe the measures." style="margin-top:9px;"></textarea>
             </div>
           </div>
         </div>
@@ -869,7 +885,8 @@
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">8.6</span>Mitigation measures / BMPs (cultural resources)</label>
-              <textarea id="f-mitigationCR"></textarea>
+              <div class="chip-grid" id="f-mitigationCRTypes"></div>
+              <textarea id="f-mitigationCR" placeholder="Describe the measures." style="margin-top:9px;"></textarea>
             </div>
           </div>
         </div>
@@ -913,6 +930,28 @@
               <label class="flabel">Additional Notes</label>
               <textarea id="f-notes"></textarea>
             </div>
+          </div>
+        </div>
+
+        <div class="card" id="section-signatures">
+          <div class="card-head" style="cursor:default;"><div class="card-num">✍️</div><h2>Certification &amp; Signatures</h2></div>
+          <div class="card-body">
+            <div class="signer-block">
+              <label class="flabel">Project Lead Certification</label>
+              <div class="hint" style="margin-bottom:9px;">By signing, I certify that the information in this proposal is accurate to the best of my knowledge.</div>
+              <div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-leadCert"></canvas></div>
+              <div class="sig-pad-actions">
+                <span class="sig-status" id="sig-leadCert-status">Not signed</span>
+                <button type="button" class="btn-mini" data-sig-clear="leadCert">Clear Signature</button>
+              </div>
+              <div class="row2" style="margin-top:9px;">
+                <input type="text" id="f-leadCertName" placeholder="Printed Name">
+                <input type="date" id="f-leadCertDate">
+              </div>
+            </div>
+
+            <div class="hint" style="margin:16px 0 2px;">1.8 Review / Recommendation — for in-person sign-off by the Club, RPC, and ATC representatives, on this device.</div>
+            <div id="reviewer-signatures"></div>
           </div>
         </div>
 
@@ -1147,15 +1186,15 @@
   const WORK_DOERS = ["Volunteers","ATC Paid Crew","NPS Crew","USFS Crew","Contractor","Other"];
   const LAND_MANAGER_OPTIONS = ["APPA (NPS)","ATC","USFS","Other NPS Unit","State Agency","County/Local Government","Private Landowner","Unknown","Other"];
   const OWNERSHIP_TYPES = ["Fee","Easement","Right of Way","Unknown"];
-  const PLANNING_DOC_TYPES = ["A.T. Club Local Management Plan","State Recreation Plan","Local Recreation Plan","Capital Plan","Unknown","Other"];
-  const EXPERT_TYPES = ["Natural Resource Specialist","State/Federal Wildlife Agency","Engineer","Recreation Planner","SHPO/Cultural Resource Specialist","Other"];
+  const PLANNING_DOC_TYPES = ["No","A.T. Club Local Management Plan","State Recreation Plan","Local Recreation Plan","Capital Plan","Unknown","Other"];
+  const EXPERT_TYPES = ["No","Natural Resource Specialist","State/Federal Wildlife Agency","Engineer","Recreation Planner","SHPO/Cultural Resource Specialist","Other"];
   const SEASONAL_CONSIDERATION_TYPES = ["Fund Source","High Use Period","Natural Resource Sensitivities","Agency Policy","Access","Other"];
   const SITE_ACCESS_TYPES = ["A.T. Treadway","Side Trail","Bushwhack/Off-Trail","Road","Air","Water","Other"];
   const ACCESS_MODES = ["Foot","ATV","Vehicle","Snowmobile","Watercraft","Pack Animal","Other"];
   const WORK_TIMING_TYPES = ["Weekdays","Weekends","Daytime Only","Extends Into Evening","Multi-Day/Overnight","Other"];
   const VISITOR_SERVICE_TYPES = ["Parking","Privies","Trails","Visitor Center","Recreation","Accessibility","Other"];
   const NATURAL_ENV_TYPES = ["Deciduous Forest","Coniferous/Mixed Forest","Meadow/Field","Wetland","Rock Outcrop/Ledge","Stream/Riparian","Disturbed/Developed","Other"];
-  const CULTURAL_ENV_TYPES = ["Rock Walls","Homesteads","Cemeteries","Bridges","Ruins","Foundations/Structures","Other"];
+  const CULTURAL_ENV_TYPES = ["Rock Walls","Homesteads","Cemeteries","Bridges","Ruins","Foundations/Structures","Unknown","Other"];
 
   const PRIORITY = [
     ["Urgent","urgent","Immediate safety, resource, or asset risk."],
@@ -1174,6 +1213,8 @@
   const FMSS_TYPES = ["AT Treadway","Boundary","Building","Bridge","Campground","Dam","Maintained Landscape","Parking Area","Road","Side Trail","Vista","Water System","Other","N/A"];
   const NR_SURVEYS = ["Botanical","Wetlands","Other"];
   const CR_SURVEYS = ["Archaeological","Historic Structures","Unknown","Other"];
+  const MITIGATION_NR_TYPES = ["Soil","Water and Wetlands","Vegetation","Wildlife"];
+  const MITIGATION_CR_TYPES = ["Avoidance","Minimization","Physical Preservation","Public Interpretation"];
   const PACKET_ITEMS = [
     ["Detailed Project Description*","A complete narrative of the problem/condition and alternatives considered. Include WHO, WHY, WHERE, WHEN, and HOW, including measures to reduce impacts."],
     ["Site Maps*","Broad project area & detailed site map."],
@@ -1194,9 +1235,13 @@
     "Field Camp Required","Field Camp Details","Hazardous Materials","Hazardous Materials Details","Waste Produced","Waste Details",
     "Close/Redirect Site","Close/Redirect Details","New Signage","Alter Visitor Services","Alter Visitor Service Type","Alter Visitor Service Type (Other)","Alter Visitor Details","Universal Design Considered?","Universal Design Details",
     "Natural Environment Type","Natural Environment Type (Other)","Natural Environment","Trees Removed (<3in DBH)","Trees Removed (>3in DBH)","Vegetation Clearing Amount","Vegetation Clearing Unit","Materials Harvested","Materials Harvested Details","Wilderness Area",
-    "Invasive Plant Population Size","Invasive Species (of note)","Rare/T&E Species","NR Surveys","NR Surveys Other","NR Surveys Planned Who/When","Mitigation (Natural Resources)",
+    "Invasive Plant Population Size","Invasive Species (of note)","Rare/T&E Species Present?","Rare/T&E Species Details","NR Surveys","NR Surveys Other","NR Surveys Planned Who/When","Mitigation Type (Natural Resources)","Mitigation (Natural Resources)",
     "Cultural Environment Type","Cultural Environment Type (Other)","Cultural Environment","Ground Disturbance (Cultural)","Ground Disturbance (Cultural) Details","Archaeological Site Nearby","NRHP Property Nearby","NRHP Property List",
-    "CR Surveys","CR Surveys Other","Mitigation (Cultural Resources)","Photos Taken?","Photo File(s)/Reference","Shapefile Attached?","Shapefile Name","Notes"];
+    "CR Surveys","CR Surveys Other","Mitigation Type (Cultural Resources)","Mitigation (Cultural Resources)","Photos Taken?","Photo File(s)/Reference","Shapefile Attached?","Shapefile Name",
+    "Project Lead Signed?","Project Lead Cert. Name","Project Lead Cert. Date",
+    "Club Rep Signed?","Club Rep Name","Club Rep Date",
+    "RPC Rep Signed?","RPC Rep Name","RPC Rep Date",
+    "ATC Rep Signed?","ATC Rep Name","ATC Rep Date","Notes"];
 
   /* ---------------- State ---------------- */
   /* ================= CONFIGURE THIS =================
@@ -1433,6 +1478,8 @@
   buildChips(document.getElementById("f-alterVisitorTypes"), VISITOR_SERVICE_TYPES, "alterVisitorTypes");
   buildChips(document.getElementById("f-naturalEnvTypes"), NATURAL_ENV_TYPES, "naturalEnvTypes");
   buildChips(document.getElementById("f-culturalEnvTypes"), CULTURAL_ENV_TYPES, "culturalEnvTypes");
+  buildChips(document.getElementById("f-mitigationNRTypes"), MITIGATION_NR_TYPES, "mitigationNRTypes");
+  buildChips(document.getElementById("f-mitigationCRTypes"), MITIGATION_CR_TYPES, "mitigationCRTypes");
 
   /* ---------------- County & Trail Club selectors, filtered by selected State(s) ----------------
      Rather than free-text entry, counties and clubs narrow to only the ones relevant to
@@ -1518,7 +1565,7 @@
   /* ---------------- Yes/No/Unknown toggle groups ---------------- */
   const TOGGLE_FIELDS = ["phased","sameFootprint","expandBoundary","stagingRequired","fieldCampRequired","hazMaterials","wasteProduced",
     "closeRedirect","newSignage","alterVisitorServices","materialsHarvested","wildernessArea","groundDisturbanceCultural","archSite","nrhpProperty",
-    "safetyConcernsPresent","universalDesignConsidered"];
+    "safetyConcernsPresent","universalDesignConsidered","rareSpeciesPresent"];
   // Maps a toggle field to the single conditional detail field it should reveal, and the
   // Yes/No value that reveals it — this removes the old behavior of showing every "If Yes..."
   // field regardless of the answer, which was the single biggest source of visual clutter.
@@ -1535,7 +1582,8 @@
     groundDisturbanceCultural: {onValue:"Yes", target:"f-groundDisturbanceCulturalDetails"},
     nrhpProperty: {onValue:"Yes", target:"f-nrhpPropertyList"},
     safetyConcernsPresent: {onValue:"Yes", target:"f-safetyConcerns"},
-    universalDesignConsidered: {onValue:"Yes", target:"f-universalDesign"}
+    universalDesignConsidered: {onValue:"Yes", target:"f-universalDesign"},
+    rareSpeciesPresent: {onValue:"Yes", target:"f-rareSpecies"}
   };
   const toggleState = {};
   function applyConditionalVisibility(field, value){
@@ -1695,9 +1743,12 @@
     const head = card.querySelector(".card-head");
     head.addEventListener("click", ()=>{
       const willCollapse = !card.classList.contains("collapsed");
-      SECTION_CARDS.forEach(c=>c.classList.add("collapsed"));
-      if(!willCollapse) card.classList.remove("collapsed");
-      renderProgressNav();
+      if(willCollapse){
+        SECTION_CARDS.forEach(c=>c.classList.add("collapsed"));
+        renderProgressNav();
+      } else {
+        openSection(card.dataset.section, true);
+      }
     });
   });
 
@@ -1708,11 +1759,120 @@
   const photosCard = document.getElementById("section-photos");
   if(photosCard){
     photosCard.querySelector(".card-head").addEventListener("click", ()=>{
+      const wasCollapsed = photosCard.classList.contains("collapsed");
       photosCard.classList.toggle("collapsed");
+      if(wasCollapsed){
+        photosCard.scrollIntoView({behavior:"smooth", block:"start"});
+      }
     });
   }
 
-  // A section is marked "filled" once any input/textarea/select/checkbox inside it has
+  /* ---------------- Signature pads ----------------
+     Plain <canvas> capture using Pointer Events (unifies mouse/touch/pen) — no external
+     library. Signatures are saved as small PNG data URLs directly as text fields (unlike
+     photos/shapefiles, they're small enough not to need Drive offloading). Canvas is
+     sized once at page load; this section is never collapsed/hidden, so there's no
+     hidden-element measurement problem to work around. */
+  const MAX_SIGNATURE_CHARS = 45000; // stay safely under a Sheets cell's ~50,000 char limit
+
+  function createSignaturePad(canvas){
+    const ctx = canvas.getContext("2d");
+    let drawing = false, hasInk = false, last = null;
+
+    function resize(){
+      const rect = canvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+      canvas.width = Math.max(1, Math.round(rect.width * dpr));
+      canvas.height = Math.max(1, Math.round(rect.height * dpr));
+      ctx.scale(dpr, dpr);
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = "#1a1a1a";
+    }
+    resize();
+
+    function pos(e){
+      const rect = canvas.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+    function start(e){
+      drawing = true; hasInk = true; last = pos(e);
+      try{ canvas.setPointerCapture(e.pointerId); }catch(err){}
+    }
+    function move(e){
+      if(!drawing) return;
+      const p = pos(e);
+      ctx.beginPath();
+      ctx.moveTo(last.x, last.y);
+      ctx.lineTo(p.x, p.y);
+      ctx.stroke();
+      last = p;
+    }
+    function end(){ drawing = false; }
+
+    canvas.addEventListener("pointerdown", e=>{ e.preventDefault(); start(e); });
+    canvas.addEventListener("pointermove", e=>{ e.preventDefault(); move(e); });
+    canvas.addEventListener("pointerup", end);
+    canvas.addEventListener("pointercancel", end);
+    canvas.addEventListener("pointerleave", end);
+
+    return {
+      clear(){ ctx.clearRect(0,0,canvas.width,canvas.height); hasInk = false; },
+      isEmpty(){ return !hasInk; },
+      toDataURL(){ return hasInk ? canvas.toDataURL("image/png") : ""; },
+      loadDataURL(dataUrl){
+        if(!dataUrl) return;
+        const img = new Image();
+        img.onload = ()=>{
+          const dpr = window.devicePixelRatio || 1;
+          ctx.drawImage(img, 0, 0, canvas.width/dpr, canvas.height/dpr);
+          hasInk = true;
+        };
+        img.src = dataUrl;
+      }
+    };
+  }
+
+  const REVIEWERS = [
+    {key:"clubRep", label:"Club Representative"},
+    {key:"rpcRep", label:"RPC Representative"},
+    {key:"atcRep", label:"ATC Representative / Regional Manager"}
+  ];
+  document.getElementById("reviewer-signatures").innerHTML = REVIEWERS.map(r=>`
+    <div class="signer-block">
+      <label class="flabel">${escapeHtml(r.label)}</label>
+      <div class="sig-pad-wrap"><canvas class="sig-pad" id="sig-${r.key}"></canvas></div>
+      <div class="sig-pad-actions">
+        <span class="sig-status" id="sig-${r.key}-status">Not signed</span>
+        <button type="button" class="btn-mini" data-sig-clear="${r.key}">Clear Signature</button>
+      </div>
+      <div class="row2" style="margin-top:9px;">
+        <input type="text" id="f-${r.key}Name" placeholder="Printed Name">
+        <input type="date" id="f-${r.key}Date">
+      </div>
+    </div>`).join("");
+
+  const SIGNER_KEYS = ["leadCert", ...REVIEWERS.map(r=>r.key)];
+  const signaturePads = {};
+  SIGNER_KEYS.forEach(key=>{
+    const canvas = document.getElementById("sig-"+key);
+    if(!canvas) return;
+    signaturePads[key] = createSignaturePad(canvas);
+    const updateStatus = ()=>{
+      const statusEl = document.getElementById(`sig-${key}-status`);
+      const signed = !signaturePads[key].isEmpty();
+      statusEl.textContent = signed ? "✓ Signed" : "Not signed";
+      statusEl.classList.toggle("signed", signed);
+    };
+    canvas.addEventListener("pointerup", updateStatus);
+    document.querySelector(`[data-sig-clear="${key}"]`).addEventListener("click", ()=>{
+      signaturePads[key].clear();
+      updateStatus();
+    });
+  });
+
+
   // a non-empty value — a lightweight progress signal, not full per-question validation.
   function isFieldFilled(el){
     if(el.type === "checkbox" || el.type === "radio") return el.checked;
@@ -1774,6 +1934,11 @@
     renderPhotoThumbs();
     currentShapefile = null;
     renderShapefileChip();
+    SIGNER_KEYS.forEach(key=>{
+      if(signaturePads[key]) signaturePads[key].clear();
+      const statusEl = document.getElementById(`sig-${key}-status`);
+      if(statusEl){ statusEl.textContent = "Not signed"; statusEl.classList.remove("signed"); }
+    });
     TOGGLE_FIELDS.forEach(f=>{
       const wrap = document.getElementById("f-"+f);
       if(!wrap) return;
@@ -1887,19 +2052,56 @@
       materialsHarvested: toggleState.materialsHarvested, materialsHarvestedDetails: getTrimmed("f-materialsHarvestedDetails"),
       wildernessArea: toggleState.wildernessArea,
       invasivePopSize: (document.querySelector('input[name="invasivePopSize"]:checked')||{}).value || "",
-      invasiveSpecies: getTrimmed("f-invasiveSpecies"), rareSpecies: getTrimmed("f-rareSpecies"),
+      invasiveSpecies: getTrimmed("f-invasiveSpecies"),
+      rareSpeciesPresent: toggleState.rareSpeciesPresent, rareSpecies: getTrimmed("f-rareSpecies"),
       nrSurveys: getChecked("nrSurvey").join("; "), nrSurveysOther: getTrimmed("f-nrSurveysOther"), nrSurveysPlannedWho: getTrimmed("f-nrSurveysPlannedWho"),
-      mitigationNR: getTrimmed("f-mitigationNR"),
+      mitigationNRTypes: getChecked("mitigationNRTypes").join("; "), mitigationNR: getTrimmed("f-mitigationNR"),
       culturalEnvTypes: getChecked("culturalEnvTypes").join("; "), culturalEnvTypesOther: getTrimmed("f-culturalEnvTypesOther"), culturalEnv: getTrimmed("f-culturalEnv"),
       groundDisturbanceCultural: toggleState.groundDisturbanceCultural, groundDisturbanceCulturalDetails: getTrimmed("f-groundDisturbanceCulturalDetails"),
       archSite: toggleState.archSite, nrhpProperty: toggleState.nrhpProperty, nrhpPropertyList: getTrimmed("f-nrhpPropertyList"),
       crSurveys: getChecked("crSurvey").join("; "), crSurveysOther: getTrimmed("f-crSurveysOther"),
-      mitigationCR: getTrimmed("f-mitigationCR"),
+      mitigationCRTypes: getChecked("mitigationCRTypes").join("; "), mitigationCR: getTrimmed("f-mitigationCR"),
       photosTaken, photoRef: getTrimmed("f-photoref"), photos: currentPhotos.slice(),
       shapefile: currentShapefile ? {...currentShapefile} : null,
+      ...collectSignatureFields(),
       notes: getTrimmed("f-notes"),
       savedAt: new Date().toISOString()
     };
+  }
+
+  function collectSignatureFields(){
+    const out = {};
+    SIGNER_KEYS.forEach(key=>{
+      let dataUrl = signaturePads[key] ? signaturePads[key].toDataURL() : "";
+      if(dataUrl && dataUrl.length > MAX_SIGNATURE_CHARS){
+        showToast(`${key === "leadCert" ? "Project Lead" : key} signature is too complex to save — please sign again with simpler strokes.`, true);
+        dataUrl = "";
+      }
+      out[key+"Signature"] = dataUrl;
+      out[key+"Name"] = getTrimmed("f-"+key+"Name");
+      out[key+"Date"] = getVal("f-"+key+"Date");
+    });
+    return out;
+  }
+
+  function restoreSignatureFields(e){
+    SIGNER_KEYS.forEach(key=>{
+      const pad = signaturePads[key];
+      if(pad){
+        pad.clear();
+        if(e[key+"Signature"]) pad.loadDataURL(e[key+"Signature"]);
+      }
+      const nameEl = document.getElementById("f-"+key+"Name");
+      const dateEl = document.getElementById("f-"+key+"Date");
+      if(nameEl) nameEl.value = e[key+"Name"] || "";
+      if(dateEl) dateEl.value = e[key+"Date"] || "";
+      const statusEl = document.getElementById(`sig-${key}-status`);
+      if(statusEl){
+        const signed = !!(e[key+"Signature"]);
+        statusEl.textContent = signed ? "✓ Signed" : "Not signed";
+        statusEl.classList.toggle("signed", signed);
+      }
+    });
   }
 
   async function saveEntry(){
@@ -2082,10 +2284,12 @@
     setToggle("wildernessArea", e.wildernessArea);
     if(e.invasivePopSize){ const ips = document.querySelector(`input[name="invasivePopSize"][value="${CSS.escape(e.invasivePopSize)}"]`); if(ips) ips.checked = true; }
     document.getElementById("f-invasiveSpecies").value = e.invasiveSpecies || "";
+    setToggle("rareSpeciesPresent", e.rareSpeciesPresent);
     document.getElementById("f-rareSpecies").value = e.rareSpecies || "";
     setChecked("nrSurvey", e.nrSurveys);
     document.getElementById("f-nrSurveysOther").value = e.nrSurveysOther || "";
     document.getElementById("f-nrSurveysPlannedWho").value = e.nrSurveysPlannedWho || "";
+    setChecked("mitigationNRTypes", e.mitigationNRTypes);
     document.getElementById("f-mitigationNR").value = e.mitigationNR || "";
     setChecked("culturalEnvTypes", e.culturalEnvTypes);
     document.getElementById("f-culturalEnvTypesOther").value = e.culturalEnvTypesOther || "";
@@ -2097,6 +2301,7 @@
     document.getElementById("f-nrhpPropertyList").value = e.nrhpPropertyList || "";
     setChecked("crSurvey", e.crSurveys);
     document.getElementById("f-crSurveysOther").value = e.crSurveysOther || "";
+    setChecked("mitigationCRTypes", e.mitigationCRTypes);
     document.getElementById("f-mitigationCR").value = e.mitigationCR || "";
     OTHER_CHIP_MAP.forEach(({containerId, otherId})=> syncOtherVisibility(containerId, otherId));
     syncChipRevealVisibility("f-seasonalConsiderationTypes", "f-taExpirationWrap", "Fund Source");
@@ -2107,6 +2312,7 @@
     renderPhotoThumbs();
     currentShapefile = e.shapefile ? {...e.shapefile} : null;
     renderShapefileChip();
+    restoreSignatureFields(e);
     document.getElementById("f-notes").value = e.notes || "";
     editingId = e.recordId;
     document.getElementById("edit-indicator").style.display = "block";
@@ -2518,9 +2724,13 @@
         e.fieldCampRequired, e.fieldCampDetails, e.hazMaterials, e.hazMaterialsDetails, e.wasteProduced, e.wasteDetails,
         e.closeRedirect, e.closeRedirectDetails, e.newSignage, e.alterVisitorServices, e.alterVisitorTypes, e.alterVisitorTypesOther, e.alterVisitorDetails, e.universalDesignConsidered, e.universalDesign,
         e.naturalEnvTypes, e.naturalEnvTypesOther, e.naturalEnv, e.treesRemovedUnder3, e.treesRemovedOver3, e.vegClearingAmount, e.vegClearingUnit, e.materialsHarvested, e.materialsHarvestedDetails, e.wildernessArea,
-        e.invasivePopSize, e.invasiveSpecies, e.rareSpecies, e.nrSurveys, e.nrSurveysOther, e.nrSurveysPlannedWho, e.mitigationNR,
+        e.invasivePopSize, e.invasiveSpecies, e.rareSpeciesPresent, e.rareSpecies, e.nrSurveys, e.nrSurveysOther, e.nrSurveysPlannedWho, e.mitigationNRTypes, e.mitigationNR,
         e.culturalEnvTypes, e.culturalEnvTypesOther, e.culturalEnv, e.groundDisturbanceCultural, e.groundDisturbanceCulturalDetails, e.archSite, e.nrhpProperty, e.nrhpPropertyList,
-        e.crSurveys, e.crSurveysOther, e.mitigationCR, e.photosTaken, e.photoRef, (e.shapefile ? "Yes" : "No"), (e.shapefile ? e.shapefile.name : ""), e.notes
+        e.crSurveys, e.crSurveysOther, e.mitigationCRTypes, e.mitigationCR, e.photosTaken, e.photoRef, (e.shapefile ? "Yes" : "No"), (e.shapefile ? e.shapefile.name : ""),
+        (e.leadCertSignature ? "Yes" : "No"), e.leadCertName, e.leadCertDate,
+        (e.clubRepSignature ? "Yes" : "No"), e.clubRepName, e.clubRepDate,
+        (e.rpcRepSignature ? "Yes" : "No"), e.rpcRepName, e.rpcRepDate,
+        (e.atcRepSignature ? "Yes" : "No"), e.atcRepName, e.atcRepDate, e.notes
       ]);
     });
     const csv = rows.map(r=>r.map(toCsvValue).join(",")).join("\r\n");
@@ -2703,9 +2913,9 @@
         ["7.4 Materials Harvested from Adjacent Areas?", ynDetail(entry.materialsHarvested, entry.materialsHarvestedDetails)],
         ["7.5 Within/Adjacent to Wilderness Area?", val(entry.wildernessArea)],
         ["7.6 Invasive Plant Population Size", (entry.invasivePopSize ? entry.invasivePopSize + " — " : "") + val(entry.invasiveSpecies)],
-        ["7.7 Known Rare/T&E Species", val(entry.rareSpecies)],
+        ["7.7 Known Rare/T&E Species?", ynDetail(entry.rareSpeciesPresent, entry.rareSpecies)],
         ["7.8 Natural Resource Surveys", withOther(entry.nrSurveys, entry.nrSurveysOther) + (entry.nrSurveysPlannedWho ? " | Planned: " + entry.nrSurveysPlannedWho : "")],
-        ["7.9 Mitigation Measures / BMPs", val(entry.mitigationNR)]
+        ["7.9 Mitigation Measures / BMPs", val(entry.mitigationNRTypes) + (entry.mitigationNR ? " — " + entry.mitigationNR : "")]
       ]);
 
       sectionTitle("8. Compliance Screening — Cultural Resources");
@@ -2715,7 +2925,7 @@
         ["8.3 Near Known Archaeological Site?", val(entry.archSite)],
         ["8.4 Near NRHP Listed/Eligible Property?", val(entry.nrhpProperty) + (entry.nrhpProperty==="Yes" && entry.nrhpPropertyList ? " — " + entry.nrhpPropertyList : "")],
         ["8.5 Cultural Resource Surveys", withOther(entry.crSurveys, entry.crSurveysOther)],
-        ["8.6 Mitigation Measures / BMPs", val(entry.mitigationCR)]
+        ["8.6 Mitigation Measures / BMPs", val(entry.mitigationCRTypes) + (entry.mitigationCR ? " — " + entry.mitigationCR : "")]
       ]);
 
       sectionTitle("Site Photos, Shapefile & Notes");
@@ -2772,31 +2982,55 @@
         }
       }
 
-      // ---- 1.8 Review/Recommendation — blank signature block for the paper packet ----
-      ensureSpace(150);
+      function signatureBlock(label, signatureDataUrl, name, date){
+        ensureSpace(70);
+        doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...INK);
+        doc.text(label, margin, y);
+        y += 6;
+        if(signatureDataUrl){
+          const imgW = 180, imgH = 45;
+          if(y + imgH + 26 > pageHeight - 50){ doc.addPage(); y = 42; }
+          try{ doc.addImage(signatureDataUrl, "PNG", margin, y, imgW, imgH); }catch(err){ /* skip unreadable signature */ }
+          y += imgH + 4;
+          doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...INK);
+          doc.text(`${name || "—"}   |   ${date || "—"}`, margin, y);
+          y += 18;
+        } else {
+          y += 10;
+          doc.setDrawColor(180,180,170);
+          doc.line(margin, y, margin+220, y);
+          doc.line(margin+240, y, margin+400, y);
+          doc.line(margin+420, y, pageWidth-margin, y);
+          doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...INK_SOFT);
+          doc.text("Name", margin, y+10);
+          doc.text("Signature", margin+240, y+10);
+          doc.text("Date", margin+420, y+10);
+          y += 26;
+        }
+      }
+
+      // ---- Project Lead Certification ----
+      ensureSpace(30);
       doc.setFillColor(...PARCH);
       doc.rect(margin, y, pageWidth-margin*2, 20, "F");
       doc.setFont("helvetica","bold"); doc.setFontSize(10.5); doc.setTextColor(...FOREST);
-      doc.text("1.8 Review / Recommendation (complete before submission)", margin+6, y+14);
+      doc.text("Project Lead Certification", margin+6, y+14);
+      y += 26;
+      doc.setFont("helvetica","normal"); doc.setFontSize(8.5); doc.setTextColor(...INK_SOFT);
+      doc.text("By signing, I certify that the information in this proposal is accurate to the best of my knowledge.", margin, y);
+      y += 14;
+      signatureBlock("Project Lead", entry.leadCertSignature, entry.leadCertName, entry.leadCertDate);
+
+      // ---- 1.8 Review/Recommendation ----
+      ensureSpace(30);
+      doc.setFillColor(...PARCH);
+      doc.rect(margin, y, pageWidth-margin*2, 20, "F");
+      doc.setFont("helvetica","bold"); doc.setFontSize(10.5); doc.setTextColor(...FOREST);
+      doc.text("1.8 Review / Recommendation", margin+6, y+14);
       y += 32;
-      function sigLine(label){
-        ensureSpace(40);
-        doc.setFont("helvetica","normal"); doc.setFontSize(9); doc.setTextColor(...INK);
-        doc.text(label, margin, y);
-        y += 16;
-        doc.setDrawColor(180,180,170);
-        doc.line(margin, y, margin+220, y);
-        doc.line(margin+240, y, margin+400, y);
-        doc.line(margin+420, y, pageWidth-margin, y);
-        doc.setFont("helvetica","normal"); doc.setFontSize(7.5); doc.setTextColor(...INK_SOFT);
-        doc.text("Name", margin, y+10);
-        doc.text("Signature", margin+240, y+10);
-        doc.text("Date", margin+420, y+10);
-        y += 26;
-      }
-      sigLine("Club Representative");
-      sigLine("RPC Representative");
-      sigLine("ATC Representative / Regional Manager");
+      signatureBlock("Club Representative", entry.clubRepSignature, entry.clubRepName, entry.clubRepDate);
+      signatureBlock("RPC Representative", entry.rpcRepSignature, entry.rpcRepName, entry.rpcRepDate);
+      signatureBlock("ATC Representative / Regional Manager", entry.atcRepSignature, entry.atcRepName, entry.atcRepDate);
 
       // ---- Footer on every page ----
       const totalPages = doc.internal.getNumberOfPages();
