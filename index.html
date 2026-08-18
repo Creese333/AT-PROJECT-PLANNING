@@ -977,6 +977,7 @@
               <th data-sort="atcRegion">Region</th>
               <th data-sort="submissionDate">Submitted</th>
               <th data-sort="startDate">Target Start</th>
+              <th data-sort="signed">Signed</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -1194,7 +1195,7 @@
   const WORK_TIMING_TYPES = ["Weekdays","Weekends","Daytime Only","Extends Into Evening","Multi-Day/Overnight","Other"];
   const VISITOR_SERVICE_TYPES = ["Parking","Privies","Trails","Visitor Center","Recreation","Accessibility","Other"];
   const NATURAL_ENV_TYPES = ["Deciduous Forest","Coniferous/Mixed Forest","Meadow/Field","Wetland","Rock Outcrop/Ledge","Stream/Riparian","Disturbed/Developed","Other"];
-  const CULTURAL_ENV_TYPES = ["Rock Walls","Homesteads","Cemeteries","Bridges","Ruins","Foundations/Structures","Unknown","Other"];
+  const CULTURAL_ENV_TYPES = ["No","Rock Walls","Homesteads","Cemeteries","Bridges","Ruins","Foundations/Structures","Unknown","Other"];
 
   const PRIORITY = [
     ["Urgent","urgent","Immediate safety, resource, or asset risk."],
@@ -1211,7 +1212,7 @@
   const PROJECT_TYPES = ["Facilities","Natural Resources","Cultural Resources"];
   const WORK_TYPES = ["Cyclic Maintenance","New Construction","Inventory and Monitoring","Routine Maintenance","Replace","Invasive Species Management","Repair/Rehabilitation","Emergency Repair","Restoration","Remove/Demolish","Resource Management","Other"];
   const FMSS_TYPES = ["AT Treadway","Boundary","Building","Bridge","Campground","Dam","Maintained Landscape","Parking Area","Road","Side Trail","Vista","Water System","Other","N/A"];
-  const NR_SURVEYS = ["Botanical","Wetlands","Other"];
+  const NR_SURVEYS = ["No","Botanical","Wetlands","Other"];
   const CR_SURVEYS = ["Archaeological","Historic Structures","Unknown","Other"];
   const MITIGATION_NR_TYPES = ["Soil","Water and Wetlands","Vegetation","Wildlife"];
   const MITIGATION_CR_TYPES = ["Avoidance","Minimization","Physical Preservation","Public Interpretation"];
@@ -1241,7 +1242,7 @@
     "Project Lead Signed?","Project Lead Cert. Name","Project Lead Cert. Date",
     "Club Rep Signed?","Club Rep Name","Club Rep Date",
     "RPC Rep Signed?","RPC Rep Name","RPC Rep Date",
-    "ATC Rep Signed?","ATC Rep Name","ATC Rep Date","Notes"];
+    "ATC Rep Signed?","ATC Rep Name","ATC Rep Date","All Signatures Complete?","Notes"];
 
   /* ---------------- State ---------------- */
   /* ================= CONFIGURE THIS =================
@@ -2449,6 +2450,10 @@
     if(p==="Medium") return "medium";
     return "none";
   }
+  function signatureSummary(e){
+    const signed = SIGNER_KEYS.filter(key => !!e[key+"Signature"]).length;
+    return { signed, total: SIGNER_KEYS.length, allSigned: signed === SIGNER_KEYS.length };
+  }
   function updateCountBadge(){
     const n = Object.keys(entries).length;
     document.getElementById("count-badge").textContent = n;
@@ -2526,6 +2531,7 @@
             <div><b>Target Completion</b><span>${escapeHtml(e.completionDate||'—')}</span></div>
             <div class="entry-full"><b>Project Type</b><span>${types||'—'}</span></div>
             <div><b>Shapefile</b><span>${e.shapefile ? "🗺️ " + escapeHtml(e.shapefile.name) : "—"}</span></div>
+            <div><b>Signatures</b><span class="${signatureSummary(e).allSigned ? "sig-status signed" : "sig-status"}">${signatureSummary(e).signed}/${signatureSummary(e).total}${signatureSummary(e).allSigned ? " ✓" : ""}</span></div>
             <div class="entry-full"><b>Brief Description</b><span>${escapeHtml(e.briefDesc||'—')}</span></div>
             ${e.notes ? `<div class="entry-full"><b>Notes</b><span>${escapeHtml(e.notes)}</span></div>` : ""}
           </div>
@@ -2548,6 +2554,9 @@
     if(key==="priority"){
       const order = { Urgent:0, High:1, Medium:2 };
       return order[e.priority] !== undefined ? order[e.priority] : 99;
+    }
+    if(key==="signed"){
+      return signatureSummary(e).signed;
     }
     return (e[key] || "").toString().toLowerCase();
   }
@@ -2575,6 +2584,7 @@
 
     tbody.innerHTML = sorted.map(e=>{
       const cls = priorityCls(e.priority);
+      const sig = signatureSummary(e);
       return `
         <tr>
           <td class="wt-id">${escapeHtml(e.recordId)}</td>
@@ -2584,6 +2594,7 @@
           <td>${escapeHtml(e.atcRegion||"—")}</td>
           <td>${escapeHtml(e.submissionDate||"—")}</td>
           <td>${escapeHtml(e.startDate||"—")}</td>
+          <td><span class="${sig.allSigned ? "sig-status signed" : "sig-status"}">${sig.signed}/${sig.total}${sig.allSigned ? " ✓" : ""}</span></td>
           <td class="wt-actions">${actionButtonsHtml(e.recordId)}</td>
         </tr>`;
     }).join("");
@@ -2775,7 +2786,7 @@
         (e.leadCertSignature ? "Yes" : "No"), e.leadCertName, e.leadCertDate,
         (e.clubRepSignature ? "Yes" : "No"), e.clubRepName, e.clubRepDate,
         (e.rpcRepSignature ? "Yes" : "No"), e.rpcRepName, e.rpcRepDate,
-        (e.atcRepSignature ? "Yes" : "No"), e.atcRepName, e.atcRepDate, e.notes
+        (e.atcRepSignature ? "Yes" : "No"), e.atcRepName, e.atcRepDate, (signatureSummary(e).allSigned ? "Yes" : "No"), e.notes
       ]);
     });
     const csv = rows.map(r=>r.map(toCsvValue).join(",")).join("\r\n");
