@@ -2530,6 +2530,9 @@
             <div><b>Target Start</b><span>${escapeHtml(e.startDate||'—')}</span></div>
             <div><b>Target Completion</b><span>${escapeHtml(e.completionDate||'—')}</span></div>
             <div class="entry-full"><b>Project Type</b><span>${types||'—'}</span></div>
+            <div class="entry-full"><b>Work Type</b><span>${escapeHtml(e.workType||'—')}</span></div>
+            <div><b>Trail Club</b><span>${escapeHtml(e.trailClub||'—')}</span></div>
+            <div><b>Ownership</b><span>${escapeHtml(e.ownershipTypes||'—')}</span></div>
             <div><b>Shapefile</b><span>${e.shapefile ? "🗺️ " + escapeHtml(e.shapefile.name) : "—"}</span></div>
             <div><b>Signatures</b><span class="${signatureSummary(e).allSigned ? "sig-status signed" : "sig-status"}">${signatureSummary(e).signed}/${signatureSummary(e).total}${signatureSummary(e).allSigned ? " ✓" : ""}</span></div>
             <div class="entry-full"><b>Brief Description</b><span>${escapeHtml(e.briefDesc||'—')}</span></div>
@@ -2663,7 +2666,10 @@
         <b>${escapeHtml(e.title||"Untitled proposal")}</b>
         <div class="map-popup-row"><b style="font-size:12.5px;">Priority:</b> ${escapeHtml(e.priority||"—")}</div>
         <div class="map-popup-row"><b style="font-size:12.5px;">Project Type:</b> ${escapeHtml(e.projectType||"—")}</div>
+        <div class="map-popup-row"><b style="font-size:12.5px;">Work Type:</b> ${escapeHtml(e.workType||"—")}</div>
         <div class="map-popup-row"><b style="font-size:12.5px;">ATC Region:</b> ${escapeHtml(e.atcRegion||"—")}</div>
+        <div class="map-popup-row"><b style="font-size:12.5px;">Trail Club:</b> ${escapeHtml(e.trailClub||"—")}</div>
+        <div class="map-popup-row"><b style="font-size:12.5px;">Ownership:</b> ${escapeHtml(e.ownershipTypes||"—")}</div>
       `);
       marker.addTo(projMapMarkers);
       bounds.push([lat, lng]);
