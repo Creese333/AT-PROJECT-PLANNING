@@ -933,8 +933,8 @@
           </div>
         </div>
 
-        <div class="card" id="section-signatures">
-          <div class="card-head" style="cursor:default;"><div class="card-num">✍️</div><h2>Certification &amp; Signatures</h2></div>
+        <div class="card collapsed" id="section-signatures">
+          <div class="card-head" style="cursor:pointer;"><div class="card-num">✍️</div><div class="card-head-main"><h2>Certification &amp; Signatures</h2></div><div class="card-chevron">▾</div></div>
           <div class="card-body">
             <div class="signer-block">
               <label class="flabel">Project Lead Certification</label>
@@ -1777,10 +1777,13 @@
 
   function createSignaturePad(canvas){
     const ctx = canvas.getContext("2d");
-    let drawing = false, hasInk = false, last = null;
+    let drawing = false, hasInk = false, last = null, sized = false, pendingDataUrl = null;
 
+    // A hidden canvas (inside a collapsed section) measures 0×0, so sizing has to wait
+    // until the section is actually expanded — resize() is a no-op until then.
     function resize(){
       const rect = canvas.getBoundingClientRect();
+      if(rect.width === 0 || rect.height === 0) return false;
       const dpr = window.devicePixelRatio || 1;
       canvas.width = Math.max(1, Math.round(rect.width * dpr));
       canvas.height = Math.max(1, Math.round(rect.height * dpr));
@@ -1789,8 +1792,30 @@
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
       ctx.strokeStyle = "#1a1a1a";
+      sized = true;
+      return true;
     }
-    resize();
+
+    function drawFromDataUrl(dataUrl){
+      const img = new Image();
+      img.onload = ()=>{
+        const dpr = window.devicePixelRatio || 1;
+        ctx.drawImage(img, 0, 0, canvas.width/dpr, canvas.height/dpr);
+      };
+      img.src = dataUrl;
+    }
+
+    // Called whenever the section becomes visible. Cheap no-op if already sized.
+    // If a signature was loaded before the canvas could be sized (e.g. editing a
+    // saved record without ever expanding this section), draw it now instead of
+    // losing it.
+    function ensureSized(){
+      if(sized) return;
+      if(resize() && pendingDataUrl){
+        drawFromDataUrl(pendingDataUrl);
+        pendingDataUrl = null;
+      }
+    }
 
     function pos(e){
       const rect = canvas.getBoundingClientRect();
@@ -1818,18 +1843,23 @@
     canvas.addEventListener("pointerleave", end);
 
     return {
-      clear(){ ctx.clearRect(0,0,canvas.width,canvas.height); hasInk = false; },
+      ensureSized,
+      clear(){
+        if(sized) ctx.clearRect(0,0,canvas.width,canvas.height);
+        hasInk = false;
+        pendingDataUrl = null;
+      },
       isEmpty(){ return !hasInk; },
-      toDataURL(){ return hasInk ? canvas.toDataURL("image/png") : ""; },
+      toDataURL(){
+        if(hasInk && sized) return canvas.toDataURL("image/png");
+        if(hasInk && pendingDataUrl) return pendingDataUrl; // never opened/drawn on since loading — re-emit unchanged
+        return "";
+      },
       loadDataURL(dataUrl){
         if(!dataUrl) return;
-        const img = new Image();
-        img.onload = ()=>{
-          const dpr = window.devicePixelRatio || 1;
-          ctx.drawImage(img, 0, 0, canvas.width/dpr, canvas.height/dpr);
-          hasInk = true;
-        };
-        img.src = dataUrl;
+        hasInk = true;
+        if(sized) drawFromDataUrl(dataUrl);
+        else pendingDataUrl = dataUrl;
       }
     };
   }
@@ -1872,7 +1902,22 @@
     });
   });
 
+  // Also collapses independently, like Site Photos above. Signature pads are sized
+  // lazily (see createSignaturePad) since a hidden canvas can't be measured — this is
+  // where that sizing actually gets triggered, the first time the section opens.
+  const signaturesCard = document.getElementById("section-signatures");
+  if(signaturesCard){
+    signaturesCard.querySelector(".card-head").addEventListener("click", ()=>{
+      const wasCollapsed = signaturesCard.classList.contains("collapsed");
+      signaturesCard.classList.toggle("collapsed");
+      if(wasCollapsed){
+        SIGNER_KEYS.forEach(key=>{ if(signaturePads[key]) signaturePads[key].ensureSized(); });
+        signaturesCard.scrollIntoView({behavior:"smooth", block:"start"});
+      }
+    });
+  }
 
+  // A section is marked "filled" once any input/textarea/select/checkbox inside it has
   // a non-empty value — a lightweight progress signal, not full per-question validation.
   function isFieldFilled(el){
     if(el.type === "checkbox" || el.type === "radio") return el.checked;
