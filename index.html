@@ -2015,6 +2015,23 @@
   function getVal(id){ return document.getElementById(id).value; }
   function getTrimmed(id){ return document.getElementById(id).value.trim(); }
 
+  // Defensive normalizer: date fields should already be a plain "YYYY-MM-DD" string
+  // by the time they get here, but if a backend (e.g. Google Sheets auto-detecting
+  // and silently converting a date-looking string to a real Date cell) ever hands one
+  // back as a full timestamp instead, <input type="date"> rejects anything that isn't
+  // exactly 10 characters and silently shows blank. This tolerates either shape.
+  function toDateInputValue(v){
+    if(!v) return "";
+    const s = String(v);
+    const m = /^(\d{4}-\d{2}-\d{2})/.exec(s);
+    if(m) return m[1];
+    const d = new Date(s);
+    if(!isNaN(d.getTime())){
+      return d.toISOString().slice(0,10);
+    }
+    return "";
+  }
+
   function collectForm(){
     const recordId = getTrimmed("f-recordId");
     const title = getTrimmed("f-title");
@@ -2144,7 +2161,7 @@
       const nameEl = document.getElementById("f-"+key+"Name");
       const dateEl = document.getElementById("f-"+key+"Date");
       if(nameEl) nameEl.value = e[key+"Name"] || "";
-      if(dateEl) dateEl.value = e[key+"Date"] || "";
+      if(dateEl) dateEl.value = toDateInputValue(e[key+"Date"]);
       const statusEl = document.getElementById(`sig-${key}-status`);
       if(statusEl){
         const signed = !!(e[key+"Signature"]);
@@ -2238,7 +2255,7 @@
     document.getElementById("f-recordId").value = e.recordId;
     document.getElementById("f-title").value = e.title || "";
     document.getElementById("f-briefDesc").value = e.briefDesc || "";
-    document.getElementById("f-submissionDate").value = e.submissionDate || "";
+    document.getElementById("f-submissionDate").value = toDateInputValue(e.submissionDate);
     document.getElementById("f-capitalPlanId").value = e.capitalPlanId || "";
     document.getElementById("f-pmisNo").value = e.pmisNo || "";
     document.getElementById("f-leadName").value = e.leadName || "";
@@ -2270,8 +2287,8 @@
     setChecked("projectType", e.projectType);
     setChecked("workType", e.workType);
     document.getElementById("f-workTypeOther").value = e.workTypeOther || "";
-    document.getElementById("f-startDate").value = e.startDate || "";
-    document.getElementById("f-completionDate").value = e.completionDate || "";
+    document.getElementById("f-startDate").value = toDateInputValue(e.startDate);
+    document.getElementById("f-completionDate").value = toDateInputValue(e.completionDate);
     setToggle("phased", e.phased);
     document.getElementById("f-phases").value = e.phases || "";
     setChecked("state", e.states);
