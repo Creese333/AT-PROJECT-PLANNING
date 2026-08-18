@@ -84,6 +84,7 @@
   .card{
     background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
     box-shadow:var(--shadow);margin-bottom:14px;overflow:hidden;
+    scroll-margin-top:var(--sticky-offset, 150px);
   }
   .card-head{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--parchment-deep);border-bottom:1px solid var(--line);}
   .card-num{
@@ -3417,6 +3418,32 @@
   window.addEventListener("resize", syncTabsWidth);
   if(document.fonts && document.fonts.ready){
     document.fonts.ready.then(syncTabsWidth).catch(()=>{});
+  }
+
+  /* ---------------- Sticky header offset ----------------
+     The topbar and the section progress-nav are both position:sticky with
+     top:0, which means the progress-nav was fighting the topbar for the same
+     spot instead of sitting below it — and more importantly, scrollIntoView()
+     had no idea either sticky element existed, so it would scroll a section's
+     top edge to the very top of the screen only for the sticky bars to then
+     slide over and cover it, making it look like the scroll undershot. This
+     measures the actual (font/screen-size-dependent) heights and fixes both:
+     positions the progress-nav right below the topbar, and sets a
+     scroll-margin-top on every collapsible section so scrollIntoView lands
+     them just below the sticky bars instead of underneath them. */
+  function updateStickyOffsets(){
+    const topbar = document.querySelector(".topbar");
+    const progressNavEl = document.getElementById("progress-nav");
+    if(!topbar || !progressNavEl) return;
+    const topbarHeight = topbar.getBoundingClientRect().height;
+    progressNavEl.style.top = topbarHeight + "px";
+    const totalOffset = topbarHeight + progressNavEl.getBoundingClientRect().height + 8;
+    document.documentElement.style.setProperty("--sticky-offset", totalOffset + "px");
+  }
+  updateStickyOffsets();
+  window.addEventListener("resize", updateStickyOffsets);
+  if(document.fonts && document.fonts.ready){
+    document.fonts.ready.then(updateStickyOffsets).catch(()=>{});
   }
 
 })();
