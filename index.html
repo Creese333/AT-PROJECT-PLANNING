@@ -358,7 +358,7 @@
   }
 
   /* ---- Signature pads ---- */
-  .sig-pad-wrap{border:1.5px solid var(--line);border-radius:8px;background:#FFFFFF;overflow:hidden;}
+  .sig-pad-wrap{border:1.5px solid var(--line);border-radius:8px;background:#FFFFFF;overflow:hidden;max-width:480px;}
   .sig-pad{display:block;width:100%;height:140px;cursor:crosshair;touch-action:none;background:
     repeating-linear-gradient(transparent, transparent 111px, var(--parchment-deep) 111px, var(--parchment-deep) 112px);}
   .sig-pad-actions{display:flex;justify-content:space-between;align-items:center;margin-top:7px;}
@@ -1774,21 +1774,26 @@
      photos/shapefiles, they're small enough not to need Drive offloading). Canvas is
      sized once at page load; this section is never collapsed/hidden, so there's no
      hidden-element measurement problem to work around. */
-  const MAX_SIGNATURE_CHARS = 45000; // stay safely under a Sheets cell's ~50,000 char limit
+  const MAX_SIGNATURE_CHARS = 48000; // stay safely under a Sheets cell's ~50,000 char limit
 
   function createSignaturePad(canvas){
     const ctx = canvas.getContext("2d");
-    let drawing = false, hasInk = false, last = null, sized = false, pendingDataUrl = null;
+    let drawing = false, hasInk = false, last = null, sized = false, pendingDataUrl = null, padDpr = 1;
 
     // A hidden canvas (inside a collapsed section) measures 0×0, so sizing has to wait
     // until the section is actually expanded — resize() is a no-op until then.
+    // DPR is capped at 2x: on high-DPI phones/tablets (often 3x+) an uncapped canvas
+    // this wide can balloon to several thousand pixels across, and a real signature
+    // (lots of curves, unlike a simple test line) drawn at that resolution produces a
+    // PNG large enough to trip the size-safety check. 2x is still plenty sharp for a
+    // signature while keeping file size well within bounds.
     function resize(){
       const rect = canvas.getBoundingClientRect();
       if(rect.width === 0 || rect.height === 0) return false;
-      const dpr = window.devicePixelRatio || 1;
-      canvas.width = Math.max(1, Math.round(rect.width * dpr));
-      canvas.height = Math.max(1, Math.round(rect.height * dpr));
-      ctx.scale(dpr, dpr);
+      padDpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.max(1, Math.round(rect.width * padDpr));
+      canvas.height = Math.max(1, Math.round(rect.height * padDpr));
+      ctx.scale(padDpr, padDpr);
       ctx.lineWidth = 2.2;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -1800,8 +1805,7 @@
     function drawFromDataUrl(dataUrl){
       const img = new Image();
       img.onload = ()=>{
-        const dpr = window.devicePixelRatio || 1;
-        ctx.drawImage(img, 0, 0, canvas.width/dpr, canvas.height/dpr);
+        ctx.drawImage(img, 0, 0, canvas.width/padDpr, canvas.height/padDpr);
       };
       img.src = dataUrl;
     }
@@ -2532,6 +2536,7 @@
             <div class="entry-full"><b>Project Type</b><span>${types||'—'}</span></div>
             <div class="entry-full"><b>Work Type</b><span>${escapeHtml(e.workType||'—')}</span></div>
             <div><b>Trail Club</b><span>${escapeHtml(e.trailClub||'—')}</span></div>
+            <div><b>Land Manager</b><span>${escapeHtml(e.landManagers||'—')}</span></div>
             <div><b>Ownership</b><span>${escapeHtml(e.ownershipTypes||'—')}</span></div>
             <div><b>Shapefile</b><span>${e.shapefile ? "🗺️ " + escapeHtml(e.shapefile.name) : "—"}</span></div>
             <div><b>Signatures</b><span class="${signatureSummary(e).allSigned ? "sig-status signed" : "sig-status"}">${signatureSummary(e).signed}/${signatureSummary(e).total}${signatureSummary(e).allSigned ? " ✓" : ""}</span></div>
@@ -2669,6 +2674,7 @@
         <div class="map-popup-row"><b style="font-size:12.5px;">Work Type:</b> ${escapeHtml(e.workType||"—")}</div>
         <div class="map-popup-row"><b style="font-size:12.5px;">ATC Region:</b> ${escapeHtml(e.atcRegion||"—")}</div>
         <div class="map-popup-row"><b style="font-size:12.5px;">Trail Club:</b> ${escapeHtml(e.trailClub||"—")}</div>
+        <div class="map-popup-row"><b style="font-size:12.5px;">Land Manager:</b> ${escapeHtml(e.landManagers||"—")}</div>
         <div class="map-popup-row"><b style="font-size:12.5px;">Ownership:</b> ${escapeHtml(e.ownershipTypes||"—")}</div>
       `);
       marker.addTo(projMapMarkers);
