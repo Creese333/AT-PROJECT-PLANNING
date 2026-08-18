@@ -386,7 +386,7 @@
       <button class="tab" data-view="table"><span class="tab-icon">🗂️</span><span class="tab-label">Proposals<span class="badge" id="count-badge">0</span></span></button>
       <button class="tab" data-view="map"><span class="tab-icon">🗺️</span><span class="tab-label">Map</span></button>
       <button class="tab" data-view="analytics"><span class="tab-icon">📊</span><span class="tab-label">Analytics</span></button>
-      <button class="tab" data-view="guide"><span class="tab-icon">📖</span><span class="tab-label">Packet Checklist</span></button>
+      <button class="tab" data-view="guide"><span class="tab-icon">📖</span><span class="tab-label">Definitions</span></button>
     </div>
   </div>
 
@@ -606,7 +606,7 @@
                 <input type="number" step="any" id="f-lng" placeholder="Longitude e.g. -77.10261">
               </div>
               <button type="button" class="btn-mini" id="btn-geo" style="width:100%;padding:9px;margin-top:9px;">📍 Use My Current Location</button>
-              <div class="hint">A detailed site map and shapefile must still be included as an attachment to the packet — see the Packet Checklist tab.</div>
+              <div class="hint">A detailed site map and shapefile must still be included as an attachment to the packet — see Section 9 below.</div>
             </div>
           </div>
         </div>
@@ -955,6 +955,15 @@
           </div>
         </div>
 
+        <div class="card" data-section="9" id="section-9">
+          <div class="card-head"><div class="card-num">9</div><div class="card-head-main"><h2>Project Packet Checklist</h2></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
+          <div class="card-body">
+            <div class="note-box">Reference only — check off what's included in this submission packet. This does not submit anything; it's a personal tracking aid tied to this device.</div>
+            <div class="hint" style="margin-bottom:6px;">In addition to the proposal form, ensure the following are included in your submission packet for NPS review:</div>
+            <div id="packet-checklist"></div>
+          </div>
+        </div>
+
       </form>
     </section>
 
@@ -1007,15 +1016,9 @@
       </div>
     </section>
 
-    <!-- ============ GUIDE / CHECKLIST VIEW ============ -->
+    <!-- ============ GUIDE / DEFINITIONS VIEW ============ -->
     <section id="view-guide" class="view">
-      <div class="note-box">Reference only — check off what's included in this submission packet. This does not submit anything; it's a personal tracking aid.</div>
-
-      <div class="guide-section">
-        <h3>9. Project Packet Checklist</h3>
-        <div class="hint" style="margin-bottom:6px;">In addition to the proposal form, ensure the following are included in your submission packet for NPS review:</div>
-        <div id="packet-checklist"></div>
-      </div>
+      <div class="note-box">Reference definitions for terms used throughout the form.</div>
 
       <div class="guide-section">
         <h3>Project Type Definitions (2.9)</h3>
@@ -1691,7 +1694,6 @@
       if(tab.dataset.view==="table") renderTable();
       if(tab.dataset.view==="map") renderMap();
       if(tab.dataset.view==="analytics") renderAnalytics();
-      if(tab.dataset.view==="guide") renderPacketChecklist();
     });
   });
   document.getElementById("btn-recenter-map").addEventListener("click", ()=>{
@@ -3247,6 +3249,7 @@
   loadEntries();
   applyProfileToForm();
   checkForDraft();
+  renderPacketChecklist();
 
   function syncTabsWidth(){
     const sub = document.getElementById("brand-sub");
