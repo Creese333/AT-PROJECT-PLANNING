@@ -235,9 +235,9 @@
   .wide-table-wrap{display:none;}
   @media (min-width:900px){
     #entries-container{display:none;}
-    .wide-table-wrap{display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto;}
+    .wide-table-wrap{display:block;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
   }
-  .wide-table{width:100%;min-width:1700px;border-collapse:collapse;font-size:13px;}
+  .wide-table{width:100%;border-collapse:collapse;font-size:13px;}
   .wide-table thead th{
     background:var(--parchment-deep);color:var(--forest-dark);font-family:'Roboto Slab',serif;font-weight:700;
     text-align:left;padding:11px 13px;border-bottom:2px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none;
@@ -248,10 +248,9 @@
   .wide-table tbody tr{border-bottom:1px solid var(--parchment-deep);}
   .wide-table tbody tr:last-child{border-bottom:none;}
   .wide-table tbody tr:hover{background:#FBF6EA;}
-  .wide-table td{padding:10px 13px;vertical-align:top;color:var(--ink);white-space:nowrap;}
-  .wide-table td.wt-id{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--forest-dark);}
-  .wide-table td.wt-title{font-weight:600;max-width:220px;white-space:normal;}
-  .wide-table td.wt-wrap{max-width:240px;white-space:normal;}
+  .wide-table td{padding:10px 13px;vertical-align:top;color:var(--ink);}
+  .wide-table td.wt-id{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--forest-dark);white-space:nowrap;}
+  .wide-table td.wt-title{font-weight:600;max-width:280px;}
   .wide-table td.wt-actions{white-space:nowrap;}
   .wide-table td.wt-actions button{
     padding:5px 10px;margin-right:5px;font-size:11px;font-weight:700;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;
@@ -976,19 +975,9 @@
               <th data-sort="priority">Priority</th>
               <th data-sort="states">State(s)</th>
               <th data-sort="atcRegion">Region</th>
-              <th data-sort="leadName">Lead</th>
               <th data-sort="submissionDate">Submitted</th>
               <th data-sort="startDate">Target Start</th>
-              <th data-sort="completionDate">Target Completion</th>
-              <th data-sort="projectType">Project Type</th>
-              <th data-sort="workType">Work Type</th>
-              <th data-sort="trailClub">Trail Club</th>
-              <th data-sort="landManagers">Land Manager</th>
-              <th data-sort="ownershipTypes">Ownership</th>
-              <th data-sort="shapefile">Shapefile</th>
               <th data-sort="signed">Signed</th>
-              <th>Brief Description</th>
-              <th>Notes</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -2594,9 +2583,6 @@
     if(key==="signed"){
       return signatureSummary(e).signed;
     }
-    if(key==="shapefile"){
-      return (e.shapefile && e.shapefile.name ? e.shapefile.name : "").toLowerCase();
-    }
     return (e[key] || "").toString().toLowerCase();
   }
 
@@ -2631,19 +2617,9 @@
           <td><span class="priority-pill ${cls}">${escapeHtml(e.priority||"—")}</span></td>
           <td>${escapeHtml(e.states||"—")}</td>
           <td>${escapeHtml(e.atcRegion||"—")}</td>
-          <td>${escapeHtml(e.leadName||"—")}</td>
           <td>${escapeHtml(e.submissionDate||"—")}</td>
           <td>${escapeHtml(e.startDate||"—")}</td>
-          <td>${escapeHtml(e.completionDate||"—")}</td>
-          <td>${escapeHtml(e.projectType||"—")}</td>
-          <td>${escapeHtml(e.workType||"—")}</td>
-          <td>${escapeHtml(e.trailClub||"—")}</td>
-          <td>${escapeHtml(e.landManagers||"—")}</td>
-          <td>${escapeHtml(e.ownershipTypes||"—")}</td>
-          <td>${e.shapefile ? "🗺️ " + escapeHtml(e.shapefile.name) : "—"}</td>
           <td><span class="${sig.allSigned ? "sig-status signed" : "sig-status"}">${sig.signed}/${sig.total}${sig.allSigned ? " ✓" : ""}</span></td>
-          <td class="wt-wrap">${escapeHtml(e.briefDesc||"—")}</td>
-          <td class="wt-wrap">${escapeHtml(e.notes||"—")}</td>
           <td class="wt-actions">${actionButtonsHtml(e.recordId)}</td>
         </tr>`;
     }).join("");
