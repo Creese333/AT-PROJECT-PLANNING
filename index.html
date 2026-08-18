@@ -563,46 +563,46 @@
           <div class="card-head"><div class="card-num">3</div><div class="card-head-main"><h2>Project Location</h2></div><div class="card-check">✓</div><div class="card-chevron">▾</div></div>
           <div class="card-body">
             <div class="field">
-              <label class="flabel"><span class="qnum">3.1</span>Project State(s)</label>
+              <label class="flabel"><span class="qnum">3.1</span>Tract Number(s)</label>
+              <div class="row-id-btn">
+                <input type="text" id="f-tractNumbers" placeholder="e.g. 193-15, 193-02">
+                <button type="button" class="btn-mini" id="btn-tract-lookup">🔎 Look Up</button>
+              </div>
+              <div class="hint" id="tract-lookup-status"></div>
+              <div class="hint">Enter one or more tract numbers, separated by commas — matching tracts auto-fill Land Manager, Ownership, State(s), County(s), ATC Region, AT Club, and Natural Environment (7.1) below. Looked up automatically when you leave this field, or tap Look Up.</div>
+            </div>
+            <div class="row2">
+              <div class="field">
+                <label class="flabel"><span class="qnum">3.2</span>Land Manager(s)/Owner(s)</label>
+                <div class="chip-grid" id="f-landManagers"></div>
+                <input type="text" id="f-landManagersOther" placeholder="If Other, describe" class="conditional-field">
+              </div>
+              <div class="field">
+                <label class="flabel"><span class="qnum">3.3</span>Ownership Type(s)</label>
+                <div class="chip-grid" id="f-ownershipTypes"></div>
+              </div>
+            </div>
+            <div class="field">
+              <label class="flabel"><span class="qnum">3.4</span>State</label>
               <div class="chip-grid" id="f-states"></div>
             </div>
             <div class="field">
-              <label class="flabel"><span class="qnum">3.2</span>Project County(s)</label>
+              <label class="flabel"><span class="qnum">3.5</span>County</label>
               <div class="chip-grid" id="f-counties"></div>
               <div class="hint" id="counties-hint">Select a state above to see its counties along the A.T.</div>
               <input type="text" id="f-countiesOther" placeholder="Other / not listed">
             </div>
             <div class="row2">
               <div class="field">
-                <label class="flabel"><span class="qnum">3.3</span>ATC Region</label>
+                <label class="flabel"><span class="qnum">3.6</span>ATC Region</label>
                 <select id="f-atcRegion"></select>
               </div>
               <div class="field">
-                <label class="flabel"><span class="qnum">3.4</span>Trail Club / Partner Org(s)</label>
+                <label class="flabel"><span class="qnum">3.7</span>AT Club</label>
                 <div class="chip-grid" id="f-trailClub"></div>
                 <div class="hint" id="trailclub-hint">Select a state above to narrow this list.</div>
                 <input type="text" id="f-trailClubOther" placeholder="Other / not listed" style="margin-top:9px;">
               </div>
-            </div>
-            <div class="row2">
-              <div class="field">
-                <label class="flabel"><span class="qnum">3.5</span>Land Manager(s)/Owner(s)</label>
-                <div class="chip-grid" id="f-landManagers"></div>
-                <input type="text" id="f-landManagersOther" placeholder="If Other, describe" class="conditional-field">
-              </div>
-              <div class="field">
-                <label class="flabel"><span class="qnum">3.6</span>Ownership Type(s)</label>
-                <div class="chip-grid" id="f-ownershipTypes"></div>
-              </div>
-            </div>
-            <div class="field">
-              <label class="flabel"><span class="qnum">3.7</span>APPA Tract Number(s)</label>
-              <div class="row-id-btn">
-                <input type="text" id="f-tractNumbers" placeholder="e.g. 193-15, 193-02">
-                <button type="button" class="btn-mini" id="btn-tract-lookup">🔎 Look Up</button>
-              </div>
-              <div class="hint" id="tract-lookup-status"></div>
-              <div class="hint">Enter one or more tract numbers, separated by commas — matching tracts auto-fill State(s), County(s), ATC Region, Trail Club, Land Manager, Ownership, and Natural Environment (7.1) below. Looked up automatically when you leave this field, or tap Look Up.</div>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">3.8</span>GPS Lat/Long (center of site or start/end points)</label>
@@ -1248,7 +1248,7 @@
     "Lead Name","Lead Position/Org","Lead Phone","Lead Email","ATC POC Name","ATC POC Position","ATC POC Phone","ATC POC Email","Who Will Do The Work","Who Will Do The Work (Other)",
     "Problem/Condition","Alternatives Considered","Planning Document Type","Planning Document Type (Other)","Planning Document Name","Expert Consultation Type","Expert Consultation Type (Other)","Expert Consultations","Partner/Landowner Consultations","Seasonal/Timing Consideration Type","Seasonal/Timing Consideration Type (Other)","Fund Source TA Expiration Date","Immediate Safety Concerns?","Safety Concerns Details",
     "Priority","Priority Explanation","Project Type","Work Type","Work Type Other","Target Start Date","Target Completion Date","Phased Project","Phases",
-    "State(s)","County(s)","County(s) Other","ATC Region","Trail Club/Partner","Trail Club/Partner Other","Land Manager(s)/Owner(s)","Land Manager(s)/Owner(s) Other","Ownership Type(s)","APPA Tract Number(s)","Latitude","Longitude",
+    "State","County","County Other","ATC Region","AT Club","AT Club Other","Land Manager(s)/Owner(s)","Land Manager(s)/Owner(s) Other","Ownership Type(s)","Tract Number(s)","Latitude","Longitude",
     "FMSS Location Name(s)","FMSS Location Number(s)","FMSS Location Type(s)","FMSS Type Other","Same Footprint","Footprint Distance","Expand Boundary",
     "Site Access Type","Site Access Type (Other)","Site Access/Parking","Access Mode Type","Access Mode Type (Other)","Access Mode","Materials","Equipment/Tools","Staging Required","Staging Details","Max People On Site","Work Timing Type","Work Timing Type (Other)","Work Duration/Timing",
     "Field Camp Required","Field Camp Details","Hazardous Materials","Hazardous Materials Details","Waste Produced","Waste Details",
@@ -1500,7 +1500,7 @@
   buildChips(document.getElementById("f-mitigationNRTypes"), MITIGATION_NR_TYPES, "mitigationNRTypes");
   buildChips(document.getElementById("f-mitigationCRTypes"), MITIGATION_CR_TYPES, "mitigationCRTypes");
 
-  /* ---------------- County & Trail Club selectors, filtered by selected State(s) ----------------
+  /* ---------------- County & AT Club selectors, filtered by selected State(s) ----------------
      Rather than free-text entry, counties and clubs narrow to only the ones relevant to
      whichever state(s) are checked in 3.1 — a much shorter, more accurate list than typing
      county names from memory. Selections outside the currently-valid set are preserved in
@@ -1662,7 +1662,7 @@
     // 3.3 ATC Region (single-select — first match wins if tracts disagree)
     if(atcRegions.length) document.getElementById("f-atcRegion").value = atcRegions[0];
 
-    // 3.4 Trail Club — exact/alias match against the app's club list; anything
+    // 3.7 AT Club — exact/alias match against the app's club list; anything
     // else goes to trailClubOther rather than being silently dropped.
     const matchedClubs = [], unmatchedClubs = [];
     rawClubs.forEach(c=>{
@@ -1695,7 +1695,7 @@
     const parts = [`Filled fields from ${matched.length}/${requested.length} tract(s).`];
     if(unmatched.length) parts.push(`No match: ${unmatched.join(", ")}.`);
     if(unmatchedCounties.length) parts.push(`County "${unmatchedCounties.join(", ")}" not in the standard list — added to County Other.`);
-    if(unmatchedClubs.length) parts.push(`Club "${unmatchedClubs.join(", ")}" not an exact match — added to Trail Club Other.`);
+    if(unmatchedClubs.length) parts.push(`Club "${unmatchedClubs.join(", ")}" not an exact match — added to AT Club Other.`);
     statusEl.textContent = parts.join(" ");
   }
 
@@ -2707,7 +2707,7 @@
             <div><b>Target Completion</b><span>${escapeHtml(e.completionDate||'—')}</span></div>
             <div class="entry-full"><b>Project Type</b><span>${types||'—'}</span></div>
             <div class="entry-full"><b>Work Type</b><span>${escapeHtml(e.workType||'—')}</span></div>
-            <div><b>Trail Club</b><span>${escapeHtml(e.trailClub||'—')}</span></div>
+            <div><b>AT Club</b><span>${escapeHtml(e.trailClub||'—')}</span></div>
             <div><b>Land Manager</b><span>${escapeHtml(e.landManagers||'—')}</span></div>
             <div><b>Ownership</b><span>${escapeHtml(e.ownershipTypes||'—')}</span></div>
             <div><b>Shapefile</b><span>${e.shapefile ? "🗺️ " + escapeHtml(e.shapefile.name) : "—"}</span></div>
@@ -2845,7 +2845,7 @@
         <div class="map-popup-row"><b style="font-size:12.5px;">Project Type:</b> ${escapeHtml(e.projectType||"—")}</div>
         <div class="map-popup-row"><b style="font-size:12.5px;">Work Type:</b> ${escapeHtml(e.workType||"—")}</div>
         <div class="map-popup-row"><b style="font-size:12.5px;">ATC Region:</b> ${escapeHtml(e.atcRegion||"—")}</div>
-        <div class="map-popup-row"><b style="font-size:12.5px;">Trail Club:</b> ${escapeHtml(e.trailClub||"—")}</div>
+        <div class="map-popup-row"><b style="font-size:12.5px;">AT Club:</b> ${escapeHtml(e.trailClub||"—")}</div>
         <div class="map-popup-row"><b style="font-size:12.5px;">Land Manager:</b> ${escapeHtml(e.landManagers||"—")}</div>
         <div class="map-popup-row"><b style="font-size:12.5px;">Ownership:</b> ${escapeHtml(e.ownershipTypes||"—")}</div>
       `);
@@ -3103,13 +3103,13 @@
 
       sectionTitle("3. Project Location");
       table([
-        ["3.1 Project State(s)", val(entry.states)],
-        ["3.2 Project County(s)", withOther(entry.counties, entry.countiesOther)],
-        ["3.3 ATC Region", val(entry.atcRegion)],
-        ["3.4 Trail Club / Partner Org(s)", withOther(entry.trailClub, entry.trailClubOther)],
-        ["3.5 Land Manager(s)/Owner(s)", withOther(entry.landManagers, entry.landManagersOther)],
-        ["3.6 Ownership Type(s)", val(entry.ownershipTypes)],
-        ["3.7 APPA Tract Number(s)", val(entry.tractNumbers)],
+        ["3.1 Tract Number(s)", val(entry.tractNumbers)],
+        ["3.2 Land Manager(s)/Owner(s)", withOther(entry.landManagers, entry.landManagersOther)],
+        ["3.3 Ownership Type(s)", val(entry.ownershipTypes)],
+        ["3.4 State", val(entry.states)],
+        ["3.5 County", withOther(entry.counties, entry.countiesOther)],
+        ["3.6 ATC Region", val(entry.atcRegion)],
+        ["3.7 AT Club", withOther(entry.trailClub, entry.trailClubOther)],
         ["3.8 GPS Lat/Long", (entry.lat && entry.lng) ? `${entry.lat}, ${entry.lng}` : "—"]
       ]);
 
