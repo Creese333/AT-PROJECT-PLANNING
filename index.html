@@ -597,7 +597,12 @@
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">3.7</span>APPA Tract Number(s)</label>
-              <input type="text" id="f-tractNumbers">
+              <div class="row-id-btn">
+                <input type="text" id="f-tractNumbers" placeholder="e.g. 193-15, 193-02">
+                <button type="button" class="btn-mini" id="btn-tract-lookup">🔎 Look Up</button>
+              </div>
+              <div class="hint" id="tract-lookup-status"></div>
+              <div class="hint">Enter one or more tract numbers, separated by commas — matching tracts auto-fill State(s), County(s), ATC Region, Trail Club, Land Manager, Ownership, and Natural Environment (7.1) below. Looked up automatically when you leave this field, or tap Look Up.</div>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">3.8</span>GPS Lat/Long (center of site or start/end points)</label>
@@ -1122,6 +1127,16 @@
   If config.js is missing, the app simply runs in local-only preview mode.
 -->
 <script src="config.js"></script>
+<!--
+  tract-lookup.js sets window.TRACT_LOOKUP, keyed by APPA Tract Number, built
+  from the APPA tract spatial-join export (WebappTable.xlsx). Powers the
+  auto-fill in section 3.7 — entering a known tract number populates state,
+  county, ATC region, trail club, land manager, ownership, and natural
+  environment. Regenerate this file from a fresh export when the source
+  table updates; if it's missing, section 3.7 just behaves like a plain
+  text field with no auto-fill.
+-->
+<script src="tract-lookup.js"></script>
 <script>
 (function(){
 
@@ -1551,6 +1566,141 @@
   });
   renderCountyChips();
   renderClubChips();
+
+  /* ---------------- APPA Tract Number lookup (3.7) ----------------
+     window.TRACT_LOOKUP (from tract-lookup.js, built from the APPA tract
+     spatial-join export) maps a tract number to the raw values found for it:
+     state(s), county/counties, ATC region, trail club(s), land manager(s),
+     ownership type(s), and natural environment description(s). Since that
+     source data uses its own free-text conventions (e.g. "UNITED STATES
+     FOREST SERVICE - WHITE MOUNTAIN", "FEE"), this normalizes each raw value
+     to the app's actual pick-list options where there's a clean match, and
+     falls back to the matching "Other" text field (or just gets folded into
+     the free-text Land Manager detail) when there isn't — never silently
+     drops the source detail, even when it can't be categorized cleanly. */
+  const TRACT_LOOKUP = window.TRACT_LOOKUP || {};
+  const TRACT_INDEX = {};
+  Object.keys(TRACT_LOOKUP).forEach(k => { TRACT_INDEX[k.trim().toUpperCase()] = TRACT_LOOKUP[k]; });
+
+  const TRAIL_CLUB_ALIASES = {
+    "SMOKY MOUNTAIN HIKING CLUB": "Smoky Mountains Hiking Club",
+    "APPALACHIAN MOUNTAIN CLUB - CONNECTICUT CHAPTER": "AMC Connecticut Chapter",
+    "APPALACHIAN MOUNTAIN CLUB - DELAWARE VALLEY CHAPTER": "AMC Delaware Valley Chapter"
+  };
+  const OWNERSHIP_MAP = { "FEE":"Fee", "EASEMENT":"Easement", "RIGHT-OF-WAY":"Right of Way" };
+
+  function matchTrailClub(rawName){
+    const upper = rawName.trim().toUpperCase();
+    const exact = TRAIL_CLUBS.find(c => c.name.toUpperCase() === upper);
+    if(exact) return exact.name;
+    if(TRAIL_CLUB_ALIASES[upper]) return TRAIL_CLUB_ALIASES[upper];
+    return null; // no clean match — caller falls back to trailClubOther
+  }
+
+  function categorizeLandManager(rawName){
+    const n = rawName.toUpperCase();
+    if(n.includes("NATIONAL PARK SERVICE - APPA")) return "APPA (NPS)";
+    if(n.includes("NATIONAL PARK SERVICE")) return "Other NPS Unit";
+    if(n.includes("APPALACHIAN TRAIL CONSERVANCY")) return "ATC";
+    if(n.includes("FOREST SERVICE")) return "USFS";
+    if(n.startsWith("STATE OF")) return "State Agency";
+    if(n.includes("COUNTY") || n.startsWith("TOWN OF") || n.includes("BOROUGH") || n.startsWith("CITY OF") || n.includes(", CITY OF")) return "County/Local Government";
+    if(n.includes("PRIVATE")) return "Private Landowner";
+    return "Other";
+  }
+
+  function unionUnique(arrays){
+    const out = [];
+    arrays.forEach(arr => (arr||[]).forEach(v => { if(v && !out.includes(v)) out.push(v); }));
+    return out;
+  }
+
+  function lookupAndFillTracts(){
+    const raw = document.getElementById("f-tractNumbers").value;
+    const statusEl = document.getElementById("tract-lookup-status");
+    const requested = raw.split(/[,;\n]/).map(s=>s.trim()).filter(Boolean);
+    if(requested.length === 0){ statusEl.textContent = ""; return; }
+
+    if(Object.keys(TRACT_LOOKUP).length === 0){
+      statusEl.textContent = "Tract lookup data isn't loaded (tract-lookup.js missing) — fields not auto-filled.";
+      return;
+    }
+
+    const matched = [], unmatched = [];
+    requested.forEach(t=>{
+      const hit = TRACT_INDEX[t.toUpperCase()];
+      if(hit) matched.push(hit); else unmatched.push(t);
+    });
+
+    if(matched.length === 0){
+      statusEl.textContent = `No match found for: ${unmatched.join(", ")}. Fields left as-is.`;
+      return;
+    }
+
+    const states = unionUnique(matched.map(m=>m.states)).filter(s => STATES.includes(s));
+    const counties = unionUnique(matched.map(m=>m.counties));
+    const atcRegions = unionUnique(matched.map(m=>m.atcRegion));
+    const rawClubs = unionUnique(matched.map(m=>m.trailClubs));
+    const rawOwnership = unionUnique(matched.map(m=>m.ownership));
+    const rawLandManagers = unionUnique(matched.map(m=>m.landManagers));
+    const naturalEnv = unionUnique(matched.map(m=>m.naturalEnv));
+
+    // 3.1 States, then re-render 3.2/3.4 chips against the newly selected states
+    clearChecked("state");
+    setChecked("state", states.join("; "));
+    renderCountyChips();
+    renderClubChips();
+
+    // 3.2 Counties — match against the county list for the now-selected states;
+    // anything that doesn't match exactly goes to the Other field instead of vanishing.
+    const knownCounties = states.flatMap(s => COUNTIES_BY_STATE[s] || []);
+    const matchedCounties = counties.filter(c => knownCounties.includes(c));
+    const unmatchedCounties = counties.filter(c => !knownCounties.includes(c));
+    setSelectedCounties(matchedCounties.join("; "));
+    document.getElementById("f-countiesOther").value = unmatchedCounties.join("; ");
+
+    // 3.3 ATC Region (single-select — first match wins if tracts disagree)
+    if(atcRegions.length) document.getElementById("f-atcRegion").value = atcRegions[0];
+
+    // 3.4 Trail Club — exact/alias match against the app's club list; anything
+    // else goes to trailClubOther rather than being silently dropped.
+    const matchedClubs = [], unmatchedClubs = [];
+    rawClubs.forEach(c=>{
+      const m = matchTrailClub(c);
+      if(m) matchedClubs.push(m); else unmatchedClubs.push(c);
+    });
+    setSelectedClubs(matchedClubs.join("; "));
+    document.getElementById("f-trailClubOther").value = unmatchedClubs.join("; ");
+
+    // 3.5 Land Manager — categorize each raw name into the app's broad pick-list,
+    // but keep every specific raw name in the Other field too, since the source
+    // data is far more granular than the app's checkbox categories.
+    const categories = unionUnique([rawLandManagers.map(categorizeLandManager)]);
+    clearChecked("landManagers");
+    setChecked("landManagers", categories.join("; "));
+    document.getElementById("f-landManagersOther").value = rawLandManagers.join("; ");
+    syncOtherVisibility("f-landManagers", "f-landManagersOther");
+
+    // 3.6 Ownership Type — FEE/EASEMENT/RIGHT-OF-WAY map directly; anything else
+    // (e.g. AGREEMENT, PRIVATE — not represented in this pick-list) becomes Unknown.
+    const ownershipMapped = unionUnique([rawOwnership.map(o => OWNERSHIP_MAP[o.toUpperCase()] || "Unknown")]);
+    clearChecked("ownershipTypes");
+    setChecked("ownershipTypes", ownershipMapped.join("; "));
+
+    // 7.1 Natural Environment — free text, so just join what the source has.
+    if(naturalEnv.length) document.getElementById("f-naturalEnv").value = naturalEnv.join("; ");
+
+    refreshFilledState();
+
+    const parts = [`Filled fields from ${matched.length}/${requested.length} tract(s).`];
+    if(unmatched.length) parts.push(`No match: ${unmatched.join(", ")}.`);
+    if(unmatchedCounties.length) parts.push(`County "${unmatchedCounties.join(", ")}" not in the standard list — added to County Other.`);
+    if(unmatchedClubs.length) parts.push(`Club "${unmatchedClubs.join(", ")}" not an exact match — added to Trail Club Other.`);
+    statusEl.textContent = parts.join(" ");
+  }
+
+  document.getElementById("f-tractNumbers").addEventListener("blur", lookupAndFillTracts);
+  document.getElementById("btn-tract-lookup").addEventListener("click", lookupAndFillTracts);
 
   function buildPriorityCards(container, options, name){
     container.innerHTML = "";
@@ -2251,6 +2401,9 @@
       const box = document.querySelector(`input[name="${name}"][value="${CSS.escape(v)}"]`);
       if(box) box.checked = true;
     });
+  }
+  function clearChecked(name){
+    document.querySelectorAll(`input[name="${name}"]`).forEach(box => { box.checked = false; });
   }
 
   function loadIntoForm(e){
