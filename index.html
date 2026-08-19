@@ -570,7 +570,7 @@
                 <button type="button" class="btn-mini" id="btn-tract-lookup">🔎 Look Up</button>
               </div>
               <div class="hint" id="tract-lookup-status"></div>
-              <div class="hint">Enter one or more tract numbers, separated by commas, and matching tracts auto-fill the following records: Land Manager, Ownership, State(s), County(s), ATC Region, AT Club, and Natural Environment (7.1) below. Tap Lookup to match records.</div>
+              <div class="hint">Enter one or more tract numbers, separated by commas — matching tracts auto-fill Land Manager, Ownership, State(s), County(s), ATC Region, AT Club, and Natural Environment (7.1) below. Looked up automatically when you leave this field, or tap Look Up.</div>
             </div>
             <div class="row2">
               <div class="field">
@@ -596,7 +596,7 @@
             <div class="row2">
               <div class="field">
                 <label class="flabel"><span class="qnum">3.6</span>ATC Region</label>
-                <select id="f-atcRegion"></select>
+                <div class="chip-grid" id="f-atcRegion"></div>
               </div>
               <div class="field">
                 <label class="flabel"><span class="qnum">3.7</span>AT Club</label>
@@ -1456,20 +1456,26 @@
   });
 
   /* ---------------- Populate static controls ---------------- */
-  function fillSelect(el, opts, placeholder){
-    el.innerHTML = "";
-    if(placeholder){
-      const o = document.createElement("option");
-      o.value = ""; o.textContent = placeholder;
-      el.appendChild(o);
-    }
-    opts.forEach(v=>{
-      const o = document.createElement("option");
-      o.value = v; o.textContent = v;
-      el.appendChild(o);
+  // Single-select pill group (radio inputs sharing one name) — same visual
+  // chip as the multi-select fields, just one choice at a time.
+  function buildRadioChips(container, options, name){
+    container.innerHTML = "";
+    options.forEach((opt,i)=>{
+      const id = name+"-"+i;
+      const wrap = document.createElement("label");
+      wrap.className = "chip";
+      wrap.innerHTML = `<input type="radio" id="${id}" value="${opt}" name="${name}"><span>${opt}</span>`;
+      container.appendChild(wrap);
     });
   }
-  fillSelect(document.getElementById("f-atcRegion"), ATC_REGIONS, "Select...");
+  function getRadioValue(name){
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : "";
+  }
+  function setRadioValue(name, value){
+    document.querySelectorAll(`input[name="${name}"]`).forEach(b=>{ b.checked = (b.value === value); });
+  }
+  buildRadioChips(document.getElementById("f-atcRegion"), ATC_REGIONS, "atcRegion");
 
   function buildChips(container, options, name){
     container.innerHTML = "";
@@ -1662,7 +1668,7 @@
     document.getElementById("f-countiesOther").value = unmatchedCounties.join("; ");
 
     // 3.3 ATC Region (single-select — first match wins if tracts disagree)
-    if(atcRegions.length) document.getElementById("f-atcRegion").value = atcRegions[0];
+    if(atcRegions.length) setRadioValue("atcRegion", atcRegions[0]);
 
     // 3.7 AT Club — exact/alias match against the app's club list; anything
     // else goes to trailClubOther rather than being silently dropped.
@@ -2246,7 +2252,7 @@
       startDate: getVal("f-startDate"), completionDate: getVal("f-completionDate"),
       phased: toggleState.phased, phases: getTrimmed("f-phases"),
       states: getChecked("state").join("; "), counties: getChecked("county").join("; "), countiesOther: getTrimmed("f-countiesOther"),
-      atcRegion: getVal("f-atcRegion"), trailClub: getChecked("trailClub").join("; "), trailClubOther: getTrimmed("f-trailClubOther"),
+      atcRegion: getRadioValue("atcRegion"), trailClub: getChecked("trailClub").join("; "), trailClubOther: getTrimmed("f-trailClubOther"),
       landManagers: getChecked("landManagers").join("; "), landManagersOther: getTrimmed("f-landManagersOther"),
       ownershipTypes: getChecked("ownershipTypes").join("; "),
       tractNumbers: getTrimmed("f-tractNumbers"), lat: getVal("f-lat"), lng: getVal("f-lng"),
@@ -2451,7 +2457,7 @@
     setChecked("state", e.states);
     setSelectedCounties(e.counties);
     document.getElementById("f-countiesOther").value = e.countiesOther || "";
-    document.getElementById("f-atcRegion").value = e.atcRegion || "";
+    setRadioValue("atcRegion", e.atcRegion || "");
     setSelectedClubs(e.trailClub);
     document.getElementById("f-trailClubOther").value = e.trailClubOther || "";
     setChecked("landManagers", e.landManagers);
@@ -3338,7 +3344,7 @@
     if(profile.leadPhone) document.getElementById("f-leadPhone").value = profile.leadPhone;
     if(profile.leadEmail) document.getElementById("f-leadEmail").value = profile.leadEmail;
     if(profile.trailClub) setSelectedClubs(profile.trailClub);
-    if(profile.atcRegion) document.getElementById("f-atcRegion").value = profile.atcRegion;
+    if(profile.atcRegion) setRadioValue("atcRegion", profile.atcRegion);
     if(profile.landManagers) setChecked("landManagers", profile.landManagers);
     hint.style.display = "flex";
     refreshFilledState();
