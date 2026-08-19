@@ -777,6 +777,7 @@
               <div class="chip-grid" id="f-naturalEnvTypes"></div>
               <input type="text" id="f-naturalEnvTypesOther" placeholder="If Other, describe" class="conditional-field">
               <textarea id="f-naturalEnv" placeholder="Describe vegetation type" style="margin-top:9px;"></textarea>
+              <div class="hint">When auto-filled via the Tract Number lookup (3.1), this description derives from the NPS Vegetation Map, 2017.</div>
             </div>
             <div class="field">
               <label class="flabel"><span class="qnum">7.2</span>Vegetation trimming, cutting, or clearing</label>
@@ -2097,8 +2098,8 @@
     return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), ms); };
   }
 
-  // Start with Section 1 expanded, the rest collapsed.
-  openSection("1", false);
+  // Start with every section collapsed — nothing forced open by default.
+  collapseAll();
   refreshFilledState();
 
   /* ---------------- Next Record ID ---------------- */
@@ -2160,7 +2161,7 @@
     document.getElementById("edit-indicator").style.display = "none";
     document.getElementById("btn-save").textContent = "Save Proposal";
     if(clearId!==false) document.getElementById("f-recordId").value = suggestNextId();
-    if(typeof openSection === "function") openSection("1", false);
+    if(typeof collapseAll === "function") collapseAll();
     if(typeof refreshFilledState === "function") refreshFilledState();
   }
 
@@ -2540,7 +2541,7 @@
     editingId = e.recordId;
     document.getElementById("edit-indicator").style.display = "block";
     document.getElementById("btn-save").textContent = "Update Proposal";
-    if(typeof openSection === "function") openSection("1", false);
+    if(typeof collapseAll === "function") collapseAll();
     if(typeof refreshFilledState === "function") refreshFilledState();
   }
 
